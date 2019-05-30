@@ -13,7 +13,7 @@ typedef struct SSR_MASK_MSG_HEADER
 	GPPUINT1		no_of_gnss;
 }SSR_MASK_MSG_HEADER,*pSSR_MASK_MSG_HEADER;
 
-typedef struct SSR_MASK_SPECIFIC_PART
+typedef struct SSR_MASK_SPEC_PART
 {
 	GPPUINT1		gnss_id_1;
 	GPPUINT8		compact_ssr_satellite_mask_1;
@@ -26,15 +26,14 @@ typedef struct SSR_MASK_SPECIFIC_PART
 	GPPUINT1		cell_mask_availability_flag;
 	GPPUINT			compact_ssr_cell_mas_nsys;
 
-}SSR_MASK_SPECIFIC_PART,*pSSR_MASK_SPECIFIC_PART;
+}SSR_MASK_SPEC_PART,*pSSR_MASK_SPEC_PART;
 
 typedef struct SSR_MASK
 {
 	pSSR_MASK_MSG_HEADER*		header;
-	pSSR_MASK_SPECIFIC_PART*	spec_part;
+	pSSR_MASK_SPEC_PART*	spec_part;
 
 }SSR_MASK, *pSSR_MASK;
-
 
 //COMPACT SSR GNSS ORBIT CORRECTION
 
@@ -48,7 +47,7 @@ typedef struct SSR_GNSS_ORB_MSG_HEADER
 	GPPUINT1		iod_ssr;
 }SSR_GNSS_ORB_MSG_HEADER,*pSSR_GNSS_ORB_MSG_HEADER;
 
-typedef struct SSR_GNSS_ORB_SPECIFIC_PART
+typedef struct SSR_GNSS_ORB_SPEC_PART
 {
 	GPPUINT2	gnss_iode;
 	GPPDOUBLE	compact_ssr_delta_radian;
@@ -58,12 +57,12 @@ typedef struct SSR_GNSS_ORB_SPECIFIC_PART
 	GPPDOUBLE	compact_ssr_delta_radial_sv_nsat;
 	GGuDOUBLE	compact_ssr_delta_alongtrack_sv_nsat;
 	GPPDOUBLE	compact_ssr_delta_crosstrack_sv_nsat;
-}SSR_GNSS_ORB_SPECIFIC_PART,*pSSR_GNSS_ORB_SPECIFIC_PART;
+}SSR_GNSS_ORB_SPEC_PART,*pSSR_GNSS_ORB_SPEC_PART;
 
 typedef struct SSR_GNSS_ORB
 {
 	pSSR_GNSS_ORB_MSG_HEADER*		header;
-	pSSR_GNSS_ORB_SPECIFIC_PART*	spec_part;
+	pSSR_GNSS_ORB_SPEC_PART*	spec_part;
 }SSR_GNSS_ORB,*pSSR_GNSS_ORB;
 
 
@@ -79,16 +78,16 @@ typedef struct SSR_GNSS_CLK_HEADER
 	GPPUINT1		iod_ssr;
 }SSR_GNSS_CLK_HEADER,*pSSR_GNSS_CLK_HEADER;
 
-typedef struct SSR_GNSS_CLK_SPECIFIC_PART
+typedef struct SSR_GNSS_CLK_SPEC_PART
 {
 	GPPDOUBLE		compact_ssr_delta_clock_c0;
 	GPPDOUBLE		compact_ssr_delta_clock_c0_nsat;
-}SSR_GNSS_CLK_SPECIFIC_PART,*pSSR_GNSS_CLK_SPECIFIC_PART;
+}SSR_GNSS_CLK_SPEC_PART,*pSSR_GNSS_CLK_SPEC_PART;
 
 typedef struct SSR_GNSS_CLK
 {
 	pSSR_GNSS_CLK_HEADER*			header;
-	pSSR_GNSS_CLK_SPECIFIC_PART*	spec_part;
+	pSSR_GNSS_CLK_SPEC_PART*	spec_part;
 }SSR_GNSS_CLK, *pSSR_GNSS_CLK;
 
 
@@ -104,19 +103,19 @@ typedef struct SSR_GNSS_SAT_CODE_BIAS_HEADER
 	GPPUINT1		iod_ssr;
 }SSR_GNSS_SAT_CODE_BIAS_HEADER, *pSSR_GNSS_SAT_CODE_BIAS_HEADER;
 
-typedef struct SSR_GNSS_SAT_CODE_BIAS_SPECIFIC_PART
+typedef struct SSR_GNSS_SAT_CODE_BIAS_SPEC_PART
 {
 	GPPDOUBLE		compact_ssr_code_bias_1;
 	GPPDOUBLE		compact_ssr_coded_bias_ncode;
 	GPPDOUBLE		compact_ssr_code_bias_1_nsat;
 	GPPDOUBLE		compact_ssr_code_bias_ncode_nsat;
 
-}SSR_GNSS_SAT_CODE_BIAS_SPECIFIC_PART,*pSSR_GNSS_SAT_CODE_BIAS_SPECIFIC_PART;
+}SSR_GNSS_SAT_CODE_BIAS_SPEC_PART,*pSSR_GNSS_SAT_CODE_BIAS_SPEC_PART;
 
 typedef struct SSR_GNSS_SAT_CODE_BIAS
 {
 	pSSR_GNSS_SAT_CODE_BIAS_HEADER*			header;
-	pSSR_GNSS_SAT_CODE_BIAS_SPECIFIC_PART*	spec_part;
+	pSSR_GNSS_SAT_CODE_BIAS_SPEC_PART*	spec_part;
 }SSR_GNSS_SAT_CODE_BIAS, *pSSR_GNSS_SAT_CODE_BIAS;
 
 
@@ -133,7 +132,7 @@ typedef struct SSR_GNSS_SAT_PHASE_BIAS_HEADER
 	GPPUINT1		iod_ssr;
 }SSR_GNSS_SAT_PHASE_BIAS_HEADER, *pSSR_GNSS_SAT_PHASE_BIAS_HEADER;
 
-typedef struct SSR_GNSS_SAT_PHASE_BIAS_SPECIFIC_PART
+typedef struct SSR_GNSS_SAT_PHASE_BIAS_SPEC_PART
 {
 	GPPDOUBLE		compact_ssr_phase_bias_1;
 	GPPUINT1		compact_ssr_phase_discontinuity_indicator_1;
@@ -144,12 +143,12 @@ typedef struct SSR_GNSS_SAT_PHASE_BIAS_SPECIFIC_PART
 	GPPDOUBLE		compact_ssr_phase_bias_nphase_nsat;
 	GPPUINT1		compact_ssr_phase_discontinioty_indiactator_nphase_nsat;
 
-}SSR_GNSS_SAT_PHASE_BIAS_SPECIFIC_PART,*pSSR_GNSS_SAT_PHASE_BIAS_SPECIFIC_PART;
+}SSR_GNSS_SAT_PHASE_BIAS_SPEC_PART,*pSSR_GNSS_SAT_PHASE_BIAS_SPEC_PART;
 
 typedef struct SSR_GNSS_SAT_PHASE_BIAS
 {
 	pSSR_GNSS_SAT_PHASE_BIAS_HEADER*			header;
-	pSSR_GNSS_SAT_PHASE_BIAS_SPECIFIC_PART*		spec_part;
+	pSSR_GNSS_SAT_PHASE_BIAS_SPEC_PART*		spec_part;
 
 }SSR_GNSS_SAT_PHASE_BIAS, *pSSR_GNSS_SAT_PHASE_BIAS;
 
@@ -171,7 +170,7 @@ typedef struct SSR_GNSS_SAT_CODE_PHASE_BIAS_HEADER
 	GPPUINT			network_sv_mask;
 }SSR_GNSS_SAT_CODE_PHASE_BIAS_HEADER,*pSSR_GNSS_SAT_CODE_PHASE_BIAS_HEADER;
 
-typedef struct SSR_GNSS_SAT_CODE_PHASE_BIAS_SPECIFIC_PART
+typedef struct SSR_GNSS_SAT_CODE_PHASE_BIAS_SPEC_PART
 {
 	GPPDOUBLE		compact_ssr_code_bias_1;
 	GPPDOUBLE		compact_ssr_phase_bias_1;
@@ -187,12 +186,12 @@ typedef struct SSR_GNSS_SAT_CODE_PHASE_BIAS_SPECIFIC_PART
 	GPPUINT1		compact_ssr_phase_discontinuity_indicator_nphase_nsat;
 	
 
-}SSR_GNSS_SAT_CODE_PHASE_BIAS_SPECIFIC_PART,*pSSR_GNSS_SAT_CODE_PHASE_BIAS_SPECIFIC_PART;
+}SSR_GNSS_SAT_CODE_PHASE_BIAS_SPEC_PART,*pSSR_GNSS_SAT_CODE_PHASE_BIAS_SPEC_PART;
 
 typedef struct SSR_GNSS_SAT_CODE_PHASE_BIAS
 {
 	pSSR_GNSS_SAT_CODE_PHASE_BIAS_HEADER*			header;
-	pSSR_GNSS_SAT_CODE_PHASE_BIAS_SPECIFIC_PART*	spec_part;
+	pSSR_GNSS_SAT_CODE_PHASE_BIAS_SPEC_PART*	spec_part;
 }SSR_GNSS_SAT_CODE_PHASE_BIAS, *pSSR_GNSS_SAT_CODE_PHASE_BIAS;
 
 
@@ -211,96 +210,19 @@ typedef struct SSR_GNSS_URA_HEADER
 	GPPUINT1		iod_ssr;
 }SSR_GNSS_URA_HEADER, *pSSR_GNSS_URA_HEADER;
 
-typedef struct SSR_GNSS_URA_SPECIFIC_PART
+typedef struct SSR_GNSS_URA_SPEC_PART
 {
 	GPPUINT1		ssr_ura;
 	GPPUINT1		ssr_ura_nsat;
 
-}SSR_GNSS_URA_SPECIFIC_PART, *pSSR_GNSS_URA_SPECIFIC_PART;
+}SSR_GNSS_URA_SPEC_PART, *pSSR_GNSS_URA_SPEC_PART;
 
 
 typedef struct SSR_GNSS_URA
 {
 	pSSR_GNSS_URA_HEADER*			header;
-	pSSR_GNSS_URA_SPECIFIC_PART*	spec_part;
+	pSSR_GNSS_URA_SPEC_PART*	spec_part;
 }SSR_GNSS_URA,*pSSR_GNSS_URA;
-
-
-
-//COMPACT SSR STEC CORRECTION
-
-typedef struct STEC_RESIDUAL_CORRECTION_RANGE_0
-{
-	GPPDOUBLE		stec_residual_correction;
-
-}STEC_RESIDUAL_CORRECTION_RANGE_0,*pSTEC_RESIDUAL_CORRECTION_RANGE_0;
-
-
-typedef struct STEC_RESIDUAL_CORRECTION_RANGE_1
-{
-	GPPDOUBLE		stec_residual_correction;
-
-}STEC_RESIDUAL_CORRECTION_RANGE_1, *pSTEC_RESIDUAL_CORRECTION_RANGE_1;
-
-
-typedef struct SSR_STEC_HEADER
-{
-	GPPUINT2		msg_number;
-	GPPUINT1		msg_sub_type_id;
-	GPPUINT4		gns_hourly_epoch_time;
-	GPPUINT1		ssr_update_interval;
-	GPPUINT1		multiple_msg_indicator;
-	GPPUINT1		iod_ssr;
-	GPPUINT1		compact_ssr_stec_correction_type;
-	GPPUINT1		compact_network_id;
-	GPPUINT			network_sv_mask;
-}SSR_STEC_HEADER,*pSSR_STEC_HEADER;
-
-typedef struct SSR_STEC_SPECIFIC_PART_0
-{
-	GPPUINT1		ssr_stec_qlty_indicator;
-	GPPDOUBLE		poly_coeff_c00;
-	GPPUINT1		ssr_stec_qlty_indicator_msat;
-	GPPDOUBLE		poly_coeff_c00_msat;
-}SSR_STEC_SPECIFIC_PART_0,*pSSR_STEC_SPECIFIC_PART_0;
-
-typedef struct SSR_STEC_SPECIFIC_PART_1
-{
-	GPPUINT1		ssr_stec_qlty_indicator;
-	GPPDOUBLE		poly_coeff_c00;
-	GPPDOUBLE		poly_coeff_c01;
-	GPPDOUBLE		poly_coeff_c10;
-	GPPUINT1		ssr_stec_qlty_indicator_msat;
-	GPPDOUBLE		poly_coeff_c00_msat;
-	GPPDOUBLE		poly_coeff_c01_msat;
-	GPPDOUBLE		poly_coeff_c10_msat;
-
-}SSR_STEC_SPECIFIC_PART_1, *pSSR_STEC_SPECIFIC_PART_1;
-
-typedef struct SSR_STEC_SPECIFIC_PART_2
-{
-	GPPUINT1		ssr_stec_qlty_indicator;
-	GPPDOUBLE		poly_coeff_c00;
-	GPPDOUBLE		poly_coeff_c01;
-	GPPDOUBLE		poly_coeff_c10;
-	GPPDOUBLE		poly_coeff_c11;
-	GPPUINT1		ssr_stec_qlty_indicator_msat;
-	GPPDOUBLE		poly_coeff_c00_msat;
-	GPPDOUBLE		poly_coeff_c01_msat;
-	GPPDOUBLE		poly_coeff_c10_msat;
-	GPPDOUBLE		poly_coeff_c11_msat;
-}SSR_STEC_SPECIFIC_PART_2, *pSSR_STEC_SPECIFIC_PART_2;
-
-
-typedef struct SSR_STEC
-{
-	pSSR_STEC_HEADER*					header;
-	pSSR_STEC_SPECIFIC_PART_0*			spec_part_0;
-	pSSR_STEC_SPECIFIC_PART_1*			spec_part_1;
-	pSSR_STEC_SPECIFIC_PART_2*			spec_part_2;
-	pSTEC_RESIDUAL_CORRECTION_RANGE_0*	range_0;
-	pSTEC_RESIDUAL_CORRECTION_RANGE_0*	range_1;
-}SSR_STEC,*pSSR_STEC;
 
 
 
@@ -323,7 +245,7 @@ typedef struct SSR_GRID_HEADER
 	GPPUINT1		no_of_grids
 }SSR_GRID_HEADER,*pSSR_GRID_HEADER;
 
-typedef struct SSD_GRID_SPECIFIC_PART
+typedef struct SSR_GRID_SPEC_PART
 {
 	GPPDOUBLE		troposphere_hydrostatic_vertical_delay_grid_1;
 	GPPDOUBLE		troposphere_wet_vertical_delay_grid_1;
@@ -332,13 +254,13 @@ typedef struct SSD_GRID_SPECIFIC_PART
 	GPPDOUBLE		troposphere_hydrostatic_vertical_delay_grid_n;
 	GPPDOUBLE		stec_residual_correction_grid_n;
 	GPPDOUBLE		stec_residual_correctioon_grid_n_sv_msat;
-}SSD_GRID_SPECIFIC_PART,*pSSD_GRID_SPECIFIC_PART;
+}SSR_GRID_SPEC_PART,*pSSR_GRID_SPEC_PART;
 
 
 typedef struct SSR_GRID
 {
 	pSSR_GRID_HEADER*			header;
-	pSSD_GRID_SPECIFIC_PART*	spec_part;
+	pSSR_GRID_SPEC_PART*	spec_part;
 
 }SSR_GRID,*pSSR_GRID;
 
@@ -355,16 +277,16 @@ typedef struct SSR_SERVICE_INFO_HEADER
 }SSR_SERVICE_INFO_HEADER,*pSSR_SERVICE_INFO_HEADER;
 
 
-typedef struct SSR_SERVICE_INFO_SPECIFIC_PART
+typedef struct SSR_SERVICE_INFO_SPEC_PART
 {
 	
-}SSR_SERVICE_INFO_SPECIFIC_PART,pSSR_SERVICE_INFO_SPECIFIC_PART;
+}SSR_SERVICE_INFO_SPEC_PART,pSSR_SERVICE_INFO_SPEC_PART;
 
 
 typedef struct SSR_SERVICE_INFO
 {
 	pSSR_SERVICE_INFO_HEADER*			header;
-	pSSR_SERVICE_INFO_SPECIFIC_PART*	spec_part;
+	pSSR_SERVICE_INFO_SPEC_PART*	spec_part;
 }SSR_SERVICE_INFO,*pSSR_SERVICE_INFO;
 
 
@@ -387,7 +309,7 @@ typedef struct SSR_GNSS_COMBINED_HEADER
 	GPPUINT			network_sv_mask;
 }SSR_GNSS_COMBINED_HEADER,*pSSR_GNSS_COMBINED_HEADER;
 
-typedef struct SSR_GNSS_COMBINED_SPECIFIC_PART
+typedef struct SSR_GNSS_COMBINED_SPEC_PART
 {
 	GPPUINT2		gnss_iode;
 	GPPDOUBLE		compact_ssr_delta_radian;
@@ -400,13 +322,91 @@ typedef struct SSR_GNSS_COMBINED_SPECIFIC_PART
 	GPPDOUBLE		compact_ssr_delta_crosstrack_msat;
 	GPPDOUBLE		compact_ssr_delta_clock_c0_msat;
 
-}SSR_GNSS_COMBINED_SPECIFIC_PART,*pSSR_GNSS_COMBINED_SPECIFIC_PART;
+}SSR_GNSS_COMBINED_SPEC_PART,*pSSR_GNSS_COMBINED_SPEC_PART;
 
 typedef struct SSR_GNSS_COMBINED
 {
 	pSSR_GNSS_COMBINED_HEADER*			header;
-	pSSR_GNSS_COMBINED_SPECIFIC_PART*	spec_part;
+	pSSR_GNSS_COMBINED_SPEC_PART*	spec_part;
 }SSR_GNSS_COMBINED,*pSSR_GNSS_COMBINED;
+
+
+
+
+//COMPACT SSR STEC CORRECTION
+
+typedef struct STEC_RESIDUAL_CORRECTION_RANGE_0
+{
+	GPPDOUBLE		stec_residual_correction;
+
+}STEC_RESIDUAL_CORRECTION_RANGE_0, * pSTEC_RESIDUAL_CORRECTION_RANGE_0;
+
+
+typedef struct STEC_RESIDUAL_CORRECTION_RANGE_1
+{
+	GPPDOUBLE		stec_residual_correction;
+
+}STEC_RESIDUAL_CORRECTION_RANGE_1, * pSTEC_RESIDUAL_CORRECTION_RANGE_1;
+
+
+typedef struct SSR_STEC_HEADER
+{
+	GPPUINT2		msg_number;
+	GPPUINT1		msg_sub_type_id;
+	GPPUINT4		gns_hourly_epoch_time;
+	GPPUINT1		ssr_update_interval;
+	GPPUINT1		multiple_msg_indicator;
+	GPPUINT1		iod_ssr;
+	GPPUINT1		compact_ssr_stec_correction_type;
+	GPPUINT1		compact_network_id;
+	GPPUINT			network_sv_mask;
+}SSR_STEC_HEADER, * pSSR_STEC_HEADER;
+
+typedef struct SSR_STEC_SPEC_PART_0
+{
+	GPPUINT1		ssr_stec_qlty_indicator;
+	GPPDOUBLE		poly_coeff_c00;
+	GPPUINT1		ssr_stec_qlty_indicator_msat;
+	GPPDOUBLE		poly_coeff_c00_msat;
+}SSR_STEC_SPEC_PART_0, * pSSR_STEC_SPEC_PART_0;
+
+typedef struct SSR_STEC_SPEC_PART_1
+{
+	GPPUINT1		ssr_stec_qlty_indicator;
+	GPPDOUBLE		poly_coeff_c00;
+	GPPDOUBLE		poly_coeff_c01;
+	GPPDOUBLE		poly_coeff_c10;
+	GPPUINT1		ssr_stec_qlty_indicator_msat;
+	GPPDOUBLE		poly_coeff_c00_msat;
+	GPPDOUBLE		poly_coeff_c01_msat;
+	GPPDOUBLE		poly_coeff_c10_msat;
+
+}SSR_STEC_SPEC_PART_1, * pSSR_STEC_SPEC_PART_1;
+
+typedef struct SSR_STEC_SPEC_PART_2
+{
+	GPPUINT1		ssr_stec_qlty_indicator;
+	GPPDOUBLE		poly_coeff_c00;
+	GPPDOUBLE		poly_coeff_c01;
+	GPPDOUBLE		poly_coeff_c10;
+	GPPDOUBLE		poly_coeff_c11;
+	GPPUINT1		ssr_stec_qlty_indicator_msat;
+	GPPDOUBLE		poly_coeff_c00_msat;
+	GPPDOUBLE		poly_coeff_c01_msat;
+	GPPDOUBLE		poly_coeff_c10_msat;
+	GPPDOUBLE		poly_coeff_c11_msat;
+}SSR_STEC_SPEC_PART_2, * pSSR_STEC_SPEC_PART_2;
+
+
+typedef struct SSR_STEC
+{
+	pSSR_STEC_HEADER* header;
+	pSSR_STEC_SPEC_PART_0* spec_part_0;
+	pSSR_STEC_SPEC_PART_1* spec_part_1;
+	pSSR_STEC_SPEC_PART_2* spec_part_2;
+	pSTEC_RESIDUAL_CORRECTION_RANGE_0* range_0;
+	pSTEC_RESIDUAL_CORRECTION_RANGE_0* range_1;
+}SSR_STEC, * pSSR_STEC;
 
 
 
@@ -426,7 +426,4 @@ typedef struct QZSS
 	pSSR_GNSS_COMBINED				combined;
 
 }QZSS, * pQZSS;
-
-
-
 
