@@ -1,4 +1,4 @@
-//.h file for qzss
+//structures for qzss
 
 //COMPACT SSR MASK
 
@@ -30,10 +30,11 @@ typedef struct SSR_MASK_SPEC_PART
 
 typedef struct SSR_MASK
 {
-	pSSR_MASK_MSG_HEADER*		header;
-	pSSR_MASK_SPEC_PART*	spec_part;
+	pSSR_MASK_MSG_HEADER		header;
+	pSSR_MASK_SPEC_PART			spec_part;
 
 }SSR_MASK, *pSSR_MASK;
+
 
 //COMPACT SSR GNSS ORBIT CORRECTION
 
@@ -61,8 +62,8 @@ typedef struct SSR_GNSS_ORB_SPEC_PART
 
 typedef struct SSR_GNSS_ORB
 {
-	pSSR_GNSS_ORB_MSG_HEADER*		header;
-	pSSR_GNSS_ORB_SPEC_PART*	spec_part;
+	pSSR_GNSS_ORB_MSG_HEADER		header;
+	pSSR_GNSS_ORB_SPEC_PART			spec_part;
 }SSR_GNSS_ORB,*pSSR_GNSS_ORB;
 
 
@@ -86,8 +87,8 @@ typedef struct SSR_GNSS_CLK_SPEC_PART
 
 typedef struct SSR_GNSS_CLK
 {
-	pSSR_GNSS_CLK_HEADER*			header;
-	pSSR_GNSS_CLK_SPEC_PART*	spec_part;
+	pSSR_GNSS_CLK_HEADER			header;
+	pSSR_GNSS_CLK_SPEC_PART			spec_part;
 }SSR_GNSS_CLK, *pSSR_GNSS_CLK;
 
 
@@ -114,10 +115,9 @@ typedef struct SSR_GNSS_SAT_CODE_BIAS_SPEC_PART
 
 typedef struct SSR_GNSS_SAT_CODE_BIAS
 {
-	pSSR_GNSS_SAT_CODE_BIAS_HEADER*			header;
-	pSSR_GNSS_SAT_CODE_BIAS_SPEC_PART*	spec_part;
+	pSSR_GNSS_SAT_CODE_BIAS_HEADER			header;
+	pSSR_GNSS_SAT_CODE_BIAS_SPEC_PART		spec_part;
 }SSR_GNSS_SAT_CODE_BIAS, *pSSR_GNSS_SAT_CODE_BIAS;
-
 
 
 //COMPACT SSR GNSS SATELLITE PHASE BIAS
@@ -147,8 +147,8 @@ typedef struct SSR_GNSS_SAT_PHASE_BIAS_SPEC_PART
 
 typedef struct SSR_GNSS_SAT_PHASE_BIAS
 {
-	pSSR_GNSS_SAT_PHASE_BIAS_HEADER*			header;
-	pSSR_GNSS_SAT_PHASE_BIAS_SPEC_PART*		spec_part;
+	pSSR_GNSS_SAT_PHASE_BIAS_HEADER			header;
+	pSSR_GNSS_SAT_PHASE_BIAS_SPEC_PART		spec_part;
 
 }SSR_GNSS_SAT_PHASE_BIAS, *pSSR_GNSS_SAT_PHASE_BIAS;
 
@@ -190,15 +190,12 @@ typedef struct SSR_GNSS_SAT_CODE_PHASE_BIAS_SPEC_PART
 
 typedef struct SSR_GNSS_SAT_CODE_PHASE_BIAS
 {
-	pSSR_GNSS_SAT_CODE_PHASE_BIAS_HEADER*			header;
-	pSSR_GNSS_SAT_CODE_PHASE_BIAS_SPEC_PART*	spec_part;
+	pSSR_GNSS_SAT_CODE_PHASE_BIAS_HEADER			header;
+	pSSR_GNSS_SAT_CODE_PHASE_BIAS_SPEC_PART			spec_part;
 }SSR_GNSS_SAT_CODE_PHASE_BIAS, *pSSR_GNSS_SAT_CODE_PHASE_BIAS;
 
 
-
-
 //COMPACT SSR GNSS URA
-
 
 typedef struct SSR_GNSS_URA_HEADER
 {
@@ -220,117 +217,9 @@ typedef struct SSR_GNSS_URA_SPEC_PART
 
 typedef struct SSR_GNSS_URA
 {
-	pSSR_GNSS_URA_HEADER*			header;
-	pSSR_GNSS_URA_SPEC_PART*	spec_part;
+	pSSR_GNSS_URA_HEADER			header;
+	pSSR_GNSS_URA_SPEC_PART			spec_part;
 }SSR_GNSS_URA,*pSSR_GNSS_URA;
-
-
-
-
-//COMPACT SSR GRIDDED CORRECTION
-
-typedef struct SSR_GRID_HEADER
-{
-	GPPUINT2		msg_number;
-	GPPUINT1		msg_sub_type_id;
-	GPPUINT4		gns_hourly_epoch_time;
-	GPPUINT1		ssr_update_interval;
-	GPPUINT1		multiple_msg_indicator;
-	GPPUINT1		iod_ssr;
-	GPPUINT1		tropospheric_delay_correction_type;
-	GPPUINT1		stec_residual_correction_range;
-	GPPUINT1		compact_network_id;
-	GPPUINT			network_sv_mask;
-	GPPUINT1		troposhperic_delay_qlty_indicator;
-	GPPUINT1		no_of_grids
-}SSR_GRID_HEADER,*pSSR_GRID_HEADER;
-
-typedef struct SSR_GRID_SPEC_PART
-{
-	GPPDOUBLE		troposphere_hydrostatic_vertical_delay_grid_1;
-	GPPDOUBLE		troposphere_wet_vertical_delay_grid_1;
-	GPPDOUBLE		stec_residual_correction_grid_1;
-	GPPDOUBLE		stec_residual_correction_grid_1_sv_msat;
-	GPPDOUBLE		troposphere_hydrostatic_vertical_delay_grid_n;
-	GPPDOUBLE		stec_residual_correction_grid_n;
-	GPPDOUBLE		stec_residual_correctioon_grid_n_sv_msat;
-}SSR_GRID_SPEC_PART,*pSSR_GRID_SPEC_PART;
-
-
-typedef struct SSR_GRID
-{
-	pSSR_GRID_HEADER*			header;
-	pSSR_GRID_SPEC_PART*	spec_part;
-
-}SSR_GRID,*pSSR_GRID;
-
-
-
-
-//COMPACT SSR SERVICE INFORMATION
-//To be discussed
-
-typedef struct SSR_SERVICE_INFO_HEADER
-{
-	
-
-}SSR_SERVICE_INFO_HEADER,*pSSR_SERVICE_INFO_HEADER;
-
-
-typedef struct SSR_SERVICE_INFO_SPEC_PART
-{
-	
-}SSR_SERVICE_INFO_SPEC_PART,pSSR_SERVICE_INFO_SPEC_PART;
-
-
-typedef struct SSR_SERVICE_INFO
-{
-	pSSR_SERVICE_INFO_HEADER*			header;
-	pSSR_SERVICE_INFO_SPEC_PART*	spec_part;
-}SSR_SERVICE_INFO,*pSSR_SERVICE_INFO;
-
-
-
-
-//COMPACT SSR GNSS COMBINED CORRECTION
-
-typedef struct SSR_GNSS_COMBINED_HEADER
-{
-	GPPUINT2		msg_number;
-	GPPUINT1		msg_sub_type_id;
-	GPPUINT4		gns_hourly_epoch_time;
-	GPPUINT1		ssr_update_interval;
-	GPPUINT1		multiple_msg_indicator;
-	GPPUINT1		iod_ssr;
-	GPPUINT1		orbit_existing_flag;
-	GPPUINT1		clock_ecisting_flag;
-	GPPUINT1		network_correction;
-	GPPUINT1		compact_network_id;
-	GPPUINT			network_sv_mask;
-}SSR_GNSS_COMBINED_HEADER,*pSSR_GNSS_COMBINED_HEADER;
-
-typedef struct SSR_GNSS_COMBINED_SPEC_PART
-{
-	GPPUINT2		gnss_iode;
-	GPPDOUBLE		compact_ssr_delta_radian;
-	GPPDOUBLE		compact_ssr_delta_alongtrack;
-	GPPDOUBLE		compact_ssr_delta_crosstrack;
-	GPPDOUBLE		compact_ssr_delta_clock_c0;
-	GPPUINT2		gnss_iode_msat;
-	GPPDOUBLE		compact_ssr_delta_radian_msat;
-	GPPDOUBLE		compact_ssr_delta_alongtrack_msat;
-	GPPDOUBLE		compact_ssr_delta_crosstrack_msat;
-	GPPDOUBLE		compact_ssr_delta_clock_c0_msat;
-
-}SSR_GNSS_COMBINED_SPEC_PART,*pSSR_GNSS_COMBINED_SPEC_PART;
-
-typedef struct SSR_GNSS_COMBINED
-{
-	pSSR_GNSS_COMBINED_HEADER*			header;
-	pSSR_GNSS_COMBINED_SPEC_PART*	spec_part;
-}SSR_GNSS_COMBINED,*pSSR_GNSS_COMBINED;
-
-
 
 
 //COMPACT SSR STEC CORRECTION
@@ -400,13 +289,115 @@ typedef struct SSR_STEC_SPEC_PART_2
 
 typedef struct SSR_STEC
 {
-	pSSR_STEC_HEADER* header;
-	pSSR_STEC_SPEC_PART_0* spec_part_0;
-	pSSR_STEC_SPEC_PART_1* spec_part_1;
-	pSSR_STEC_SPEC_PART_2* spec_part_2;
-	pSTEC_RESIDUAL_CORRECTION_RANGE_0* range_0;
-	pSTEC_RESIDUAL_CORRECTION_RANGE_0* range_1;
+	pSSR_STEC_HEADER					 header;
+	pSSR_STEC_SPEC_PART_0				 spec_part_0;
+	pSSR_STEC_SPEC_PART_1				 spec_part_1;
+	pSSR_STEC_SPEC_PART_2				 spec_part_2;
+	pSTEC_RESIDUAL_CORRECTION_RANGE_0	 range_0;
+	pSTEC_RESIDUAL_CORRECTION_RANGE_0	 range_1;
 }SSR_STEC, * pSSR_STEC;
+
+
+//COMPACT SSR GRIDDED CORRECTION
+
+typedef struct SSR_GRID_HEADER
+{
+	GPPUINT2		msg_number;
+	GPPUINT1		msg_sub_type_id;
+	GPPUINT4		gns_hourly_epoch_time;
+	GPPUINT1		ssr_update_interval;
+	GPPUINT1		multiple_msg_indicator;
+	GPPUINT1		iod_ssr;
+	GPPUINT1		tropospheric_delay_correction_type;
+	GPPUINT1		stec_residual_correction_range;
+	GPPUINT1		compact_network_id;
+	GPPUINT			network_sv_mask;
+	GPPUINT1		troposhperic_delay_qlty_indicator;
+	GPPUINT1		no_of_grids
+}SSR_GRID_HEADER,*pSSR_GRID_HEADER;
+
+typedef struct SSR_GRID_SPEC_PART
+{
+	GPPDOUBLE		troposphere_hydrostatic_vertical_delay_grid_1;
+	GPPDOUBLE		troposphere_wet_vertical_delay_grid_1;
+	GPPDOUBLE		stec_residual_correction_grid_1;
+	GPPDOUBLE		stec_residual_correction_grid_1_sv_msat;
+	GPPDOUBLE		troposphere_hydrostatic_vertical_delay_grid_n;
+	GPPDOUBLE		stec_residual_correction_grid_n;
+	GPPDOUBLE		stec_residual_correctioon_grid_n_sv_msat;
+}SSR_GRID_SPEC_PART,*pSSR_GRID_SPEC_PART;
+
+
+typedef struct SSR_GRID
+{
+	pSSR_GRID_HEADER			header;
+	pSSR_GRID_SPEC_PART			spec_part;
+
+}SSR_GRID,*pSSR_GRID;
+
+
+
+//COMPACT SSR SERVICE INFORMATION
+//To be discussed
+
+typedef struct SSR_SERVICE_INFO_HEADER
+{
+	
+
+}SSR_SERVICE_INFO_HEADER,*pSSR_SERVICE_INFO_HEADER;
+
+
+typedef struct SSR_SERVICE_INFO_SPEC_PART
+{
+	
+}SSR_SERVICE_INFO_SPEC_PART,pSSR_SERVICE_INFO_SPEC_PART;
+
+
+typedef struct SSR_SERVICE_INFO
+{
+	pSSR_SERVICE_INFO_HEADER			header;
+	pSSR_SERVICE_INFO_SPEC_PART			spec_part;
+}SSR_SERVICE_INFO,*pSSR_SERVICE_INFO;
+
+
+
+//COMPACT SSR GNSS COMBINED CORRECTION
+
+typedef struct SSR_GNSS_COMBINED_HEADER
+{
+	GPPUINT2		msg_number;
+	GPPUINT1		msg_sub_type_id;
+	GPPUINT4		gns_hourly_epoch_time;
+	GPPUINT1		ssr_update_interval;
+	GPPUINT1		multiple_msg_indicator;
+	GPPUINT1		iod_ssr;
+	GPPUINT1		orbit_existing_flag;
+	GPPUINT1		clock_ecisting_flag;
+	GPPUINT1		network_correction;
+	GPPUINT1		compact_network_id;
+	GPPUINT			network_sv_mask;
+}SSR_GNSS_COMBINED_HEADER,*pSSR_GNSS_COMBINED_HEADER;
+
+typedef struct SSR_GNSS_COMBINED_SPEC_PART
+{
+	GPPUINT2		gnss_iode;
+	GPPDOUBLE		compact_ssr_delta_radian;
+	GPPDOUBLE		compact_ssr_delta_alongtrack;
+	GPPDOUBLE		compact_ssr_delta_crosstrack;
+	GPPDOUBLE		compact_ssr_delta_clock_c0;
+	GPPUINT2		gnss_iode_msat;
+	GPPDOUBLE		compact_ssr_delta_radian_msat;
+	GPPDOUBLE		compact_ssr_delta_alongtrack_msat;
+	GPPDOUBLE		compact_ssr_delta_crosstrack_msat;
+	GPPDOUBLE		compact_ssr_delta_clock_c0_msat;
+
+}SSR_GNSS_COMBINED_SPEC_PART,*pSSR_GNSS_COMBINED_SPEC_PART;
+
+typedef struct SSR_GNSS_COMBINED
+{
+	pSSR_GNSS_COMBINED_HEADER			header;
+	pSSR_GNSS_COMBINED_SPEC_PART		spec_part;
+}SSR_GNSS_COMBINED,*pSSR_GNSS_COMBINED;
 
 
 
@@ -425,5 +416,5 @@ typedef struct QZSS
 	pSSR_SERVICE_INFO				service_info;
 	pSSR_GNSS_COMBINED				combined;
 
-}QZSS, * pQZSS;
+}QZSS, * q;
 
