@@ -35,13 +35,13 @@ void gpp_sapa_get_svlist(GPPUINT8 prn_bits, GPPUINT1 *svlist)
 void gpp_sapa_get_siglist(GPPUINT4 sig_bits, GPPUINT1 *siglist)
 {
 	GPPUINT1 sig=0, num=0;
-
+	GPPUINT4 bit = 1;
 	if (!siglist) return;
 
 	memset(siglist, 0, 34*sizeof(GPPUINT1));
 
 	for (sig=0; sig<GPP_SAPA_MAX_SIG; sig++) {
-		if (sig_bits&(1<<sig)) {
+		if (sig_bits&(bit <<sig)) {
 			siglist[num+1] = sig;
 			num++;
 		}
@@ -85,17 +85,17 @@ void gpp_sapa_get_ocb_flag_value(GPPUINT1 ocb_present_flag, GPPUINT1 *o_flag, GP
 
 GPPLONG gpp_sapa_ocb_malloc_sv(pGPP_SAPA_OCB ocb)
 {
-	GPPUINT1 sys;
-
 	if (!ocb) return GPP_SAPA_ERR_INVALID_OCB;
 
-	if (!ocb->sv) {
-
-		ocb->sv = (pGPP_SAPA_OCB_SV**)calloc(GPP_SAPA_MAX_CONS, sizeof(GPP_SAPA_OCB**));
+	if (!ocb->sv)
+	{
+		GPPUINT1 sys;
+		ocb->sv = (pGPP_SAPA_OCB_SV**)calloc(GPP_SAPA_MAX_CONS, sizeof(GPP_SAPA_OCB_SV**));
 
 		if (!ocb->sv) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 
-		for (sys = 0; sys < GPP_SAPA_MAX_CONS; sys++) {
+		for (sys = 0; sys < GPP_SAPA_MAX_CONS; sys++)
+		{
 			ocb->sv[sys] = (GPP_SAPA_OCB_SV**)calloc(GPP_SAPA_MAX_SAT, sizeof(GPP_SAPA_OCB_SV));
 
 			if (!(ocb->sv[sys])) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
@@ -114,29 +114,70 @@ GPPLONG gpp_sapa_ocb_malloc_sv(pGPP_SAPA_OCB ocb)
 
 GPPLONG gpp_sapa_ocb_free_ocb(pGPP_SAPA_OCB ocb)
 {
-	GPPUINT1 sys, sat;
-
-	if (!ocb) return 0;
-	if (!ocb->sv) return 0;
-
-	for (sys = 0; sys < GPP_SAPA_MAX_CONS; sys++) {
-		for (sat = 0; sat < GPP_SAPA_MAX_SAT; sat++) {
-			if (ocb->sv[sys][sat]) {
-				//free orbit, clock, and bias structures
-				//set all values to zero
-				memset(ocb->sv[sys][sat], 0, sizeof(GPP_SAPA_OCB_SV));
-				free(ocb->sv[sys][sat]);
-				ocb->sv[sys][sat] = NULL;
-			}
+	if (ocb) {
+		if (ocb->header_block)
+		{
+			free(ocb->header_block);
+			ocb->header_block = NULL;
 		}
-		free(ocb->sv[sys]);
-		ocb->sv[sys] = NULL;
+		if (ocb->sv)
+		{
+			GPPUINT1 sys;
+			for (sys = 0; sys < GPP_SAPA_MAX_SYS;sys++)
+			{
+				GPPUINT1 sat;
+				for (sat = 0; sat < GPP_SAPA_MAX_SAT; sat++)
+				{
+					if (ocb->sv[sys][sat])
+					{
+						if (ocb->sv[sys][sat]->orb)
+						{
+							free(ocb->sv[sys][sat]->orb);
+						}
+						if (ocb->sv[sys][sat]->clk)
+						{
+							free(ocb->sv[sys][sat]->clk);
+						}
+						if (ocb->sv[sys][sat]->bias)
+						{
+							GPPUINT1 sig;
+							if (ocb->sv[sys][sat]->bias->pb)
+							{
+								for (sig = 0; sig < GPP_SAPA_MAX_SIG; sig++)
+								{
+									if (ocb->sv[sys][sat]->bias->pb[sig])
+									{
+										free(ocb->sv[sys][sat]->bias->pb[sig]);
+									}
+								}
+								free(ocb->sv[sys][sat]->bias->pb);
+							}
+							if (ocb->sv[sys][sat]->bias->cb)
+							{
+								for (sig = 0; sig < GPP_SAPA_MAX_SIG; sig++)
+								{
+									if (ocb->sv[sys][sat]->bias->cb[sig])
+									{
+										free(ocb->sv[sys][sat]->bias->cb[sig]);
+									}
+								}
+								free(ocb->sv[sys][sat]->bias->cb);
+							}
+							free(ocb->sv[sys][sat]->bias);
+						}
+						free(ocb->sv[sys][sat]);
+					}
+				}
+				if (ocb->sv[sys])
+				{
+					free(ocb->sv[sys]);
+				}
+			}
+			free(ocb->sv);
+			ocb->sv = NULL;
+		}
 	}
-
-	free(ocb->sv);
-
-	ocb->sv = NULL;
-
+	
 	return 0;
 
 }//gpp_sapa_ocb_free_ocb()
@@ -144,14 +185,10 @@ GPPLONG gpp_sapa_ocb_free_ocb(pGPP_SAPA_OCB ocb)
 
 GPPLONG gpp_sapa_ocb_add_sv(pGPP_SAPA_OCB ocb, GPPUINT1 sys, GPPUINT1 sat, const pGPP_SAPA_OCB_SV pset)
 {
-	GPPLONG rc;							//control variable
-	pGPP_SAPA_OCB_SV sv = NULL;			// Pointer to OCB_SV
+	pGPP_SAPA_OCB_SV sv = NULL;   // Pointer to OCB_SV
 
-	if (!ocb) return GPP_SAPA_ERR_INVALID_OCB;
-
-	if (!ocb->sv) {// allocate the sys-sat two dimensional pointer array
+		GPPLONG rc;       //control variable
 		if (rc = gpp_sapa_ocb_malloc_sv(ocb)) return rc;
-	}
 
 	if (!(sv = ocb->sv[sys][sat])) { // check if sv[sys][sat] is allocated
 		ocb->sv[sys][sat] = (GPP_SAPA_OCB_SV*)calloc(1, sizeof(GPP_SAPA_OCB_SV));
@@ -164,6 +201,7 @@ GPPLONG gpp_sapa_ocb_add_sv(pGPP_SAPA_OCB ocb, GPPUINT1 sys, GPPUINT1 sat, const
 
 
 
+
 /************************************************************************************************************
 
  *        \brief Add an orbit set to ocb structure to handle it later with ocb->sv[sys][sat]->orb
@@ -171,16 +209,11 @@ GPPLONG gpp_sapa_ocb_add_sv(pGPP_SAPA_OCB ocb, GPPUINT1 sys, GPPUINT1 sat, const
  ***********************************************************************************************************/
 GPPLONG gpp_sapa_ocb_add_orb(pGPP_SAPA_OCB ocb, GPPUINT1 sys, GPPUINT1 sat, const pGPP_SAPA_OCB_SV_ORB pset)
 {
-	GPPLONG rc;							//control variable
 	pGPP_SAPA_OCB_SV sv = NULL;			// Pointer to OCB_SV
+	GPPLONG rc;							//control variable
+	if (rc = gpp_sapa_ocb_malloc_sv(ocb,sys)) return rc;
 
-	if (!ocb) return GPP_SAPA_ERR_INVALID_OCB;
-
-	if (!ocb->sv) {// allocate the sys-sat two dimensional pointer array
-		if (rc = gpp_sapa_ocb_malloc_sv(ocb)) return rc;
-	}
-
-	if (!(sv = ocb->sv[sys][sat])) { // check if sv[sys][sat] is allocated
+	if (!(sv =ocb->sv[sys][sat])) { // check if sv[sys][sat] is allocated
 		ocb->sv[sys][sat] = (GPP_SAPA_OCB_SV*)calloc(1, sizeof(GPP_SAPA_OCB_SV));
 		if (!(sv = ocb->sv[sys][sat])) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 	}
@@ -191,8 +224,7 @@ GPPLONG gpp_sapa_ocb_add_orb(pGPP_SAPA_OCB ocb, GPPUINT1 sys, GPPUINT1 sat, cons
 	}
 
 	memcpy(sv->orb, pset, sizeof(GPP_SAPA_OCB_SV_ORB));	//copy orbit data
-	GPPUINT8 bit = 1;
-	ocb->sv_prn_bits[sys] |= (bit << sat);							//set sat ID in sv_prn_bits bit mask
+	GNSS_SET_IDX_IN_BITS_64(ocb->sv_prn_bits[sys], sat);							//set sat ID in sv_prn_bits bit mask
 	sv->ocb_present_flag |= (1 << GPP_SAPA_OCB_FLAG_IDX_ORB);							//set ocb_present_flag as it is assumed that only valid data are stored in the structure
 
 	return 0;
@@ -203,14 +235,9 @@ GPPLONG gpp_sapa_ocb_add_orb(pGPP_SAPA_OCB ocb, GPPUINT1 sys, GPPUINT1 sat, cons
 
 GPPLONG gpp_sapa_ocb_add_clk(pGPP_SAPA_OCB ocb, GPPUINT1 sys, GPPUINT1 sat, const pGPP_SAPA_OCB_SV_CLK pset)
 {
-	GPPLONG rc;							//control variable
 	pGPP_SAPA_OCB_SV sv = NULL;			// Pointer to OCB_SV
-
-	if (!ocb) return GPP_SAPA_ERR_INVALID_OCB;
-
-	if (!ocb->sv) {// allocate the sys-sat two dimensional pointer array
-		if (rc = gpp_sapa_ocb_malloc_sv(ocb)) return rc;
-	}
+	GPPLONG rc;							//control variable
+	if (rc = gpp_sapa_ocb_malloc_sv(ocb,sys)) return rc;
 
 	if (!(sv = ocb->sv[sys][sat])) { // check if sv[sys][sat] is allocated
 		ocb->sv[sys][sat] = (GPP_SAPA_OCB_SV*)calloc(1, sizeof(GPP_SAPA_OCB_SV));
@@ -223,8 +250,7 @@ GPPLONG gpp_sapa_ocb_add_clk(pGPP_SAPA_OCB ocb, GPPUINT1 sys, GPPUINT1 sat, cons
 	}
 
 	memcpy(sv->clk, pset, sizeof(GPP_SAPA_OCB_SV_CLK));	//copy clock data
-	GPPUINT8 bit = 1;
-	ocb->sv_prn_bits[sys] |= (bit << sat);						//set sat ID in sv_prn_bits bit mask
+	GNSS_SET_IDX_IN_BITS_64(ocb->sv_prn_bits[sys], sat);						//set sat ID in sv_prn_bits bit mask
 	sv->ocb_present_flag |= (1 << GPP_SAPA_OCB_FLAG_IDX_CLK);							//set ocb_present_flag as it is assumed that only valid data are stored in the structure
 
 	return 0;
@@ -234,16 +260,12 @@ GPPLONG gpp_sapa_ocb_add_clk(pGPP_SAPA_OCB ocb, GPPUINT1 sys, GPPUINT1 sat, cons
 
 GPPLONG gpp_sapa_ocb_add_pb(pGPP_SAPA_OCB ocb, GPPUINT1 sys, GPPUINT1 sat, GPPUINT1 sig, const pGPP_SAPA_OCB_SV_BIAS_PB pset)
 {
-	GPPLONG rc;									//control variable
 	pGPP_SAPA_OCB_SV sv = NULL;					// Pointer to OCB_SV
 	pGPP_SAPA_OCB_SV_BIAS bias = NULL;			// Pointer to OCB_SV_BIAS
 	pGPP_SAPA_OCB_SV_BIAS_PB	pb = NULL;	// Pointer to OCB_SV_SATPHASEBIAS
 
-	if (!ocb) return GPP_SAPA_ERR_INVALID_OCB;
-
-	if (!ocb->sv) {// allocate the sys-sat two dimensional pointer array
-		if (rc = gpp_sapa_ocb_malloc_sv(ocb)) return rc;
-	}
+	GPPLONG rc;									//control variable
+	if (rc = gpp_sapa_ocb_malloc_sv(ocb,sys)) return rc;
 
 	if (!(sv = ocb->sv[sys][sat])) { // check if sv[sys][sat] is allocated
 		ocb->sv[sys][sat] = (GPP_SAPA_OCB_SV*)calloc(1, sizeof(GPP_SAPA_OCB_SV));
@@ -269,9 +291,8 @@ GPPLONG gpp_sapa_ocb_add_pb(pGPP_SAPA_OCB ocb, GPPUINT1 sys, GPPUINT1 sat, GPPUI
 	pb = bias->pb[sig];
 
 	memcpy(pb, pset, sizeof(GPP_SAPA_OCB_SV_BIAS_PB)); 	//Copy Phase bias content
-	bias->pb_sig_bits |= (1 << sig);								//set signal in signal bit mask for this satellite
-	GPPUINT8 bit = 1;
-	ocb->sv_prn_bits[sys] |= (bit << sat);							//set sat ID in sv_prn_bits bit mask
+	GNSS_SET_IDX_IN_BITS_32(bias->pb_sig_bits, sig);		//set signal in signal bit mask for this satellite
+	GNSS_SET_IDX_IN_BITS_64(ocb->sv_prn_bits[sys], sat);					//set sat ID in sv_prn_bits bit mask
 	sv->ocb_present_flag |= (1 << GPP_SAPA_OCB_FLAG_IDX_BIAS);
 
 	return 0; //GPP_SAPA_OK
@@ -301,16 +322,12 @@ GPPLONG gpp_sapa_ocb_add_header(pGPP_SAPA_OCB ocb, GPPUINT1 sys, const pGPP_SAPA
 
 GPPLONG gpp_sapa_ocb_add_cb(pGPP_SAPA_OCB ocb, GPPUINT1 sys, GPPUINT1 sat, GPPUINT1 sig, const pGPP_SAPA_OCB_SV_BIAS_CB pset)
 {
-	GPPLONG rc;									//control variable
 	pGPP_SAPA_OCB_SV sv = NULL;					// Pointer to OCB_SV
 	pGPP_SAPA_OCB_SV_BIAS bias = NULL;			// Pointer to OCB_SV_BIAS
 	pGPP_SAPA_OCB_SV_BIAS_CB cb = NULL;	// Pointer to OCB_SV_SATPHASEBIAS
 
-	if (!ocb) return GPP_SAPA_ERR_INVALID_OCB;
-
-	if (!ocb->sv) {// allocate the sys-sat two dimensional pointer array
-		if (rc = gpp_sapa_ocb_malloc_sv(ocb)) return rc;
-	}
+	GPPLONG rc;									//control variable
+	if (rc = gpp_sapa_ocb_malloc_sv(ocb,sys)) return rc;
 
 	if (!(sv = ocb->sv[sys][sat])) { // check if sv[sys][sat] is allocated
 		ocb->sv[sys][sat] = (GPP_SAPA_OCB_SV*)calloc(1, sizeof(GPP_SAPA_OCB_SV));
@@ -337,360 +354,367 @@ GPPLONG gpp_sapa_ocb_add_cb(pGPP_SAPA_OCB ocb, GPPUINT1 sys, GPPUINT1 sat, GPPUI
 
 
 	memcpy(cb, pset, sizeof(GPP_SAPA_OCB_SV_BIAS_CB)); 	//Copy Phase bias content
-	bias->cb_sig_bits |= (1 << sig);								//set signal in signal bit mask for this satellite
-	GPPUINT8 bit = 1;
-	ocb->sv_prn_bits[sys] |= (bit <<sat);							//set sat ID in sv_prn_bits bit mask
+	GNSS_SET_IDX_IN_BITS_32(bias->cb_sig_bits, sig);							//set signal in signal bit mask for this satellite
+	GNSS_SET_IDX_IN_BITS_64(ocb->sv_prn_bits[sys], sat);							//set sat ID in sv_prn_bits bit mask
 	sv->ocb_present_flag |= (1<<GPP_SAPA_OCB_FLAG_IDX_BIAS);
 
 	return 0; //GPP_SAPA_OK
 }
 //==============================================functions to add data to structure For HPAC================================================================
-GPPLONG gpp_sapa_hpac_add_header(pGPP_SAPA_HPAC hpac,GPPUINT1 sys, const pGPP_SAPA_HPAC_HEADER pset)
+GPPLONG gpp_sapa_hpac_add_header(pGPP_SAPA_HPAC hpac, const pGPP_SAPA_HPAC_HEADER pset)
 {
 	if (!hpac) return GPP_SAPA_ERR_INVALID_HPAC_AREA;
 
 	if (!hpac->header_block) {//check if Header structure is allocated
-		hpac->header_block = (pGPP_SAPA_HPAC_HEADER*)calloc(GPP_SAPA_MAX_CONS, sizeof(pGPP_SAPA_HPAC_HEADER));
+		hpac->header_block = (pGPP_SAPA_HPAC_HEADER)calloc(1, sizeof(GPP_SAPA_HPAC_HEADER));
 		if (!hpac->header_block) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 	}
 
-	if (!hpac->header_block[sys]) {//check if header_block[sys] structure is allocated
-		hpac->header_block[sys] = (pGPP_SAPA_HPAC_HEADER)calloc(1, sizeof(GPP_SAPA_HPAC_HEADER));
-		if (!hpac->header_block[sys]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-	}
-	memcpy(hpac->header_block[sys], pset, sizeof(GPP_SAPA_HPAC_HEADER));	//copy header data
+	memcpy(hpac->header_block, pset, sizeof(GPP_SAPA_HPAC_HEADER));	//copy header data
 
 	return 0;
 }//gpp_sapa_hpac_add_header()
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------
-GPPLONG gpp_sapa_hpac_add_area(pGPP_SAPA_HPAC hpac,GPPUINT1 sys, GPPUINT1 area, const pGPP_SAPA_HPAC_AREA pset)
+GPPLONG gpp_sapa_hpac_add_area(pGPP_SAPA_HPAC hpac, GPPUINT1 area, const pGPP_SAPA_HPAC_AREA pset)
 {
-	pGPP_SAPA_HPAC_ATMO_BLOCK atmo = NULL;		// Pointer to ATMO
+	//pGPP_SAPA_HPAC_ATMO_BLOCK atmo = NULL;		// Pointer to ATMO
 
 	if (!hpac) return GPP_SAPA_ERR_INVALID_HPAC_AREA;
 
 	if (!hpac->atmo) {//check if atmo structure is allocated
-		hpac->atmo = (pGPP_SAPA_HPAC_ATMO_BLOCK**)calloc(GPP_SAPA_MAX_CONS, sizeof(GPP_SAPA_HPAC_ATMO_BLOCK**));
+		hpac->atmo = (pGPP_SAPA_HPAC_ATMO_BLOCK*)calloc(GPP_SAPA_MAX_AREA_COUNT, sizeof(GPP_SAPA_HPAC_ATMO_BLOCK*));
 		if (!hpac->atmo) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 	}
 
-	if (!hpac->atmo[sys]) {//check if atmo[sys] structure is allocated
-		hpac->atmo[sys] = (pGPP_SAPA_HPAC_ATMO_BLOCK*)calloc(GPP_SAPA_MAX_AREA_COUNT, sizeof(GPP_SAPA_HPAC_ATMO_BLOCK*));
-		if (!hpac->atmo[sys]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+	if (!hpac->atmo[area]) {//check if atmo[sys] structure is allocated
+		hpac->atmo[area] = (pGPP_SAPA_HPAC_ATMO_BLOCK)calloc(1, sizeof(GPP_SAPA_HPAC_ATMO_BLOCK));
+		if (!hpac->atmo[area]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 	}
 
-	if (!hpac->atmo[sys][area]) {//check if atmo[sys][area] structure is allocated
-		hpac->atmo[sys][area] = (pGPP_SAPA_HPAC_ATMO_BLOCK)calloc(1, sizeof(GPP_SAPA_HPAC_ATMO_BLOCK));
-		if (!hpac->atmo[sys][area]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+	if (!hpac->atmo[area]->area_def) {//check if atmo[sys] structure is allocated
+		hpac->atmo[area]->area_def = (pGPP_SAPA_HPAC_AREA)calloc(1, sizeof(GPP_SAPA_HPAC_AREA));
+		if (!hpac->atmo[area]->area_def) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 	}
-
-	if (!hpac->atmo[sys][area]->area_def) {//check if area def structure is allocated
-		hpac->atmo[sys][area]->area_def = (pGPP_SAPA_HPAC_AREA)calloc(1, sizeof(GPP_SAPA_HPAC_AREA));
-		if (!hpac->atmo[sys][area]->area_def) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-	}
-	memcpy(hpac->atmo[sys][area]->area_def, pset, sizeof(GPP_SAPA_HPAC_AREA));	//copy atmo block data
+	memcpy(hpac->atmo[area]->area_def, pset, sizeof(GPP_SAPA_HPAC_AREA));	//copy atmo block data
 	return 0; //GPP_SAPA_OK
 }//gpp_sapa_hpac_add_area()
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-GPPLONG gpp_sapa_hpac_add_tropo(pGPP_SAPA_HPAC hpac,GPPUINT1 sys, GPPUINT1 area, const pGPP_SAPA_HPAC_TROPO pset)
+GPPLONG gpp_sapa_hpac_add_tropo(pGPP_SAPA_HPAC hpac,GPPUINT1 area, const pGPP_SAPA_HPAC_TROPO pset)
 {
-	pGPP_SAPA_HPAC_ATMO_BLOCK atmo = NULL;		// Pointer to ATMO
+	//pGPP_SAPA_HPAC_ATMO_BLOCK atmo = NULL;		// Pointer to ATMO
 
 	if (!hpac) return GPP_SAPA_ERR_INVALID_HPAC_AREA;
 
 	if (!hpac->atmo) {//check if atmo structure is allocated
-		hpac->atmo = (pGPP_SAPA_HPAC_ATMO_BLOCK**)calloc(GPP_SAPA_MAX_CONS, sizeof(GPP_SAPA_HPAC_ATMO_BLOCK**));
+		hpac->atmo = (pGPP_SAPA_HPAC_ATMO_BLOCK*)calloc(GPP_SAPA_MAX_AREA_COUNT, sizeof(GPP_SAPA_HPAC_ATMO_BLOCK*));
 		if (!hpac->atmo) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 	}
 
-	if (!hpac->atmo[sys]) {//check if atmo[sys] structure is allocated
-		hpac->atmo[sys] = (pGPP_SAPA_HPAC_ATMO_BLOCK*)calloc(GPP_SAPA_MAX_AREA_COUNT, sizeof(GPP_SAPA_HPAC_ATMO_BLOCK*));
-		if (!hpac->atmo[sys]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+	if (!hpac->atmo[area]->tropo) {//check if tropo structure is allocated
+		hpac->atmo[area]->tropo = (pGPP_SAPA_HPAC_TROPO)calloc(1, sizeof(GPP_SAPA_HPAC_TROPO));
+		if (!hpac->atmo[area]->tropo) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 	}
 
-	if (!hpac->atmo[sys][area]) {//check if atmo[sys][area] structure is allocated
-		hpac->atmo[sys][area] = (pGPP_SAPA_HPAC_ATMO_BLOCK)calloc(1, sizeof(GPP_SAPA_HPAC_ATMO_BLOCK));
-		if (!hpac->atmo[sys][area]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-	}
-
-	if (!hpac->atmo[sys][area]->tropo) {//check if tropo structure is allocated
-		hpac->atmo[sys][area]->tropo = (pGPP_SAPA_HPAC_TROPO)calloc(1, sizeof(GPP_SAPA_HPAC_TROPO));
-		if (!hpac->atmo[sys][area]->tropo) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-	}
-	memcpy(hpac->atmo[sys][area]->tropo, pset, sizeof(GPP_SAPA_HPAC_TROPO));	//copy clock data
+	memcpy(hpac->atmo[area]->tropo, pset, sizeof(GPP_SAPA_HPAC_TROPO));	//copy clock data
 	return 0; //GPP_SAPA_OK
 }//gpp_sapa_hpac_add_tropo()
-//----------------------------------------------------------------------------------------------------------------------------------------------------
-GPPLONG gpp_sapa_hpac_add_tropo_block(pGPP_SAPA_HPAC hpac,GPPUINT1 sys, GPPUINT1 area, const pGPP_SAPA_HPAC_TROPO_BLOCK pset)
-{
-	pGPP_SAPA_HPAC_ATMO_BLOCK atmo = NULL;		// Pointer to ATMO
-	pGPP_SAPA_HPAC_TROPO tropo = NULL;			// Pointer to TROPO
-	if (!hpac) return GPP_SAPA_ERR_INVALID_HPAC_AREA;
-
-	if (!hpac->atmo) {//check if atmo structure is allocated
-		hpac->atmo = (pGPP_SAPA_HPAC_ATMO_BLOCK**)calloc(GPP_SAPA_MAX_CONS, sizeof(GPP_SAPA_HPAC_ATMO_BLOCK**));
-		if (!hpac->atmo) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-	}
-
-	if (!hpac->atmo[sys]) {//check if atmo[sys] structure is allocated
-		hpac->atmo[sys] = (pGPP_SAPA_HPAC_ATMO_BLOCK*)calloc(GPP_SAPA_MAX_AREA_COUNT, sizeof(GPP_SAPA_HPAC_ATMO_BLOCK*));
-		if (!hpac->atmo[sys]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-	}
-
-	if (!hpac->atmo[sys][area]) {//check if atmo[sys][area] structure is allocated
-		hpac->atmo[sys][area] = (pGPP_SAPA_HPAC_ATMO_BLOCK)calloc(1, sizeof(GPP_SAPA_HPAC_ATMO_BLOCK));
-		if (!hpac->atmo[sys][area]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-	}
-
-	if (!hpac->atmo[sys][area]->tropo) {//check if tropo structure is allocated
-		hpac->atmo[sys][area]->tropo = (pGPP_SAPA_HPAC_TROPO)calloc(1, sizeof(GPP_SAPA_HPAC_TROPO));
-		if (!hpac->atmo[sys][area]->tropo) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-	}
-
-	if (!hpac->atmo[sys][area]->tropo->tropo_block) {//check if tropo block structure is allocated
-		hpac->atmo[sys][area]->tropo->tropo_block = (pGPP_SAPA_HPAC_TROPO_BLOCK)calloc(1, sizeof(GPP_SAPA_HPAC_TROPO_BLOCK));
-		if (!hpac->atmo[sys][area]->tropo->tropo_block) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-	}
-	memcpy(hpac->atmo[sys][area]->tropo->tropo_block, pset, sizeof(GPP_SAPA_HPAC_TROPO_BLOCK));	//copy tropo block data
-	return 0; //GPP_SAPA_OK
-}//gpp_sapa_hpac_add_tropo_block()
 //--------------------------------------------------------------------------------------------------------------------------------------------------------
-GPPLONG gpp_sapa_hpac_add_tropo_poly_coeff_block(pGPP_SAPA_HPAC hpac,GPPUINT1 sys, GPPUINT1 area, const pGPP_SAPA_HPAC_TROPO_POLY_COEFFICIENT_BLOCK pset)
+GPPLONG gpp_sapa_hpac_add_tropo_poly_coeff_block(pGPP_SAPA_HPAC hpac, GPPUINT1 area, const pGPP_SAPA_HPAC_TROPO_POLY_COEFFICIENT_BLOCK pset)
 {
-	pGPP_SAPA_HPAC_ATMO_BLOCK atmo = NULL;		// Pointer to ATMO
-	pGPP_SAPA_HPAC_TROPO tropo = NULL;			// Pointer to TROPO
+	//pGPP_SAPA_HPAC_ATMO_BLOCK atmo = NULL;		// Pointer to ATMO
+	//pGPP_SAPA_HPAC_TROPO tropo = NULL;			// Pointer to TROPO
 	if (!hpac) return GPP_SAPA_ERR_INVALID_HPAC_AREA;
 
 	if (!hpac->atmo) {//check if atmo structure is allocated
-		hpac->atmo = (pGPP_SAPA_HPAC_ATMO_BLOCK**)calloc(GPP_SAPA_MAX_CONS, sizeof(GPP_SAPA_HPAC_ATMO_BLOCK**));
+		hpac->atmo = (pGPP_SAPA_HPAC_ATMO_BLOCK*)calloc(GPP_SAPA_MAX_AREA_COUNT, sizeof(GPP_SAPA_HPAC_ATMO_BLOCK*));
 		if (!hpac->atmo) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 	}
 
-	if (!hpac->atmo[sys]) {//check if atmo[sys] structure is allocated
-		hpac->atmo[sys] = (pGPP_SAPA_HPAC_ATMO_BLOCK*)calloc(GPP_SAPA_MAX_AREA_COUNT, sizeof(GPP_SAPA_HPAC_ATMO_BLOCK*));
-		if (!hpac->atmo[sys]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+	if (!hpac->atmo[area]->tropo) {//check if tropo structure is allocated
+		hpac->atmo[area]->tropo = (pGPP_SAPA_HPAC_TROPO)calloc(1, sizeof(GPP_SAPA_HPAC_TROPO));
+		if (!hpac->atmo[area]->tropo) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 	}
 
-	if (!hpac->atmo[sys][area]) {//check if atmo[sys][area] structure is allocated
-		hpac->atmo[sys][area] = (pGPP_SAPA_HPAC_ATMO_BLOCK)calloc(1, sizeof(GPP_SAPA_HPAC_ATMO_BLOCK));
-		if (!hpac->atmo[sys][area]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+	if (!hpac->atmo[area]->tropo->tropo_poly_coeff_block) {//check if tropo  poly coeff structure is allocated
+		hpac->atmo[area]->tropo->tropo_poly_coeff_block = (pGPP_SAPA_HPAC_TROPO_POLY_COEFFICIENT_BLOCK)calloc(1, sizeof(GPP_SAPA_HPAC_TROPO_POLY_COEFFICIENT_BLOCK));
+		if (!hpac->atmo[area]->tropo->tropo_poly_coeff_block) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 	}
-
-	if (!hpac->atmo[sys][area]->tropo) {//check if tropo structure is allocated
-		hpac->atmo[sys][area]->tropo = (pGPP_SAPA_HPAC_TROPO)calloc(1, sizeof(GPP_SAPA_HPAC_TROPO));
-		if (!hpac->atmo[sys][area]->tropo) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-	}
-
-	if (!hpac->atmo[sys][area]->tropo->tropo_poly_coeff_block) {//check if tropo  poly coeff structure is allocated
-		hpac->atmo[sys][area]->tropo->tropo_poly_coeff_block = (pGPP_SAPA_HPAC_TROPO_POLY_COEFFICIENT_BLOCK)calloc(1, sizeof(GPP_SAPA_HPAC_TROPO_POLY_COEFFICIENT_BLOCK));
-		if (!hpac->atmo[sys][area]->tropo->tropo_poly_coeff_block) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-	}
-	memcpy(hpac->atmo[sys][area]->tropo->tropo_poly_coeff_block, pset, sizeof(GPP_SAPA_HPAC_TROPO_POLY_COEFFICIENT_BLOCK));	//copy clock data
+	memcpy(hpac->atmo[area]->tropo->tropo_poly_coeff_block, pset, sizeof(GPP_SAPA_HPAC_TROPO_POLY_COEFFICIENT_BLOCK));	//copy clock data
 	return 0; //GPP_SAPA_OK
 }//gpp_sapa_hpac_add_tropo_poly_coeff_block()
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-GPPLONG gpp_sapa_hpac_add_tropo_grid_block(pGPP_SAPA_HPAC hpac,GPPUINT1 sys, GPPUINT1 area, const pGPP_SAPA_HPAC_TROPO_GRID_BLOCK pset)
+GPPLONG gpp_sapa_hpac_add_tropo_grid_block(pGPP_SAPA_HPAC hpac, GPPUINT1 area, const pGPP_SAPA_HPAC_TROPO_GRID_BLOCK pset)
 {
-	GPPLONG rc;									//control variable
-	pGPP_SAPA_HPAC_ATMO_BLOCK atmo = NULL;		// Pointer to ATMO
-	pGPP_SAPA_HPAC_TROPO tropo = NULL;			// Pointer to TROPO
+	//pGPP_SAPA_HPAC_ATMO_BLOCK atmo = NULL;		// Pointer to ATMO
+	//pGPP_SAPA_HPAC_TROPO tropo = NULL;			// Pointer to TROPO
 	if (!hpac) return GPP_SAPA_ERR_INVALID_HPAC_AREA;
 
 	if (!hpac->atmo) {//check if atmo structure is allocated
-		hpac->atmo = (pGPP_SAPA_HPAC_ATMO_BLOCK**)calloc(GPP_SAPA_MAX_CONS, sizeof(GPP_SAPA_HPAC_ATMO_BLOCK**));
+		hpac->atmo = (pGPP_SAPA_HPAC_ATMO_BLOCK*)calloc(GPP_SAPA_MAX_AREA_COUNT, sizeof(GPP_SAPA_HPAC_ATMO_BLOCK*));
 		if (!hpac->atmo) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 	}
 
-	if (!hpac->atmo[sys]) {//check if atmo[sys] structure is allocated
-		hpac->atmo[sys] = (pGPP_SAPA_HPAC_ATMO_BLOCK*)calloc(GPP_SAPA_MAX_AREA_COUNT, sizeof(GPP_SAPA_HPAC_ATMO_BLOCK*));
-		if (!hpac->atmo[sys]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+	if (!hpac->atmo[area]->tropo) {//check if tropo structure is allocated
+		hpac->atmo[area]->tropo = (pGPP_SAPA_HPAC_TROPO)calloc(1, sizeof(GPP_SAPA_HPAC_TROPO));
+		if (!hpac->atmo[area]->tropo) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 	}
 
-	if (!hpac->atmo[sys][area]) {//check if atmo[sys][area] structure is allocated
-		hpac->atmo[sys][area] = (pGPP_SAPA_HPAC_ATMO_BLOCK)calloc(1, sizeof(GPP_SAPA_HPAC_ATMO_BLOCK));
-		if (!hpac->atmo[sys][area]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+	if (!hpac->atmo[area]->tropo->tropo_grid) {//check if tropo grid structure is allocated
+		hpac->atmo[area]->tropo->tropo_grid = (pGPP_SAPA_HPAC_TROPO_GRID_BLOCK)calloc(1, sizeof(GPP_SAPA_HPAC_TROPO_GRID_BLOCK));
+		if (!hpac->atmo[area]->tropo->tropo_grid) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 	}
-
-	if (!hpac->atmo[sys][area]->tropo) {//check if tropo structure is allocated
-		hpac->atmo[sys][area]->tropo = (pGPP_SAPA_HPAC_TROPO)calloc(1, sizeof(GPP_SAPA_HPAC_TROPO));
-		if (!hpac->atmo[sys][area]->tropo) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-	}
-
-	if (!hpac->atmo[sys][area]->tropo->tropo_grid) {//check if tropo grid structure is allocated
-		hpac->atmo[sys][area]->tropo->tropo_grid = (pGPP_SAPA_HPAC_TROPO_GRID_BLOCK)calloc(1, sizeof(GPP_SAPA_HPAC_TROPO_GRID_BLOCK));
-		if (!hpac->atmo[sys][area]->tropo->tropo_grid) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-	}
-	memcpy(hpac->atmo[sys][area]->tropo->tropo_grid, pset, sizeof(GPP_SAPA_HPAC_TROPO_GRID_BLOCK));	//copy clock data
+	memcpy(hpac->atmo[area]->tropo->tropo_grid, pset, sizeof(GPP_SAPA_HPAC_TROPO_GRID_BLOCK));	//copy clock data
 	return 0; //GPP_SAPA_OK
 }//gpp_sapa_hpac_add_tropo_grid_block()
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------
-GPPLONG gpp_sapa_hpac_add_iono(pGPP_SAPA_HPAC hpac,GPPUINT1 sys, GPPUINT1 area, const pGPP_SAPA_HPAC_IONO pset)
+GPPLONG gpp_sapa_hpac_add_iono(pGPP_SAPA_HPAC hpac,GPPUINT1 area, const pGPP_SAPA_HPAC_IONO pset)
 {
-	GPPLONG rc;									//control variable
-	pGPP_SAPA_HPAC_ATMO_BLOCK atmo = NULL;		// Pointer to ATMO
+	//pGPP_SAPA_HPAC_ATMO_BLOCK atmo = NULL;		// Pointer to ATMO
 
 	if (!hpac) return GPP_SAPA_ERR_INVALID_HPAC_AREA;
 
 	if (!hpac->atmo) {//check if atmo structure is allocated
-		hpac->atmo = (pGPP_SAPA_HPAC_ATMO_BLOCK**)calloc(GPP_SAPA_MAX_CONS, sizeof(GPP_SAPA_HPAC_ATMO_BLOCK**));
+		hpac->atmo = (pGPP_SAPA_HPAC_ATMO_BLOCK*)calloc(GPP_SAPA_MAX_AREA_COUNT, sizeof(GPP_SAPA_HPAC_ATMO_BLOCK*));
 		if (!hpac->atmo) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 	}
 
-	if (!hpac->atmo[sys]) {//check if atmo[sys] structure is allocated
-		hpac->atmo[sys] = (pGPP_SAPA_HPAC_ATMO_BLOCK*)calloc(GPP_SAPA_MAX_AREA_COUNT, sizeof(GPP_SAPA_HPAC_ATMO_BLOCK*));
-		if (!hpac->atmo[sys]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+	if (!hpac->atmo[area]) {//check if atmo[area] structure is allocated
+		hpac->atmo[area] = (pGPP_SAPA_HPAC_ATMO_BLOCK)calloc(1, sizeof(GPP_SAPA_HPAC_ATMO_BLOCK));
+		if (!hpac->atmo[area]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 	}
 
-	if (!hpac->atmo[sys][area]) {//check if atmo[sys][area] structure is allocated
-		hpac->atmo[sys][area] = (pGPP_SAPA_HPAC_ATMO_BLOCK)calloc(1, sizeof(GPP_SAPA_HPAC_ATMO_BLOCK));
-		if (!hpac->atmo[sys][area]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+	if (!hpac->atmo[area]->iono) {//check if iono structure is allocated
+		hpac->atmo[area]->iono = (pGPP_SAPA_HPAC_IONO)calloc(1, sizeof(GPP_SAPA_HPAC_IONO));
+		if (!hpac->atmo[area]->iono) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 	}
-
-	if (!hpac->atmo[sys][area]->iono) {//check if iono structure is allocated
-		hpac->atmo[sys][area]->iono = (pGPP_SAPA_HPAC_IONO)calloc(1, sizeof(GPP_SAPA_HPAC_IONO));
-		if (!hpac->atmo[sys][area]->iono) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-	}
-	memcpy(hpac->atmo[sys][area]->iono, pset, sizeof(GPP_SAPA_HPAC_IONO));	//copy clock data
+	memcpy(hpac->atmo[area]->iono, pset, sizeof(GPP_SAPA_HPAC_IONO));	//copy clock data
 	return 0; //GPP_SAPA_OK
 }//gpp_sapa_hpac_add_iono()
 
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------
 GPPLONG gpp_sapa_hpac_add_iono_sat_poly_block(pGPP_SAPA_HPAC hpac, GPPUINT1 sys, GPPUINT1 sat, GPPUINT1 area, const pGPP_SAPA_HPAC_IONO_SAT_POLY pset)
 {
-	GPPLONG rc;															//control variable
-	pGPP_SAPA_HPAC_ATMO_BLOCK atmo = NULL;		// Pointer to ATMO
-	pGPP_SAPA_HPAC_IONO iono = NULL;			// Pointer to OCB_SV_BIAS
-	pGPP_SAPA_HPAC_IONO_SAT_BLOCK iono_sat_block = NULL;
+	//pGPP_SAPA_HPAC_ATMO_BLOCK atmo = NULL;		// Pointer to ATMO
+	//pGPP_SAPA_HPAC_IONO iono = NULL;			// Pointer to OCB_SV_BIAS
+	//pGPP_SAPA_HPAC_IONO_SAT_BLOCK iono_sat_block = NULL;
 	if (!hpac) return GPP_SAPA_ERR_INVALID_HPAC_AREA;
 
 	if (!hpac->atmo) {//check if atmo structure is allocated
-		hpac->atmo = (pGPP_SAPA_HPAC_ATMO_BLOCK**)calloc(GPP_SAPA_MAX_CONS, sizeof(GPP_SAPA_HPAC_ATMO_BLOCK**));
+		hpac->atmo = (pGPP_SAPA_HPAC_ATMO_BLOCK*)calloc(GPP_SAPA_MAX_AREA_COUNT, sizeof(GPP_SAPA_HPAC_ATMO_BLOCK*));
 		if (!hpac->atmo) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 	}
 
-	if (!hpac->atmo[sys]) {//check if atmo[sys] structure is allocated
-		hpac->atmo[sys] = (pGPP_SAPA_HPAC_ATMO_BLOCK*)calloc(GPP_SAPA_MAX_AREA_COUNT, sizeof(GPP_SAPA_HPAC_ATMO_BLOCK*));
-		if (!hpac->atmo[sys]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+	if (!hpac->atmo[area]) {//check if atmo[area] structure is allocated
+		hpac->atmo[area] = (pGPP_SAPA_HPAC_ATMO_BLOCK)calloc(1, sizeof(GPP_SAPA_HPAC_ATMO_BLOCK));
+		if (!hpac->atmo[area]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 	}
 
-	if (!hpac->atmo[sys][area]) {//check if atmo[sys][area] structure is allocated
-		hpac->atmo[sys][area] = (pGPP_SAPA_HPAC_ATMO_BLOCK)calloc(1, sizeof(GPP_SAPA_HPAC_ATMO_BLOCK));
-		if (!hpac->atmo[sys][area]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+	if (!hpac->atmo[area]->iono) {//check if iono structure is allocated
+		hpac->atmo[area]->iono = (pGPP_SAPA_HPAC_IONO)calloc(1, sizeof(GPP_SAPA_HPAC_IONO));
+		if (!hpac->atmo[area]->iono) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 	}
 
-	if (!hpac->atmo[sys][area]->iono) {////check if iono structure is allocated
-		hpac->atmo[sys][area]->iono = (pGPP_SAPA_HPAC_IONO)calloc(1, sizeof(GPP_SAPA_HPAC_IONO));
-		if (!hpac->atmo[sys][area]->iono) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+	if (!hpac->atmo[area]->iono->iono_sat_block) {////check if iono Satellite structure is allocated
+		hpac->atmo[area]->iono->iono_sat_block = (pGPP_SAPA_HPAC_IONO_SAT_BLOCK**)calloc(GPP_SAPA_MAX_SYS, sizeof(GPP_SAPA_HPAC_IONO_SAT_BLOCK**));
+		if (!hpac->atmo[area]->iono->iono_sat_block) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 	}
+	if (!hpac->atmo[area]->iono->iono_sat_block[sys]) { // check if iono satelite [sys][sat] is allocated
+		hpac->atmo[area]->iono->iono_sat_block[sys] = (pGPP_SAPA_HPAC_IONO_SAT_BLOCK*)calloc(GPP_SAPA_MAX_SAT, sizeof(GPP_SAPA_HPAC_IONO_SAT_BLOCK*));
+		if (!hpac->atmo[area]->iono->iono_sat_block[sys]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+	}
+	if (!hpac->atmo[area]->iono->iono_sat_block[sys][sat]) { // check if iono satelite [sys][sat] is allocated
+		hpac->atmo[area]->iono->iono_sat_block[sys][sat] = (pGPP_SAPA_HPAC_IONO_SAT_BLOCK)calloc(1, sizeof(GPP_SAPA_HPAC_IONO_SAT_BLOCK));
+		if (!hpac->atmo[area]->iono->iono_sat_block[sys][sat]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+	}
+	if (!hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_sat_poly) {//check if iono satellite poly structure is allocated
+		hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_sat_poly = (pGPP_SAPA_HPAC_IONO_SAT_POLY)calloc(1, sizeof(GPP_SAPA_HPAC_IONO_SAT_POLY));
+		if (!hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_sat_poly) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+	}
+	//printf("inq111%f\n",pset->iono_quality);
+	
+	memcpy(hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_sat_poly, pset, sizeof(GPP_SAPA_HPAC_IONO_SAT_POLY));
 
-	if (!hpac->atmo[sys][area]->iono->iono_sat_block) {////check if iono Satellite structure is allocated
-		hpac->atmo[sys][area]->iono->iono_sat_block = (pGPP_SAPA_HPAC_IONO_SAT_BLOCK*)calloc(GPP_SAPA_MAX_SAT, sizeof(GPP_SAPA_HPAC_IONO_SAT_BLOCK*));
-		if (!hpac->atmo[sys][area]->iono->iono_sat_block) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-	}
-	if (!(hpac->atmo[sys][area]->iono->iono_sat_block[sat])) { // check if iono satelite [sys][sat] is allocated
-		hpac->atmo[sys][area]->iono->iono_sat_block[sat] = (pGPP_SAPA_HPAC_IONO_SAT_BLOCK)calloc(1, sizeof(GPP_SAPA_HPAC_IONO_SAT_BLOCK));
-		if (!(hpac->atmo[sys][area]->iono->iono_sat_block[sat])) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-	}
-	if (!hpac->atmo[sys][area]->iono->iono_sat_block[sat]->iono_sat_poly) {//check if iono satellite poly structure is allocated
-		hpac->atmo[sys][area]->iono->iono_sat_block[sat]->iono_sat_poly = (pGPP_SAPA_HPAC_IONO_SAT_POLY)calloc(1, sizeof(GPP_SAPA_HPAC_IONO_SAT_POLY));
-		if (!hpac->atmo[sys][area]->iono->iono_sat_block[sat]->iono_sat_poly) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-	}
-	memcpy(hpac->atmo[sys][area]->iono->iono_sat_block[sat]->iono_sat_poly, pset, sizeof(GPP_SAPA_HPAC_IONO_SAT_POLY));
-	GPPUINT8 bit = 1;
-	hpac->atmo[sys][area]->iono->sat_prn_bits |= (bit << sat);       //set sat ID in sv_prn_bits bit mask
+	//printf("inq2222%f\n", hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_sat_poly->iono_quality);
+
+	GNSS_SET_IDX_IN_BITS_64(hpac->atmo[area]->iono->sat_prn_bits[sys], sat);
 	return 0;
 }//gpp_sapa_hpac_add_iono_sat_poly_block()
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------------
 GPPLONG gpp_sapa_hpac_add_iono_sat_coeff_block(pGPP_SAPA_HPAC hpac, GPPUINT1 sys, GPPUINT1 sat, GPPUINT1 area, const pGPP_SAPA_HPAC_IONO_SAT_COEFFICIENT pset)
 {
-	GPPLONG rc;															//control variable
-	pGPP_SAPA_HPAC_ATMO_BLOCK atmo = NULL;		// Pointer to ATMO
-	pGPP_SAPA_HPAC_IONO iono = NULL;			// Pointer to OCB_SV_BIAS
-	pGPP_SAPA_HPAC_IONO_SAT_BLOCK iono_sat_block = NULL;
+	//pGPP_SAPA_HPAC_ATMO_BLOCK atmo = NULL;		// Pointer to ATMO
+	//pGPP_SAPA_HPAC_IONO iono = NULL;			// Pointer to OCB_SV_BIAS
+	//pGPP_SAPA_HPAC_IONO_SAT_BLOCK iono_sat_block = NULL;
 	if (!hpac) return GPP_SAPA_ERR_INVALID_HPAC_AREA;
 
 	if (!hpac->atmo) {//check if atmo structure is allocated
-		hpac->atmo = (pGPP_SAPA_HPAC_ATMO_BLOCK**)calloc(GPP_SAPA_MAX_CONS, sizeof(GPP_SAPA_HPAC_ATMO_BLOCK**));
+		hpac->atmo = (pGPP_SAPA_HPAC_ATMO_BLOCK*)calloc(GPP_SAPA_MAX_AREA_COUNT, sizeof(GPP_SAPA_HPAC_ATMO_BLOCK*));
 		if (!hpac->atmo) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 	}
 
-	if (!hpac->atmo[sys]) {//check if atmo[sys] structure is allocated
-		hpac->atmo[sys] = (pGPP_SAPA_HPAC_ATMO_BLOCK*)calloc(GPP_SAPA_MAX_AREA_COUNT, sizeof(GPP_SAPA_HPAC_ATMO_BLOCK*));
-		if (!hpac->atmo[sys]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+	if (!hpac->atmo[area]) {//check if atmo[area] structure is allocated
+		hpac->atmo[area] = (pGPP_SAPA_HPAC_ATMO_BLOCK)calloc(1, sizeof(GPP_SAPA_HPAC_ATMO_BLOCK));
+		if (!hpac->atmo[area]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 	}
 
-	if (!hpac->atmo[sys][area]) {//check if atmo[sys][area] structure is allocated
-		hpac->atmo[sys][area] = (pGPP_SAPA_HPAC_ATMO_BLOCK)calloc(1, sizeof(GPP_SAPA_HPAC_ATMO_BLOCK));
-		if (!hpac->atmo[sys][area]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+	if (!hpac->atmo[area]->iono) {//check if iono structure is allocated
+		hpac->atmo[area]->iono = (pGPP_SAPA_HPAC_IONO)calloc(1, sizeof(GPP_SAPA_HPAC_IONO));
+		if (!hpac->atmo[area]->iono) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 	}
 
-	if (!hpac->atmo[sys][area]->iono) {////check if iono structure is allocated
-		hpac->atmo[sys][area]->iono = (pGPP_SAPA_HPAC_IONO)calloc(1, sizeof(GPP_SAPA_HPAC_IONO));
-		if (!hpac->atmo[sys][area]->iono) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+	if (!hpac->atmo[area]->iono->iono_sat_block) {////check if iono Satellite structure is allocated
+		hpac->atmo[area]->iono->iono_sat_block = (pGPP_SAPA_HPAC_IONO_SAT_BLOCK**)calloc(GPP_SAPA_MAX_SYS, sizeof(GPP_SAPA_HPAC_IONO_SAT_BLOCK**));
+		if (!hpac->atmo[area]->iono->iono_sat_block) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 	}
-
-	if (!hpac->atmo[sys][area]->iono->iono_sat_block) {////check if iono Satellite structure is allocated
-		hpac->atmo[sys][area]->iono->iono_sat_block = (pGPP_SAPA_HPAC_IONO_SAT_BLOCK*)calloc(GPP_SAPA_MAX_SAT, sizeof(GPP_SAPA_HPAC_IONO_SAT_BLOCK*));
-		if (!hpac->atmo[sys][area]->iono->iono_sat_block) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+	if (!(hpac->atmo[area]->iono->iono_sat_block[sys])) { // check if iono satelite [sys][sat] is allocated
+		hpac->atmo[area]->iono->iono_sat_block[sys] = (pGPP_SAPA_HPAC_IONO_SAT_BLOCK*)calloc(GPP_SAPA_MAX_SAT, sizeof(GPP_SAPA_HPAC_IONO_SAT_BLOCK*));
+		if (!(hpac->atmo[area]->iono->iono_sat_block[sys])) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 	}
-	if (!(hpac->atmo[sys][area]->iono->iono_sat_block[sat])) { // check if iono satelite [sys][sat] is allocated
-		hpac->atmo[sys][area]->iono->iono_sat_block[sat] = (pGPP_SAPA_HPAC_IONO_SAT_BLOCK)calloc(1, sizeof(GPP_SAPA_HPAC_IONO_SAT_BLOCK));
-		if (!(hpac->atmo[sys][area]->iono->iono_sat_block[sat])) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+	if (!(hpac->atmo[area]->iono->iono_sat_block[sys][sat])) { // check if iono satelite [sys][sat] is allocated
+		hpac->atmo[area]->iono->iono_sat_block[sys][sat] = (pGPP_SAPA_HPAC_IONO_SAT_BLOCK)calloc(1, sizeof(GPP_SAPA_HPAC_IONO_SAT_BLOCK));
+		if (!(hpac->atmo[area]->iono->iono_sat_block[sys][sat])) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 	}
-	if (!hpac->atmo[sys][area]->iono->iono_sat_block[sat]->iono_sat_coeff) {//check if iono satellite structure is allocated
-		hpac->atmo[sys][area]->iono->iono_sat_block[sat]->iono_sat_coeff = (pGPP_SAPA_HPAC_IONO_SAT_COEFFICIENT)calloc(1, sizeof(GPP_SAPA_HPAC_IONO_SAT_COEFFICIENT));
-		if (!hpac->atmo[sys][area]->iono->iono_sat_block[sat]->iono_sat_coeff) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+	if (!hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_sat_coeff) {//check if iono satellite structure is allocated
+		hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_sat_coeff = (pGPP_SAPA_HPAC_IONO_SAT_COEFFICIENT)calloc(1, sizeof(GPP_SAPA_HPAC_IONO_SAT_COEFFICIENT));
+		if (!hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_sat_coeff) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 	}
-	memcpy(hpac->atmo[sys][area]->iono->iono_sat_block[sat]->iono_sat_coeff, pset, sizeof(GPP_SAPA_HPAC_IONO_SAT_COEFFICIENT));
-	GPPUINT8 bit = 1;
-	hpac->atmo[sys][area]->iono->sat_prn_bits |= (bit << sat);       //set sat ID in sv_prn_bits bit mask
+	memcpy(hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_sat_coeff, pset, sizeof(GPP_SAPA_HPAC_IONO_SAT_COEFFICIENT));
+	GNSS_SET_IDX_IN_BITS_64(hpac->atmo[area]->iono->sat_prn_bits[sys], sat);		//set sat ID in sv_prn_bits bit mask
 	return 0;
 }//gpp_sapa_hpac_add_iono_sat_coeff_block()
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------
 GPPLONG gpp_sapa_hpac_add_iono_sat_grid_block(pGPP_SAPA_HPAC hpac, GPPUINT1 sys, GPPUINT1 sat, GPPUINT1 area, const pGPP_SAPA_HPAC_IONO_GRID_BLOCK pset)
 {
-	pGPP_SAPA_HPAC_ATMO_BLOCK atmo = NULL;		// Pointer to ATMO
-	pGPP_SAPA_HPAC_IONO iono = NULL;			// Pointer to OCB_SV_BIAS
-	pGPP_SAPA_HPAC_IONO_SAT_BLOCK iono_sat_block = NULL;
+	//pGPP_SAPA_HPAC_ATMO_BLOCK atmo = NULL;		// Pointer to ATMO
+	//pGPP_SAPA_HPAC_IONO iono = NULL;			// Pointer to OCB_SV_BIAS
+	//pGPP_SAPA_HPAC_IONO_SAT_BLOCK iono_sat_block = NULL;
 	if (!hpac) return GPP_SAPA_ERR_INVALID_HPAC_AREA;
 
+
 	if (!hpac->atmo) {//check if atmo structure is allocated
-		hpac->atmo = (pGPP_SAPA_HPAC_ATMO_BLOCK**)calloc(GPP_SAPA_MAX_CONS, sizeof(GPP_SAPA_HPAC_ATMO_BLOCK**));
+		hpac->atmo = (pGPP_SAPA_HPAC_ATMO_BLOCK*)calloc(GPP_SAPA_MAX_AREA_COUNT, sizeof(GPP_SAPA_HPAC_ATMO_BLOCK*));
 		if (!hpac->atmo) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 	}
 
-	if (!hpac->atmo[sys]) {//check if atmo[sys] structure is allocated
-		hpac->atmo[sys] = (pGPP_SAPA_HPAC_ATMO_BLOCK*)calloc(GPP_SAPA_MAX_AREA_COUNT, sizeof(GPP_SAPA_HPAC_ATMO_BLOCK*));
-		if (!hpac->atmo[sys]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+	if (!hpac->atmo[area]) {//check if atmo[area] structure is allocated
+		hpac->atmo[area] = (pGPP_SAPA_HPAC_ATMO_BLOCK)calloc(1, sizeof(GPP_SAPA_HPAC_ATMO_BLOCK));
+		if (!hpac->atmo[area]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 	}
 
-	if (!hpac->atmo[sys][area]) {//check if atmo[sys][area] structure is allocated
-		hpac->atmo[sys][area] = (pGPP_SAPA_HPAC_ATMO_BLOCK)calloc(1, sizeof(GPP_SAPA_HPAC_ATMO_BLOCK));
-		if (!hpac->atmo[sys][area]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+	if (!hpac->atmo[area]->iono) {//check if iono structure is allocated
+		hpac->atmo[area]->iono = (pGPP_SAPA_HPAC_IONO)calloc(1, sizeof(GPP_SAPA_HPAC_IONO));
+		if (!hpac->atmo[area]->iono) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 	}
 
-	if (!hpac->atmo[sys][area]->iono) {////check if iono structure is allocated
-		hpac->atmo[sys][area]->iono = (pGPP_SAPA_HPAC_IONO)calloc(1, sizeof(GPP_SAPA_HPAC_IONO));
-		if (!hpac->atmo[sys][area]->iono) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+	if (!hpac->atmo[area]->iono->iono_sat_block) {////check if iono Satellite structure is allocated
+		hpac->atmo[area]->iono->iono_sat_block = (pGPP_SAPA_HPAC_IONO_SAT_BLOCK**)calloc(GPP_SAPA_MAX_SYS, sizeof(GPP_SAPA_HPAC_IONO_SAT_BLOCK**));
+		if (!hpac->atmo[area]->iono->iono_sat_block) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+	}
+	if (!(hpac->atmo[area]->iono->iono_sat_block[sys])) { // check if iono satelite [sys][sat] is allocated
+		hpac->atmo[area]->iono->iono_sat_block[sys] = (pGPP_SAPA_HPAC_IONO_SAT_BLOCK*)calloc(GPP_SAPA_MAX_SAT, sizeof(GPP_SAPA_HPAC_IONO_SAT_BLOCK*));
+		if (!(hpac->atmo[area]->iono->iono_sat_block[sys])) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+	}
+	if (!(hpac->atmo[area]->iono->iono_sat_block[sys][sat])) { // check if iono satelite [sys][sat] is allocated
+		hpac->atmo[area]->iono->iono_sat_block[sys][sat] = (pGPP_SAPA_HPAC_IONO_SAT_BLOCK)calloc(1, sizeof(GPP_SAPA_HPAC_IONO_SAT_BLOCK));
+		if (!(hpac->atmo[area]->iono->iono_sat_block[sys][sat])) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 	}
 
-	if (!hpac->atmo[sys][area]->iono->iono_sat_block) {////check if iono Satellite structure is allocated
-		hpac->atmo[sys][area]->iono->iono_sat_block = (pGPP_SAPA_HPAC_IONO_SAT_BLOCK*)calloc(GPP_SAPA_MAX_SAT, sizeof(GPP_SAPA_HPAC_IONO_SAT_BLOCK*));
-		if (!hpac->atmo[sys][area]->iono->iono_sat_block) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+	if (!hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_grid) {//check if iono grid structure is allocated
+		hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_grid = (pGPP_SAPA_HPAC_IONO_GRID_BLOCK)calloc(1, sizeof(GPP_SAPA_HPAC_IONO_GRID_BLOCK));
+		if (!hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_grid) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 	}
-	if (!(hpac->atmo[sys][area]->iono->iono_sat_block[sat])) { // check if iono satelite [sys][sat] is allocated
-		hpac->atmo[sys][area]->iono->iono_sat_block[sat] = (pGPP_SAPA_HPAC_IONO_SAT_BLOCK)calloc(1, sizeof(GPP_SAPA_HPAC_IONO_SAT_BLOCK));
-		if (!(hpac->atmo[sys][area]->iono->iono_sat_block[sat])) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-	}
-	if (!hpac->atmo[sys][area]->iono->iono_sat_block[sat]->iono_grid) {//check if iono grid structure is allocated
-		hpac->atmo[sys][area]->iono->iono_sat_block[sat]->iono_grid = (pGPP_SAPA_HPAC_IONO_GRID_BLOCK)calloc(1, sizeof(GPP_SAPA_HPAC_IONO_GRID_BLOCK));
-		if (!hpac->atmo[sys][area]->iono->iono_sat_block[sat]->iono_grid) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-	}
-	memcpy(hpac->atmo[sys][area]->iono->iono_sat_block[sat]->iono_grid, pset, sizeof(GPP_SAPA_HPAC_IONO_GRID_BLOCK));
-	GPPUINT8 bit = 1;
-	hpac->atmo[sys][area]->iono->sat_prn_bits |= (bit << sat);       //set sat ID in sv_prn_bits bit mask
+	memcpy(hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_grid, pset, sizeof(GPP_SAPA_HPAC_IONO_GRID_BLOCK));
+	GNSS_SET_IDX_IN_BITS_64(hpac->atmo[area]->iono->sat_prn_bits[sys], sat);       //set sat ID in sv_prn_bits bit mask
 	return 0;
 }//gpp_sapa_hpac_add_iono_sat_grid_block()
+//
+GPPLONG gpp_sapa_hpac_free_hpac(pGPP_SAPA_HPAC hpac)
+{
+
+	if (hpac) {
+		if (hpac->header_block)
+		{
+			//memset(hpac->header_block, 0, sizeof(GPP_SAPA_HPAC_HEADER));
+			free(hpac->header_block);
+			hpac->header_block = NULL;
+		}
+		if (hpac->atmo)
+		{
+			GPPUINT1 area;
+			for (area = 0; area < GPP_SAPA_MAX_AREA_COUNT; area++)
+			{
+				if (hpac->atmo[area])
+				{
+					if (hpac->atmo[area]->area_def)
+					{
+						//memset(hpac->atmo[area]->area_def, 0, sizeof(GPP_SAPA_HPAC_AREA));
+						free(hpac->atmo[area]->area_def);
+					}
+					if (hpac->atmo[area]->tropo)
+					{
+						if (hpac->atmo[area]->tropo->tropo_poly_coeff_block)
+						{
+							//memset(hpac->atmo[area]->tropo->tropo_poly_coeff_block, 0, sizeof(GPP_SAPA_HPAC_TROPO_POLY_COEFFICIENT_BLOCK));
+							free(hpac->atmo[area]->tropo->tropo_poly_coeff_block);
+						}
+						if (hpac->atmo[area]->tropo->tropo_grid)
+						{
+							//memset(hpac->atmo[area]->tropo->tropo_grid, 0, sizeof(GPP_SAPA_HPAC_TROPO_GRID_BLOCK));
+							free(hpac->atmo[area]->tropo->tropo_grid);
+						}
+						//memset(hpac->atmo[area]->tropo, 0, sizeof(GPP_SAPA_HPAC_TROPO));
+						free(hpac->atmo[area]->tropo);
+					}
+					if (hpac->atmo[area]->iono->iono_sat_block)
+					{
+						GPPUINT1 sys;
+						for (sys = 0; sys < GPP_SAPA_MAX_SYS; sys++)
+						{
+							if (hpac->atmo[area]->iono->iono_sat_block[sys]) {
+								GPPUINT1 sat;
+								for (sat = 0; sat < GPP_SAPA_MAX_SAT; sat++)
+								{
+									if (hpac->atmo[area]->iono->iono_sat_block[sys][sat]) {
+										if (hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_sat_poly)
+										{
+											//memset(hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_sat_poly, 0, sizeof(GPP_SAPA_HPAC_IONO_SAT_POLY));
+											free(hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_sat_poly);
+										}
+										if (hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_sat_coeff)
+										{
+											//memset(hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_sat_coeff, 0, sizeof(GPP_SAPA_HPAC_IONO_SAT_COEFFICIENT));
+											free(hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_sat_coeff);
+										}
+										if (hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_grid)
+										{
+											//memset(hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_grid, 0, sizeof(GPP_SAPA_HPAC_IONO_GRID_BLOCK));
+											free(hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_grid);
+										}
+										//memset(hpac->atmo[area]->iono->iono_sat_block[sys][sat], 0, sizeof(GPP_SAPA_HPAC_IONO_SAT_BLOCK));
+										free(hpac->atmo[area]->iono->iono_sat_block[sys][sat]);
+									}
+								}
+								//memset(hpac->atmo[area]->iono->iono_sat_block[sys], 0, sizeof(GPP_SAPA_HPAC_IONO_SAT_BLOCK));
+								free(hpac->atmo[area]->iono->iono_sat_block[sys]);
+							}
+						}
+						//memset(hpac->atmo[area]->iono->iono_sat_block, 0, sizeof(GPP_SAPA_HPAC_IONO_SAT_BLOCK));
+						free(hpac->atmo[area]->iono->iono_sat_block);
+					}
+					//memset(hpac->atmo[area], 0, sizeof(GPP_SAPA_HPAC_AREA));
+					free(hpac->atmo[area]);
+				}
+
+			}
+			//memset(hpac->atmo, 0, sizeof(GPP_SAPA_HPAC_ATMO_BLOCK));
+			free(hpac->atmo);
+			hpac->atmo = NULL;
+		}
+
+	}
+
+	return 0;
+}
 //=============================================== functions to add data to structure For Area ====================================================================
 
 GPPLONG gpp_sapa_area_add_header(pGPP_SAPA_AREA p_area, const pGPP_SAPA_AREA_DEF_HEADER pset)
@@ -709,8 +733,7 @@ GPPLONG gpp_sapa_area_add_header(pGPP_SAPA_AREA p_area, const pGPP_SAPA_AREA_DEF
 
 GPPLONG gpp_sapa_area_add_area_def(pGPP_SAPA_AREA p_area,GPPUINT1 area, const pGPP_SAPA_AREA_DEF_BLOCK pset)
 {
-	GPPLONG rc;												//control variable
-	pGPP_SAPA_AREA_DEF_BLOCK area_def_block = NULL;			// Pointer to AREA_DEF_BLOCK
+	//pGPP_SAPA_AREA_DEF_BLOCK area_def_block = NULL;			// Pointer to AREA_DEF_BLOCK
 
 	if (!p_area) return GPP_SAPA_ERR_INVALID_AREA;
 	if (!p_area->area_def_block) {//check if orbit structure is allocated
@@ -726,6 +749,31 @@ GPPLONG gpp_sapa_area_add_area_def(pGPP_SAPA_AREA p_area,GPPUINT1 area, const pG
 
 	return 0;
 }//gpp_sapa_area_add_area_def()
+
+GPPLONG gpp_sapa_area_free_area(pGPP_SAPA_AREA area)
+{
+	GPPUINT1 iarea;
+
+	if (!area) return 0;
+	if (!area->area_def_block) return 0;
+
+	for (iarea = 0; iarea < GPP_SAPA_MAX_AREA_COUNT; iarea++) {
+		if (area->area_def_block[iarea]) {
+			//free orbit, clock, and bias structures
+			//set all values to zero
+			//memset(ocb->sv[sys][sat], 0, sizeof(GPP_SAPA_OCB_SV));
+			free(area->area_def_block[iarea]);
+			area->area_def_block[iarea] = NULL;
+		}
+	}
+
+	free(area->area_def_block);
+	area->area_def_block = NULL;
+
+	return 0;
+
+}//gpp_sapa_area_free_area()
+
 
 GPPLONG gpp_sapa_get_bit_diff(GPPLONG byte_pos, GPPLONG bit_pos, GPPLONG byte_pos0, GPPLONG bit_pos0)
 {
@@ -748,8 +796,8 @@ GPPUINT1 gpp_sapa_get_constellation_present_bit(GPPUINT2 cons_bits, GPPUINT1 pos
 //Returns highest order of cons_bit set
 GPPUINT1 gpp_sapa_get_highest_cons_set(GPPUINT2 cons_bit)
 {
-	GPPUINT1 max_cons_id = 0;
-	for (GPPUINT1 cons_id = 0; cons_id < 12; cons_id++)
+	GPPUINT1 max_cons_id = 0, cons_id;
+	for (cons_id = 0; cons_id < 12; cons_id++)
 	{
 		if ((cons_bit >> cons_id) & 1)
 		{
@@ -780,64 +828,44 @@ GPPUINT1 gpp_sapa_set_cons_bit(GPPUINT1 cons_bits, GPPUINT1 pos)
 
 
 
-#if 0
-
-
 //--------------------------------------------------------------------Transport Layer SAPA OCB message----------------------------------------------------------------------------
 GPPLONG gpp_sapa_ocb_buffer_to_sapa_buffer(const GPPUCHAR *ocb_buffer,GPPLONG len_sapa_bits, GPPLONG ea_flag, GPPLONG message_crc_type,GPPLONG crc_frame, GPPUCHAR *sapa_buffer)
 {
 	GPPLONG byte_pos =0, bit_pos = 0, num_data_bytes = 0;
-	gn_add_ulong_to_buffer(sapa_buffer, &byte_pos, &bit_pos, 8, 115);
+	gn_add_ulong_to_buffer(sapa_buffer, &byte_pos, &bit_pos, 8, SAPA_PREAMBLE);
 	gn_add_ulong_to_buffer(sapa_buffer, &byte_pos, &bit_pos, 7, SAPA_TYPE_OCB);
-	printf("\n bits=%d", len_sapa_bits);
+
 	num_data_bytes = length_bytes_from_bits(len_sapa_bits);
 	if (!num_data_bytes) return GPP_SAPA_ERR_PAYLOAD_LENGTH;
-	printf("value of num=%ld", num_data_bytes);
-	gn_add_ulong_to_buffer(sapa_buffer, &byte_pos, &bit_pos, 10, num_data_bytes);
-	printf("ea flag=%d", ea_flag);
-	gn_add_ulong_to_buffer(sapa_buffer, &byte_pos, &bit_pos, 1, ea_flag);
 
-	printf("message crc type=%d", message_crc_type);
+	gn_add_ulong_to_buffer(sapa_buffer, &byte_pos, &bit_pos, 10, num_data_bytes);
+	gn_add_ulong_to_buffer(sapa_buffer, &byte_pos, &bit_pos, 1, ea_flag);
 	gn_add_ulong_to_buffer(sapa_buffer, &byte_pos, &bit_pos, 2, message_crc_type);
 	gn_add_ulong_to_buffer(sapa_buffer, &byte_pos, &bit_pos, 4, crc_frame);
-	printf("\nsapa nuffer=%d", sapa_buffer);
-	printf("byte pos=%d", byte_pos);
-	printf("\ncrc=%d", message_crc_type);
-	printf("\n num_data_bytes ======================================================================================%d", num_data_bytes);
+
 	memcpy((sapa_buffer+byte_pos), ocb_buffer, num_data_bytes);
 
-	printf("value of  ocb buffer=%d", ocb_buffer);
-	printf("\ncrc=%d",message_crc_type);
 	byte_pos += num_data_bytes;
-	printf("\nByte %d", byte_pos);
-	int i;
-	for (i = 0; i <= byte_pos; i++)
-	{
-		printf("\nByte %d, Integral Value : %d, Binary Value: ", i, *(sapa_buffer + i));
-		int x = 0;
-		for (x = 0; x < 8; x++)    //prnbit testing
-		{
-			printf("%d", TestBit(*(sapa_buffer + i), x), x);
-		}
-	}
-	printf("\ncrc========================================%ld", sapa_const_crc_bytes[message_crc_type]);
-	gn_add_ulong_to_buffer(sapa_buffer, &byte_pos, &bit_pos, sapa_const_crc_bytes[message_crc_type] ,0);
+
+	gn_add_ulong_to_buffer(sapa_buffer, &byte_pos, &bit_pos, SAPA_CRC_BYTES[message_crc_type] ,0);
+
 	return 0;
 }
+
 GPPLONG gpp_sapa_sapa_buffer_to_ocb_buffer(GPPUCHAR *ocb_buffer, GPPLONG *len_sapa_bits, GPPLONG *ea_flag, GPPLONG *message_crc_type, GPPLONG *crc_frame, const GPPUCHAR *sapa_buffer)
 {
 	GPPLONG byte_pos = 0, bit_pos = 0, numDataBytes = 0, crc;
 
 	int type;
-	long sapa_preamble= gn_get_ulong_from_buffer(sapa_buffer, &byte_pos, &bit_pos, 8);
+	long sapa_preamble = gn_get_ulong_from_buffer(sapa_buffer, &byte_pos, &bit_pos, 8);
 	if (sapa_preamble != SAPA_PREAMBLE) return GPP_SAPA_ERR_PREAMBLE;
 
 	type = gn_get_ulong_from_buffer(sapa_buffer, &byte_pos, &bit_pos, 7);
-	printf("type=%d",type);
+
 	if (type != SAPA_TYPE_OCB) return GPP_SAPA_ERR_TYPE;
 
 	numDataBytes = gn_get_ulong_from_buffer(sapa_buffer, &byte_pos, &bit_pos, 10);
-	printf("num=%d", numDataBytes);
+
 	if (!numDataBytes) return GPP_SAPA_ERR_PAYLOAD_LENGTH;
 	*len_sapa_bits = numDataBytes * 8;
 	*ea_flag = gn_get_ulong_from_buffer(sapa_buffer, &byte_pos, &bit_pos, 1);
@@ -846,25 +874,136 @@ GPPLONG gpp_sapa_sapa_buffer_to_ocb_buffer(GPPUCHAR *ocb_buffer, GPPLONG *len_sa
 	if (*message_crc_type > 3) return GPP_SAPA_ERR_CRC_TYPE;
 
 	*crc_frame = gn_get_ulong_from_buffer(sapa_buffer, &byte_pos, &bit_pos, 4);
-	printf("num data byte=%d", numDataBytes);
-	memcpy(ocb_buffer, (sapa_buffer+byte_pos), numDataBytes);
+
+	memcpy(ocb_buffer, (sapa_buffer + byte_pos), numDataBytes);
 	byte_pos += numDataBytes;
 
-	crc = gn_get_ulong_from_buffer(sapa_buffer, &byte_pos, &bit_pos, sapa_const_crc_bytes[*message_crc_type]);
-	printf("\nvalue of crc=%d", crc);
+	crc = gn_get_ulong_from_buffer(sapa_buffer, &byte_pos, &bit_pos, SAPA_CRC_BYTES[*message_crc_type]);
 
-	int i;
-	for (i = 0; i <= numDataBytes; i++)
-	{
-		printf("\nByte %d, Integral Value : %d, Binary Valuefin: ", i, *(ocb_buffer + i));
-		int x = 0;
-		for (x = 0; x < 8; x++)    //prnbit testing
-		{
-			printf("%d", TestBit(*(ocb_buffer + i), x), x);
-		}
-	}
 	return 0;
 }
+
+GPPLONG gpp_sapa_hpac_buffer_to_sapa_buffer(const GPPUCHAR *hpac_buffer, GPPLONG len_sapa_bits, GPPLONG ea_flag, GPPLONG message_crc_type, GPPLONG crc_frame, GPPUCHAR *sapa_buffer)
+{
+	GPPLONG byte_pos = 0, bit_pos = 0, num_data_bytes = 0;
+	gn_add_ulong_to_buffer(sapa_buffer, &byte_pos, &bit_pos, 8, SAPA_PREAMBLE);
+	gn_add_ulong_to_buffer(sapa_buffer, &byte_pos, &bit_pos, 7, SAPA_TYPE_HPAC);
+
+	num_data_bytes = len_sapa_bits;//length_bytes_from_bits(len_sapa_bits);
+	if (!num_data_bytes) return GPP_SAPA_ERR_PAYLOAD_LENGTH;
+
+	gn_add_ulong_to_buffer(sapa_buffer, &byte_pos, &bit_pos, 10, num_data_bytes);
+	gn_add_ulong_to_buffer(sapa_buffer, &byte_pos, &bit_pos, 1, ea_flag);
+	gn_add_ulong_to_buffer(sapa_buffer, &byte_pos, &bit_pos, 2, message_crc_type);
+	gn_add_ulong_to_buffer(sapa_buffer, &byte_pos, &bit_pos, 4, crc_frame);
+
+	memcpy((sapa_buffer + byte_pos), hpac_buffer, num_data_bytes);
+
+	byte_pos += num_data_bytes;
+
+	gn_add_ulong_to_buffer(sapa_buffer, &byte_pos, &bit_pos, SAPA_CRC_BYTES[message_crc_type], 0);
+
+	return 0;
+}
+GPPLONG gpp_sapa_sapa_buffer_to_hpac_buffer(GPPUCHAR *hpac_buffer, GPPLONG *len_sapa_bits, GPPLONG *ea_flag, GPPLONG *message_crc_type, GPPLONG *crc_frame, const GPPUCHAR *sapa_buffer)
+{
+	GPPLONG byte_pos = 0, bit_pos = 0, numDataBytes = 0, crc;
+
+	int type;
+	long sapa_preamble = gn_get_ulong_from_buffer(sapa_buffer, &byte_pos, &bit_pos, 8);
+	if (sapa_preamble != SAPA_PREAMBLE) return GPP_SAPA_ERR_PREAMBLE;
+
+	type = gn_get_ulong_from_buffer(sapa_buffer, &byte_pos, &bit_pos, 7);
+	if (type != SAPA_TYPE_HPAC) return GPP_SAPA_ERR_TYPE;
+
+	numDataBytes = gn_get_ulong_from_buffer(sapa_buffer, &byte_pos, &bit_pos, 10);
+	if (!numDataBytes) return GPP_SAPA_ERR_PAYLOAD_LENGTH;
+
+	*len_sapa_bits = numDataBytes * 8;
+
+	*ea_flag = gn_get_ulong_from_buffer(sapa_buffer, &byte_pos, &bit_pos, 1);
+
+	*message_crc_type = gn_get_ulong_from_buffer(sapa_buffer, &byte_pos, &bit_pos, 2);
+	if (*message_crc_type > 3) return GPP_SAPA_ERR_CRC_TYPE;
+
+	*crc_frame = gn_get_ulong_from_buffer(sapa_buffer, &byte_pos, &bit_pos, 4);
+
+	memcpy(hpac_buffer, (sapa_buffer + byte_pos), numDataBytes);
+	byte_pos += numDataBytes;
+
+	crc = gn_get_ulong_from_buffer(sapa_buffer, &byte_pos, &bit_pos, SAPA_CRC_BYTES[*message_crc_type]);
+
+	return 0;
+}
+//--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+GPPLONG gpp_sapa_area_buffer_to_sapa_buffer(const GPPUCHAR *area_buffer, GPPLONG len_sapa_bits, GPPLONG ea_flag, GPPLONG message_crc_type, GPPLONG crc_frame, GPPUCHAR *sapa_buffer)
+{
+	GPPLONG byte_pos = 0, bit_pos = 0, num_data_bytes = 0;
+	gn_add_ulong_to_buffer(sapa_buffer, &byte_pos, &bit_pos, 8, SAPA_PREAMBLE);
+	gn_add_ulong_to_buffer(sapa_buffer, &byte_pos, &bit_pos, 7, SAPA_TYPE_AREA);
+
+	num_data_bytes = length_bytes_from_bits(len_sapa_bits);
+	if (!num_data_bytes) return GPP_SAPA_ERR_PAYLOAD_LENGTH;
+
+	gn_add_ulong_to_buffer(sapa_buffer, &byte_pos, &bit_pos, 10, num_data_bytes);
+	gn_add_ulong_to_buffer(sapa_buffer, &byte_pos, &bit_pos, 1, ea_flag);
+	gn_add_ulong_to_buffer(sapa_buffer, &byte_pos, &bit_pos, 2, message_crc_type);
+	gn_add_ulong_to_buffer(sapa_buffer, &byte_pos, &bit_pos, 4, crc_frame);
+
+	memcpy((sapa_buffer + byte_pos), area_buffer, num_data_bytes);
+
+	byte_pos += num_data_bytes;
+
+	gn_add_ulong_to_buffer(sapa_buffer, &byte_pos, &bit_pos, SAPA_CRC_BYTES[message_crc_type], 0);
+
+	return 0;
+}
+
+GPPLONG gpp_sapa_sapa_buffer_to_area_buffer(GPPUCHAR *area_buffer, GPPLONG *len_sapa_bits, GPPLONG *ea_flag, GPPLONG *message_crc_type, GPPLONG *crc_frame, const GPPUCHAR *sapa_buffer)
+{
+	GPPLONG byte_pos = 0, bit_pos = 0, numDataBytes = 0, crc;
+
+	int type;
+	GPPLONG sapa_preamble = gn_get_ulong_from_buffer(sapa_buffer, &byte_pos, &bit_pos, 8);
+	if (sapa_preamble != SAPA_PREAMBLE) return GPP_SAPA_ERR_PREAMBLE;
+
+	type = gn_get_ulong_from_buffer(sapa_buffer, &byte_pos, &bit_pos, 7);
+
+	if (type != SAPA_TYPE_AREA) return GPP_SAPA_ERR_TYPE;
+
+	numDataBytes = gn_get_ulong_from_buffer(sapa_buffer, &byte_pos, &bit_pos, 10);
+	if (!numDataBytes) return GPP_SAPA_ERR_PAYLOAD_LENGTH;
+	*len_sapa_bits = numDataBytes * 8;
+	*ea_flag = gn_get_ulong_from_buffer(sapa_buffer, &byte_pos, &bit_pos, 1);
+	*message_crc_type = gn_get_ulong_from_buffer(sapa_buffer, &byte_pos, &bit_pos, 2);
+	if (*message_crc_type > 3) return GPP_SAPA_ERR_CRC_TYPE;
+
+	*crc_frame = gn_get_ulong_from_buffer(sapa_buffer, &byte_pos, &bit_pos, 4);
+	memcpy(area_buffer, (sapa_buffer + byte_pos), numDataBytes);
+	byte_pos += numDataBytes;
+
+	crc = gn_get_ulong_from_buffer(sapa_buffer, &byte_pos, &bit_pos, SAPA_CRC_BYTES[*message_crc_type]);
+
+	//int i;
+	//for (i = 0; i <= numDataBytes; i++)
+	//{
+	//	printf("\nByte %d, Integral Value : %d, Binary Valuefin: ", i, *(area_buffer + i));
+	//	int x = 0;
+	//	for (x = 0; x < 8; x++)    //prnbit testing
+	//	{
+	//		printf("%d", TestBit(*(area_buffer + i), x), x);
+	//	}
+	//}
+	return 0;
+}
+
+GPPLONG length_bytes_from_bits(GPPLONG b)
+{
+	return (((b) / 8) + ((b) % 8 ? 1 : 0));
+}
+#if 0 
+
+
 //Write Buffer Data Into File
 void buffer_data_write_into_file(GPPUCHAR *buffer)
 {
@@ -930,8 +1069,5 @@ int TestBit(GPPUINT8 A, int k)																							//only for bit mask testing
 	GPPUINT8 value = 1;
 	return ((A & (value << k)) ? 1:0);
 }
-GPPLONG length_bytes_from_bits(GPPLONG b)
-{
-	return (((b) / 8) + ((b) % 8 ? 1 : 0));
-}
+
 #endif

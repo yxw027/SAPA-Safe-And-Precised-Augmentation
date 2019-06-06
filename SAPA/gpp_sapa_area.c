@@ -98,9 +98,11 @@ GPPLONG gpp_sapa_buffer2area(pGPP_SAPA_AREA p_area, const GPPUCHAR *buffer, GPPL
 static GPPLONG gpp_sapa_area_header2buffer(const pGPP_SAPA_AREA p_area, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos)
 {
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 4, p_area->header_block->message_sub_type);								//SF001
-	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 7, p_area->header_block->sys_id);											//SF006
-	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 4, p_area->header_block->sys_processor_id);								//SF007
+	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 7, p_area->header_block->sol_id);											//SF006
+	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 4, p_area->header_block->sol_processor_id);								//SF007
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 9, p_area->header_block->sol_issue_of_update);						    //SF005
+	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 4, p_area->header_block->area_issue_of_update);
+	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 1, p_area->header_block->reserved);
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 5, p_area->header_block->area_count);										//SF030
 	return 0;
 }//gpp_sapa_area_header2buffer()
@@ -122,9 +124,11 @@ static GPPLONG gpp_sapa_area_buffer2header(pGPP_SAPA_AREA p_area,GPPUINT1 *no_of
 	GPPLONG rc;
 	GPP_SAPA_AREA_DEF_HEADER header = { 0, };
 	header.message_sub_type=gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 4);													//SF001
-	header.sys_id=gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 7);															//SF006
-	header.sys_processor_id=gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 4);													//SF007
+	header.sol_id=gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 7);															//SF006
+	header.sol_processor_id=gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 4);													//SF007
 	header.sol_issue_of_update=gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 9);												//SF005
+	header.area_issue_of_update = gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 4);									//SF068
+	header.reserved = gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 1);									//SF069
 	header.area_count=gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 5);														//SF030
 	*no_of_areas = header.area_count;
 	if (rc = gpp_sapa_area_add_header(p_area, &header)) return rc;

@@ -344,8 +344,8 @@ void gn_add_float_to_buffer(unsigned char *buffer,long *byte_pos,long *bit_pos,f
 #if BYTE_ORDER==BIG_ENDIAN
 static void b2b_swapn(void *buffer,int n)
 {
-	unsigned char *i,*j;
 	if(n>=2) {
+		unsigned char *i, *j;
 		i=buffer;
 		j=buffer;
 		j += n-1;

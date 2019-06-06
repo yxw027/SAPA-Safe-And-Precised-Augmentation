@@ -9,10 +9,7 @@ GPPLONG gpp_sapa_ocb_asciifile2buffer()
 	FILE *pAsciiDataset = NULL;			   // file pointer to ASCII file containing datasets
 	char *line_buffer = NULL;			   // Read ASCII file line by line and store in this buffer
 	char *line_buffer_for_common = NULL;   // Copy line data with COMMON_INFO for later use
-	char *tokens[30] = { '\0' };		   // Store the tokens of the line read from the ASCII file
-	unsigned int size = 256;			   // size of line_buffer
 	fpos_t  last_pos;			           // last position of pointer in file
-	GPPLONG rc;
 	GPPLONG message_crc_type = 0, ea_flag = 0, crc_frame = 0;
 
 	//Ascii Data set file
@@ -31,12 +28,15 @@ GPPLONG gpp_sapa_ocb_asciifile2buffer()
 	ocb_binary_buffer = (GPPUCHAR *)calloc(GPP_SAPA_MAX_PAYLOAD_BUFFER_LENGTH_BYTES, sizeof(GPPUCHAR));		//Memory Allocation for buffer
 	ocb_sapa_buffer = (GPPUCHAR *)calloc(GPP_SAPA_MAX_MSG_BUFFER_LENGTH_BYTES, sizeof(GPPUCHAR));			//Memory Allocation for Sapa buffer
 	ocb_binary_buffer_recive = (GPPUCHAR *)calloc(GPP_SAPA_MAX_PAYLOAD_BUFFER_LENGTH_BYTES, sizeof(GPPUCHAR));		//Memory Allocation for buffer
-	GPPUINT1 cons_bits =  0;															//Used to fetch End of OCB
 	FILE *fp = stdout;
 
 	pAsciiDataset = fopen(ascii_filename, "r");									//Read file
 	if (pAsciiDataset)															//File handle check
 	{
+		GPPLONG rc;
+		unsigned int size = 256;			   // size of line_buffer
+		char *tokens[30] = { '\0' };		   // Store the tokens of the line read from the ASCII file
+		GPPUINT1 cons_bits = 0;															//Used to fetch End of OCB
 		//Allocate memory for line_buffer
 		line_buffer = (GPPUCHAR*)calloc(size, sizeof(GPPUCHAR));				//Assuming Max  character of line is 255
 		line_buffer_for_common = (GPPUCHAR*)calloc(size, sizeof(GPPUCHAR));		//Assuming Max  character of line is 255
@@ -126,8 +126,8 @@ GPPLONG gpp_sapa_ocb_asciifile2buffer()
 							}
 
 							header.time_tag = sec;
-							header.sys_id = atoi(tokens[3]);
-							header.sys_processor_id = atoi(tokens[4]);
+							header.sol_id = atoi(tokens[3]);
+							header.sol_processor_id = atoi(tokens[4]);
 							header.sol_issue_of_update = atoi(tokens[5]);
 
 							if (sys_index == gpp_sapa_get_highest_cons_set(cons_bits))						//Check End Of OCB data
@@ -139,6 +139,7 @@ GPPLONG gpp_sapa_ocb_asciifile2buffer()
 								header.end_of_obc_set = 0;							//End Of OCB
 							}
 
+							header.reserved = 0;
 							header.sat_ref_datum = atoi(tokens[6]);
 							header.yaw_flag = atoi(tokens[7]);
 							header.ephemeris_type = atoi(tokens[8]);
@@ -324,28 +325,40 @@ GPPLONG gpp_sapa_ocb_asciifile2buffer()
 				{
 					if (gpp_sapa_get_constellation_present_bit(cons_bits, sys_index1) == 1)			//check whether jth sys is present in epoch
 					{
-						rc=gpp_sapa_ocb2buffer(pocb, sys_index1, ocb_sapa_buffer, &byte_pos, &bit_pos);				//add data to buffer //gpp_sapa_ocb2buffer(pocb, sys_index1, ocb_binary_buffer, &byte_pos, &bit_pos);
+						rc=gpp_sapa_ocb2buffer(pocb, sys_index1, ocb_binary_buffer, &byte_pos, &bit_pos);				//add data to buffer //gpp_sapa_ocb2buffer(pocb, sys_index1, ocb_binary_buffer, &byte_pos, &bit_pos);
 					}
 				}
 				GPPLONG last_bit_pos=total_bits(&byte_pos, &bit_pos);
-				//gpp_sapa_ocb_buffer_to_sapa_buffer(ocb_binary_buffer, last_bit_pos, ea_flag, message_crc_type, crc_frame, ocb_sapa_buffer);
+				//printf("\nArea Struct to Binary buffer:------------------%d\n", byte_pos);
+				//int i;
+				//for (i = 0; i <= last_bit_pos; i++)
+				//{
+				//	printf("\nByte %d, Integral Value : %d, Binary Valuefin: ", i, *(ocb_binary_buffer + i));
+				//	int x = 0;
+				//	for (x = 0; x < 8; x++)    //prnbit testing
+				//	{
+				//		printf("%d", TestBit(*(ocb_binary_buffer + i), x), x);
+				//	}
+				//}
+				gpp_sapa_ocb_buffer_to_sapa_buffer(ocb_binary_buffer, last_bit_pos, ea_flag, message_crc_type, crc_frame, ocb_sapa_buffer);
+				if (!pocb_recive)
+				{
+					pocb_recive = calloc(1, sizeof(GPP_SAPA_OCB));
+
+					if (!pocb_recive)
+						return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+				}
+				if (pocb_recive)
+				{														// allocate the sys-sat two dimensional pointer array
+					gpp_sapa_ocb_free_ocb(pocb_recive);
+				}
+				gpp_sapa_sapa_buffer_to_ocb_buffer(ocb_binary_buffer_recive, &rc, &ea_flag, &message_crc_type, &crc_frame, ocb_sapa_buffer);
+				gpp_sapa_buffer2ocb(pocb_recive, ocb_binary_buffer_recive, NULL, NULL);		//gpp_sapa_buffer2ocb(pocb_recive, ocb_binary_buffer_recive, NULL, NULL);
+
+				gpp_sapa_debug_fprintf_ocb(pocb_recive, fp);
 			}//Data Read File if not null ends
 
-			if (!pocb_recive)
-			{
-				pocb_recive = calloc(1, sizeof(GPP_SAPA_OCB));
-
-				if (!pocb_recive)
-					return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-			}
-			if (pocb_recive)
-			{														// allocate the sys-sat two dimensional pointer array
-				gpp_sapa_ocb_free_ocb(pocb_recive);
-			}
-			//gpp_sapa_sapa_buffer_to_ocb_buffer(ocb_binary_buffer_recive,&rc, &ea_flag, &message_crc_type, &crc_frame, ocb_sapa_buffer);
-			gpp_sapa_buffer2ocb(pocb_recive, ocb_sapa_buffer, NULL, NULL);		//gpp_sapa_buffer2ocb(pocb_recive, ocb_binary_buffer_recive, NULL, NULL);
-
-			gpp_sapa_debug_fprintf_ocb(pocb_recive, fp);
+			
 			
 		}//File Reade while ends
 		printf("file successfully");
@@ -354,6 +367,9 @@ GPPLONG gpp_sapa_ocb_asciifile2buffer()
 	{
 		printf("%s", "The file could not be opened");
 	}//else ends
+	free(ocb_binary_buffer);
+	free(ocb_sapa_buffer);
+	free(ocb_binary_buffer_recive);
 }
 
 GPPLONG gpp_sapa_hpac_asciifile2buffer()
@@ -361,10 +377,7 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 	FILE *pAsciiDataset = NULL;			   // file pointer to ASCII file containing datasets
 	char *line_buffer = NULL;			   // Read ASCII file line by line and store in this buffer
 	char *line_buffer_for_common = NULL;   // Copy line data with COMMON_INFO for later use
-	char *tokens[30] = { '\0' };		   // Store the tokens of the line read from the ASCII file
-	unsigned int size = 256;			   // size of line_buffer
 	fpos_t  last_pos;			           // last position of pointer in file
-	GPPLONG rc;
 	GPPLONG message_crc_type = 0, ea_flag = 0, crc_frame = 0;
 
 	//Ascii Data set file
@@ -386,6 +399,7 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 	GPPUCHAR *hpac_binary_buffer = NULL;											//Buffer to store the binary data
 	GPPUCHAR *hpac_binary_buffer_recive = NULL;											//Buffer to store the binary data
 	GPPUCHAR *hpac_sapa_buffer = NULL;
+
 	GPPLONG *byte_pos = 0;														//Starting byte
 	GPPLONG *bit_pos = 0;														//Starting bit
 	
@@ -397,16 +411,17 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 	area_sapa_buffer = (GPPUCHAR *)calloc(GPP_SAPA_MAX_MSG_BUFFER_LENGTH_BYTES, sizeof(GPPUCHAR));			//Memory Allocation for Sapa buffer
 	area_binary_buffer_recive = (GPPUCHAR *)calloc(GPP_SAPA_MAX_PAYLOAD_BUFFER_LENGTH_BYTES, sizeof(GPPUCHAR));		//Memory Allocation for buffer
 
-	GPPUINT1 grid_points = 0;
 	GPPUINT1 area_id[33] = { 0 };		   // Store the tokens of the line read from the ASCII file
-	GPPUINT4 sys_bit= 0;		   // Stores sys bitmask for each area.
-	GPPUINT1 area_count = 0;
-
 	FILE *fp = stdout;
 
 	pAsciiDataset = fopen(ascii_filename, "r");									//Read file
 	if (pAsciiDataset)															//File handle check
 	{
+		GPPLONG rc;
+		char *tokens[30] = { '\0' };		   // Store the tokens of the line read from the ASCII file
+		unsigned int size = 256;			   // size of line_buffer
+		GPPUINT4 sys_bit = 0, grid_points = 0;		   // Stores sys bitmask for each area.
+		GPPUINT1 area_count = 0;
 		//Allocate memory for line_buffer
 		line_buffer = (GPPUCHAR*)calloc(size, sizeof(GPPUCHAR));				//Assuming Max  character of line is 255
 		line_buffer_for_common = (GPPUCHAR*)calloc(size, sizeof(GPPUCHAR));		//Assuming Max  character of line is 255
@@ -434,11 +449,10 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 					}
 					if (parea)
 					{														// allocate the sys-sat two dimensional pointer array
-						//gpp_sapa_area_free_area(parea);
+						gpp_sapa_area_free_area(parea);
 					}
 					//Check for number of satellites in this particular epoc data.
 					fgetpos(pAsciiDataset, &last_pos);														//Save file index current position
-					area_count = 0;
 					
 					memset(area_id, 0, sizeof(area_id));
 					while (fgets(line_buffer, size, pAsciiDataset) != NULL)
@@ -476,8 +490,9 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 						}
 					}
 
-					int i, j, temp, p;
+					int i, j, temp;
 					for (i = 0; i < area_count; i++) {
+						int p;
 						p = i;
 						for (j = i; j < area_count; j++) {
 							if (area_id[p] > area_id[j])
@@ -500,9 +515,11 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 					{
 						GPP_SAPA_AREA_DEF_HEADER area_header = { 0, };
 						area_header.message_sub_type = 0;
-						area_header.sys_id = atoi(tokens[1]);
-						area_header.sys_processor_id = atoi(tokens[2]);
+						area_header.sol_id = atoi(tokens[1]);
+						area_header.sol_processor_id = atoi(tokens[2]);
 						area_header.sol_issue_of_update = atoi(tokens[3]);
+						area_header.area_issue_of_update = 0;
+						area_header.reserved = 0;
 						area_header.area_count = area_count;
 						if (rc = gpp_sapa_area_add_header(parea, &area_header))
 							return rc;
@@ -520,12 +537,13 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 
 								if ((strncmp(tokens[0], "<ATM_HPAC_HEADER>", 17) == 0))
 								{
-									last_pos = 0;
+									//last_pos = 0;
 									fsetpos(pAsciiDataset, &last_pos);
 									break;
 								}
 								if (strncmp(tokens[0], "<ATM_AREA_DEF>", 14) == 0)				//Checking for Satellite Data
 								{
+									fgetpos(pAsciiDataset, &last_pos);														//Save file index current position
 									GPP_SAPA_AREA_DEF_BLOCK area_def_block = { 0, };
 									area_def_block.area_id = atoi(tokens[1]);
 									area_def_block.area_ref_lat = atof(tokens[2]);
@@ -537,7 +555,7 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 									grid_points = area_def_block.area_lat_grid_node_count*area_def_block.area_long_grid_node_count;
 									//
 									//check for area index
-									int ai, i;
+									int ai;
 									for (i = 0; i < area_count; i++) {
 										if (area_id[i] == area_def_block.area_id) {
 											ai = i;
@@ -555,8 +573,23 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 				}
 			}
 		}
+		if(!parea_receive)
+		{
+			parea_receive = calloc(1, sizeof(GPP_SAPA_AREA));
 
-		gpp_sapa_area2buffer(parea, area_binary_buffer, NULL, NULL);
+			if (!parea_receive)
+				return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+		}
+		if (parea_receive)
+		{														// allocate the sys-sat two dimensional pointer array
+			gpp_sapa_hpac_free_hpac(phpac_recive);
+		}
+
+		rc=gpp_sapa_area2buffer(parea, area_binary_buffer, NULL, NULL);
+		gpp_sapa_area_buffer_to_sapa_buffer(area_binary_buffer, rc, ea_flag, message_crc_type, crc_frame, area_sapa_buffer);
+		gpp_sapa_sapa_buffer_to_area_buffer(area_binary_buffer_recive, &rc, &ea_flag, &message_crc_type, &crc_frame, area_sapa_buffer);
+		gpp_sapa_buffer2area(parea_receive, area_binary_buffer_recive, NULL, NULL);
+		gpp_sapa_debug_fprintf_area(parea_receive, fp);
 
 		while (fgets(line_buffer, size, pAsciiDataset) != NULL)					//Read Line and save to line_buffer
 		{
@@ -567,10 +600,8 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 			}
 			else
 			{
-				printf("hello");
 				//Check for ATM_HPAC_HEADER in parsed token
 				strcpy(line_buffer_for_common, line_buffer);									//Copy line_buffer data for later use
-				printf(line_buffer_for_common);
 				GPPUINT4 ntok = gpp_sapa_split_arg_to_tokens(line_buffer, tokens);				//Split line_buffer to tokens
 				if ((strncmp(tokens[0], "<ATM_HPAC_HEADER>", 17) == 0) && ntok == 6)
 				{
@@ -583,16 +614,16 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 					}
 					if (phpac)
 					{														// allocate the sys-sat two dimensional pointer array
-						//gpp_sapa_hpac_free_hpac(phpac);
+						gpp_sapa_hpac_free_hpac(phpac);
 					}
 
 					//Check for number of satellites in this particular epoc data.
 					fgetpos(pAsciiDataset, &last_pos);														//Save file index current position
-					GPPUINT1 area_index = 0;
 					//memset(sys_bit, 0, sizeof(sys_bit));
 					sys_bit = 0;
 					while (fgets(line_buffer, size, pAsciiDataset) != NULL)
 					{
+						GPPUINT1 area_index = 0;
 						/* skip lines beginning with '#' or blank lines  */
 						if (*line_buffer == '#' || !*line_buffer || *line_buffer == NULL)
 						{
@@ -603,17 +634,17 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 							memset(tokens, NULL, sizeof(tokens));
 							ntok = gpp_sapa_split_arg_to_tokens(line_buffer, tokens);
 
-							if (strncmp(tokens[0], "<ATM_IONOSAT_DATA>", 20) == 0)		//Checking for Satellite Data
-							{
-								if (tokens[1][0] == 'G')												
-									sys_bit = gpp_sapa_set_cons_bit(sys_bit, 0);
-								else if (tokens[1][0] == 'R')
-									sys_bit = gpp_sapa_set_cons_bit(sys_bit, 1);
-							}
+							//if (strncmp(tokens[0], "<ATM_IONOSAT_DATA>", 20) == 0)		//Checking for Satellite Data
+							//{
+							//	if (tokens[1][0] == 'G')												
+							//		sys_bit = gpp_sapa_set_cons_bit(sys_bit, 0);
+							//	else if (tokens[1][0] == 'R')
+							//		sys_bit = gpp_sapa_set_cons_bit(sys_bit, 1);
+							//}
 
 							if (strncmp(tokens[0], "<ATM_HPAC_COMMON_DATA>", 14) == 0)		//Checking for Satellite Data
 							{
-								int i;
+								GPPUINT1 i;
 								for (i = 0; i < area_count; i++) {
 									if (area_id[i] == atoi(tokens[1])) {
 										area_index = i;
@@ -651,25 +682,23 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 						}
 
 						header.time_tag = sec;
-						header.sys_id = atoi(tokens[3]);
-						header.sys_processor_id = atoi(tokens[4]);
+						header.sol_id = atoi(tokens[3]);
+						header.sol_processor_id = atoi(tokens[4]);
 						header.sol_issue_of_update = atoi(tokens[5]);
-
+						header.reserved = 0;
+						header.area_issue_of_update = 0;
 						header.area_count = area_count;
 
-						printf("\n");
-						printf(tokens[0]);
-						printf("\n Time: %d \n", atoi(tokens[2]));
-
-						int isys;
-						for (isys = 0; isys < GPP_SAPA_MAX_SYS; isys++)
-						{
-							if (gpp_sapa_get_constellation_present_bit(sys_bit, isys) == 1)			//check whether jth sys is present in epoch
-							{
-								if (rc = gpp_sapa_hpac_add_header(phpac, isys, &header))
-									return rc;
-							}
-						}
+						//printf("%d", header.area_count);
+						//int isys;
+						//for (isys = 0; isys < GPP_SAPA_MAX_SYS; isys++)
+						//{
+						//	if (gpp_sapa_get_constellation_present_bit(sys_bit, isys) == 1)			//check whether jth sys is present in epoch
+						//	{
+						if (rc = gpp_sapa_hpac_add_header(phpac, &header))
+							return rc;
+						/*	}
+						}*/
 						fgetpos(pAsciiDataset, &last_pos);
 						//Common_Data
 						while (fgets(line_buffer, size, pAsciiDataset) != NULL)
@@ -694,10 +723,7 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 									GPPUINT1 tropo_equation_type = 0;
 									GPPUINT1 iono_equation_type = 0;
 
-									printf("\n Area: %d \n", atoi(tokens[1]));
-
 									h_area.area_id = atoi(tokens[1]);
-									h_area.area_continuity_indicator = atof(tokens[2]);
 									h_area.number_of_grid_point = grid_points;
 									h_area.tropo_block_indicator = atoi(tokens[3]);
 									tropo_equation_type = atoi(tokens[4]);
@@ -705,22 +731,23 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 									iono_equation_type = atoi(tokens[6]);
 
 									//check for area index
-									int ai,i;
+									int ai=0,i;
 									for (i = 0; i < area_count; i++) {
 										if (area_id[i] == h_area.area_id) {
 											ai= i;
 										}
 									}
 
-									printf(" ==== %d %d ====", h_area.area_id, ai);
-									for (isys = 0; isys < GPP_SAPA_MAX_SYS; isys++)
-									{
-										if (gpp_sapa_get_constellation_present_bit(sys_bit, isys) == 1)			//check whether jth sys is present in epoch
-										{
-											if (rc = gpp_sapa_hpac_add_area(phpac,isys, ai, &h_area))
-												return rc;
-										}
-									}
+									//printf(" ==== %d %d ====", h_area.area_id, ai);
+									//for (isys = 0; isys < GPP_SAPA_MAX_SYS; isys++)
+									//{
+									//	if (gpp_sapa_get_constellation_present_bit(sys_bit, isys) == 1)			//check whether jth sys is present in epoch
+									//	{
+									if (rc = gpp_sapa_hpac_add_area(phpac, ai, &h_area))
+										return rc;
+
+									/*	}
+									}*/
 									fgetpos(pAsciiDataset, &last_pos);
 									//Tropo_Data
 									while (fgets(line_buffer, size, pAsciiDataset) != NULL)
@@ -742,17 +769,13 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 
 											if (strncmp(tokens[0], "<ATM_TROPO_DATA>", 16) == 0)				//Checking for Satellite Data
 											{
-												GPP_SAPA_HPAC_TROPO_BLOCK h_tropo_block = { 0, };
 												GPP_SAPA_HPAC_TROPO_POLY_COEFFICIENT_BLOCK h_tropo_coeff = { 0, };
 												GPP_SAPA_HPAC_TROPO_GRID_BLOCK h_grid_block = { 0, };
 
-												//h_grid_block.tropo_residuals = calloc(grid_points, sizeof(GPPDOUBLE));
-												//if (!h_grid_block.tropo_residuals) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-
-												h_tropo_block.tropo_equation_type = tropo_equation_type;
-												h_tropo_block.tropo_quality = atof(tokens[1]);
-												h_tropo_block.tropo_avhd = atof(tokens[2]);
-												h_tropo_block.tropo_coeff_size = 1;									//Placed manually
+												h_tropo_coeff.tropo_equation_type = tropo_equation_type;
+												h_tropo_coeff.tropo_quality = atof(tokens[1]);
+												h_tropo_coeff.tropo_avhd = atof(tokens[2]);
+												h_tropo_coeff.tropo_coeff_size = 1;									//Placed manually
 
 												h_tropo_coeff.tropo_poly_coeff[TROPO_POLY_COEFF_INDX_T00] = atof(tokens[3]);
 												h_tropo_coeff.tropo_poly_coeff[TROPO_POLY_COEFF_INDX_T01] = atof(tokens[4]);
@@ -763,33 +786,29 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 												int k = 7, res_index = 0;
 												while (k < grid_points + 7)
 												{
-													//printf("value=========%d %d %d ====", grid_points,k, res_index);
 													h_grid_block.tropo_residuals[res_index] = atof(tokens[k]);
 													k++;
 													res_index++;
 												}
 
 												GPP_SAPA_HPAC_IONO iono = { 0, };
-												iono.iono_equation_type = 1;										//Placed Manually
+												iono.iono_equation_type = iono_equation_type;										//Placed Manually
 
-												for (isys = 0; isys < GPP_SAPA_MAX_SYS; isys++)
-												{
-													if (gpp_sapa_get_constellation_present_bit(sys_bit, isys) == 1)			//check whether jth sys is present in epoch
-													{
-														if (rc = gpp_sapa_hpac_add_tropo_block(phpac,isys, ai, &h_tropo_block))
-															return rc;
+												//for (isys = 0; isys < GPP_SAPA_MAX_SYS; isys++)
+												//{
+												//	if (gpp_sapa_get_constellation_present_bit(sys_bit, isys) == 1)			//check whether jth sys is present in epoch
+												//	{
 
-														if (rc = gpp_sapa_hpac_add_tropo_poly_coeff_block(phpac,isys, ai, &h_tropo_coeff))
-															return rc;
+												if (rc = gpp_sapa_hpac_add_tropo_poly_coeff_block(phpac, ai, &h_tropo_coeff))
+													return rc;
 
-														if (rc = gpp_sapa_hpac_add_tropo_grid_block(phpac,isys, ai, &h_grid_block))
-															return rc;
+												if (rc = gpp_sapa_hpac_add_tropo_grid_block(phpac, ai, &h_grid_block))
+													return rc;
 
-														if (rc = gpp_sapa_hpac_add_iono(phpac, isys,ai, &iono))
-															return rc;
-													}
-												}
-												printf("\niono=%d", iono.iono_equation_type);
+												if (rc = gpp_sapa_hpac_add_iono(phpac,ai, &iono))
+													return rc;
+												/*	}
+												}*/
 												fgetpos(pAsciiDataset, &last_pos);
 												while (fgets(line_buffer, size, pAsciiDataset) != NULL)
 												{
@@ -832,7 +851,7 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 															iono_sat_poly.iono_quality = atof(tokens[2]);
 															iono_sat_poly.iono_coeff_size = 1;
 
-															if (rc = gpp_sapa_hpac_add_iono_sat_poly_block(phpac, sys, ai, sat, &iono_sat_poly))
+															if (rc = gpp_sapa_hpac_add_iono_sat_poly_block(phpac, sys, sat, ai, &iono_sat_poly))
 																return rc;
 
 															iono_sat_coeff.iono_poly_coeff[0] = atof(tokens[3]);
@@ -840,21 +859,20 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 															iono_sat_coeff.iono_poly_coeff[2] = atof(tokens[5]);
 															iono_sat_coeff.iono_poly_coeff[3] = atof(tokens[6]);
 
-															if (rc = gpp_sapa_hpac_add_iono_sat_coeff_block(phpac, sys, ai, sat, &iono_sat_coeff))
+															if (rc = gpp_sapa_hpac_add_iono_sat_coeff_block(phpac, sys, sat, ai, &iono_sat_coeff))
 																return rc;
 
 															iono_grid.iono_residual_field_size = 1;								//Placed manually
-															int k = 7, res_index = 0;
+															res_index = 0;
+															k = 7;
 															while (k < grid_points + 7)
 															{
 																iono_grid.iono_residuals[res_index] = atof(tokens[k]);
 																k++;
 																res_index++;
 															}
-															if (rc = gpp_sapa_hpac_add_iono_sat_grid_block(phpac, sys, ai, sat, &iono_grid))
+															if (rc = gpp_sapa_hpac_add_iono_sat_grid_block(phpac, sys, sat, ai, &iono_grid))
 																return rc;
-															printf(tokens[1]);
-															printf("\n");
 														} // IONO_DATA ends
 													}
 												}
@@ -868,52 +886,36 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 						}
 					}
 				}// COMMON_INFO ends
-				int sys_index1;
-				byte_pos = 0;
-				bit_pos = 0;
-
-				for (sys_index1 = 0; sys_index1 < GPP_SAPA_MAX_CONS; sys_index1++)						//add header to all the systems used in this epoch
-				{
-					if (gpp_sapa_get_constellation_present_bit(sys_bit, sys_index1) == 1)			//check whether jth sys is present in epoch
-					{
-						rc = gpp_sapa_hpac2buffer(phpac, sys_index1, hpac_sapa_buffer, &byte_pos, &bit_pos);				//add data to buffer
-					}
-				}
-				GPPLONG last_bit_pos = total_bits(&byte_pos, &bit_pos);
-		
-			}//Data Read File if not null ends
-
-
-			if (!parea_receive)
-			{
-				parea_receive = calloc(1, sizeof(GPP_SAPA_AREA));
-
-				if (!parea_receive)
-					return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-			}
-			if (parea_receive)
-			{														// allocate the sys-sat two dimensional pointer array
-				//gpp_sapa_hpac_free_hpac(phpac_recive);
-			}
-
-			gpp_sapa_buffer2area(parea_receive, area_binary_buffer, NULL, NULL);
-			gpp_sapa_debug_fprintf_area(parea_receive, fp);
-
-			if (!phpac_recive)
-			{
-				phpac_recive = calloc(1, sizeof(GPP_SAPA_HPAC));
+				
 
 				if (!phpac_recive)
-					return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-			}
-			if (phpac_recive)
-			{														// allocate the sys-sat two dimensional pointer array
-				//gpp_sapa_hpac_free_hpac(phpac_recive);
-			}
-			
-			gpp_sapa_buffer2hpac(phpac_recive, hpac_sapa_buffer, NULL, NULL);	
+				{
+					phpac_recive = calloc(1, sizeof(GPP_SAPA_HPAC));
 
-			gpp_sapa_debug_fprintf_hpac(phpac_recive, fp);
+					if (!phpac_recive)
+						return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+				}
+				if (phpac_recive)
+				{														// allocate the sys-sat two dimensional pointer array
+					if(rc=gpp_sapa_hpac_free_hpac(phpac_recive)) return rc;
+				}
+				byte_pos = 0;
+				bit_pos = 0;
+				rc = gpp_sapa_hpac2buffer(phpac, hpac_binary_buffer, &byte_pos, &bit_pos);				//add data to buffer
+
+				//printf("\nbytes: %d  and bits: %d \n", byte_pos, bit_pos);
+				GPPLONG last_bit_pos = total_bits(&byte_pos, &bit_pos);
+				//printf("\nrc: %d  and total_bits: %d \n", rc,last_bit_pos);
+				gpp_sapa_hpac_buffer_to_sapa_buffer(hpac_binary_buffer, last_bit_pos, ea_flag, message_crc_type, crc_frame, hpac_sapa_buffer);
+				gpp_sapa_sapa_buffer_to_hpac_buffer(hpac_binary_buffer_recive, &rc, &ea_flag, &message_crc_type, &crc_frame, hpac_sapa_buffer);
+
+				byte_pos = 0;
+				bit_pos = 0;
+				gpp_sapa_buffer2hpac(phpac_recive, hpac_binary_buffer_recive, &byte_pos, &bit_pos);
+
+				gpp_sapa_debug_fprintf_hpac(phpac_recive, fp);
+				
+			}//Data Read File if not null ends
 
 		}//File Reade while ends
 		printf("file successfully");
@@ -922,6 +924,12 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 	{
 		printf("%s", "The file could not be opened");
 	}//else ends
+	free(area_binary_buffer);
+	free(area_binary_buffer_recive);
+	free(area_sapa_buffer);
+	free(hpac_binary_buffer);
+	free(hpac_sapa_buffer);
+	free(hpac_binary_buffer_recive);
 }
 
 
