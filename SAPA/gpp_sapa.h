@@ -1,39 +1,128 @@
+#ifndef GPP_SAPA_H_
+#define GPP_SAPA_H_
 
-#ifndef GPP_SAPA_H
-#define GPP_SAPA_H
-/************************************************* * GPS Week and Second of 2010/01/01 00:00:00 UTC
-*****************************************/
-#define SAPA_GPS_WEEK_20100101 1564
-#define SAPA_GPS_SEC_20100101 432000
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#ifdef _WIN32			// fuer Linux NICHT packen !!!, wie vorgehen bei WIN64 ???  NM 2016-02-23
+#pragma pack(push,1)
+#endif
+#ifdef __WATCOMC__
+#pragma off (unreferenced)
+#endif
+
+#include "gnssbase.h"
 #include "gpptime.h"
 #include "compiler.h" //GPP types
 
 #include <stdlib.h>
 #include <stdio.h>
+
+/************************************************* * GPS Week and Second of 2010/01/01 00:00:00 UTC
+*****************************************/
+#define SAPA_GPS_WEEK_20100101 1564
+#define SAPA_GPS_SEC_20100101 432000
+
+
+
+
 /*******************************************
  * SAPA specific parameters
  *******************************************/
+#define SAPA_MAX_SYS 16
+
+
 #define GPP_SAPA_MAX_CONS   16  /* Constellation*/
-#define GPP_SAPA_MAX_SYS	16
+#define GPP_SAPA_MAX_SYS	SAPA_MAX_SYS
 #define GPP_SAPA_MAX_SAT    64  /* SF011, SF012 (special values) */
 #define GPP_SAPA_MAX_SIG    32  /* SF027, SF028 (okay although only 10 bits needed) */
 
 #define GPP_SAPA_MAX_AREA_COUNT 32
-#define GPP_SAPA_MAX_GRID_POINT_PRESENT 64
+#define GPP_SAPA_MAX_GRID_POINT_PRESENT 128
 #define GPP_SAPA_MAX_POLY_COEFF	4
 
 #define GPP_SAPA_OCB_FLAG_IDX_ORB 	0
 #define GPP_SAPA_OCB_FLAG_IDX_CLK 	1
 #define GPP_SAPA_OCB_FLAG_IDX_BIAS 	2
 
+
+//use "BITS" indicating a bitmask value
+#define SAPA_OCB_ORB_BITS 0x01
+#define SAPA_OCB_CLK_BITS 0x02
+#define SAPA_OCB_BIAS_BITS 0x04
+
+
+
+
+
 #define GPP_SAPA_GPS 0
 #define GPP_SAPA_GLO 1
 #define GNSS_HOURLY_TIME_TAG  0
 #define GNSS_FULL_TIME_TAG	1
+
+#define SAPA_HOURLY_TIME_TAG	0
+#define SAPA_FULL_TIME_TAG		1
+
+
 #define GPP_SAPA_SAT_PRESENT 0
 #define GPP_SAPA_OCB_FLAG_PRESENT 1
 #define GPP_SAPA_YAW_FLAG_PRESENT 1
 
+#define GPP_SAPA_OCB_SAT_CORRECTION_MIN -16.382
+#define GPP_SAPA_OCB_SAT_CORRECTION_MAX -16.382
+#define GPP_SAPA_OCB_CB_CORRECTION_MIN -20.46
+#define GPP_SAPA_OCB_CB_CORRECTION_MAX 20.46
+#define GPP_SAPA_OCB_SAT_YAW_MIN 0
+#define GPP_SAPA_OCB_SAT_YAW_MAX 354
+
+#define GPP_SAPA_HPAC_AVHD_MIN -0.508
+#define GPP_SAPA_HPAC_AVHD_MAX 0.508
+#define GPP_SAPA_HPAC_SMALL_T00_MIN -0.252 
+#define GPP_SAPA_HPAC_LARGE_T00_MIN -1.020 
+#define GPP_SAPA_HPAC_SMALL_T00_MAX 0.252
+#define GPP_SAPA_HPAC_LARGE_T00_MAX 1.020 
+#define GPP_SAPA_HPAC_SMALL_T01_MIN -0.063  
+#define GPP_SAPA_HPAC_LARGE_T01_MIN -0.255 
+#define GPP_SAPA_HPAC_SMALL_T01_MAX 0.063
+#define GPP_SAPA_HPAC_LARGE_T01_MAX 0.255
+#define GPP_SAPA_HPAC_SMALL_T11_MIN -0.0510  
+#define GPP_SAPA_HPAC_LARGE_T11_MIN -0.2046 
+#define GPP_SAPA_HPAC_SMALL_T11_MAX 0.0510
+#define GPP_SAPA_HPAC_LARGE_T11_MAX 0.2046
+#define GPP_SAPA_HPAC_SMALL_C00_MIN -81.88 
+#define GPP_SAPA_HPAC_LARGE_C00_MIN -327.64
+#define GPP_SAPA_HPAC_SMALL_C00_MAX 81.88
+#define GPP_SAPA_HPAC_LARGE_C00_MAX 327.64 
+#define GPP_SAPA_HPAC_SMALL_C01_MIN -16.376   
+#define GPP_SAPA_HPAC_LARGE_C01_MIN -65.528
+#define GPP_SAPA_HPAC_SMALL_C01_MAX 16.376
+#define GPP_SAPA_HPAC_LARGE_C01_MAX 65.528
+#define GPP_SAPA_HPAC_SMALL_C11_MIN -8.190  
+#define GPP_SAPA_HPAC_LARGE_C11_MIN -32.766  
+#define GPP_SAPA_HPAC_SMALL_C11_MAX 8.190
+#define GPP_SAPA_HPAC_LARGE_C11_MAX 32.766 
+#define GPP_SAPA_HPAC_SMALL_ZENTH_MIN -0.124 
+#define GPP_SAPA_HPAC_SMALL_ZENTH_MAX 0.124 
+#define GPP_SAPA_HPAC_LARGE_ZENTH_MIN -0.508  
+#define GPP_SAPA_HPAC_LARGE_ZENTH_MAX 0.508 
+#define GPP_SAPA_HPAC_SMALL_SLANT_MIN -0.28 
+#define GPP_SAPA_HPAC_MEDIUM_SLANT_MIN -2.52 
+#define GPP_SAPA_HPAC_LARGE_SLANT_MIN -20.44 
+#define GPP_SAPA_HPAC_EXTRA_LARGE_SLANT_MIN -327.64
+#define GPP_SAPA_HPAC_SMALL_SLANT_MAX 0.28
+#define GPP_SAPA_HPAC_MEDIUM_SLANT_MAX 2.52 
+#define GPP_SAPA_HPAC_LARGE_SLANT_MAX 20.44
+#define GPP_SAPA_HPAC_EXTRA_LARGE_SLANT_MAX 327.64
+
+#define GPP_SAPA_AREA_REF_LAT_MIN -90.00 
+#define GPP_SAPA_AREA_REF_LAT_MAX 90.00 
+#define GPP_SAPA_AREA_REF_LONG_MIN -180.00 
+#define GPP_SAPA_AREA_REF_LONG_MAX 180.00  
+#define GPP_SAPA_AREA_GRID_LAT_SPACING_MIN 0.1 
+#define GPP_SAPA_AREA_GRID_LAT_SPACING_MAX 3.2 
+#define GPP_SAPA_AREA_GRID_LONG_SPACING_MIN 0.1 
+#define GPP_SAPA_AREA_GRID_LONG_SPACING_MAX 3.2 
 /******************************************
   *	GPP SAPA ERROR Codes
   ******************************************/
@@ -49,11 +138,15 @@
 #define GPP_SAPA_ERR_INVALID_OCB_SV_CB		(GPP_SAPA_ERROR_BASE-8)		/* -54008 */
 #define GPP_SAPA_ERR_INVALID_SVLIST			(GPP_SAPA_ERROR_BASE-9)		/* -54009 */
 #define GPP_SAPA_ERR_INVALID_SIGLIST		(GPP_SAPA_ERROR_BASE-10)	/* -540010 */
-#define GPP_SAPA_ERR_INVALID_CB_SIG		 	(GPP_SAPA_ERROR_BASE-11)		/*	-54011	*/
-#define GPP_SAPA_ERR_INVALID_HPAC_AREA	 	(GPP_SAPA_ERROR_BASE-12)		/*	-54012	*/
-#define GPP_SAPA_ERR_INVALID_HPAC_HEADER 	(GPP_SAPA_ERROR_BASE-13)		/*	-54013	*/
-#define GPP_SAPA_ERR_INVALID_AREA	 		(GPP_SAPA_ERROR_BASE-14)		/*	-54014	*/
-#define GPP_SAPA_ERR_INVALID_META	 		(GPP_SAPA_ERROR_BASE-15)		/*	-54015	*/
+#define GPP_SAPA_ERR_INVALID_CB_SIG		 	(GPP_SAPA_ERROR_BASE-11)	/*	-54011	*/
+#define GPP_SAPA_ERR_INVALID_HPAC_AREA	 	(GPP_SAPA_ERROR_BASE-12)	/*	-54012	*/
+#define GPP_SAPA_ERR_INVALID_HPAC_HEADER 	(GPP_SAPA_ERROR_BASE-13)	/*	-54013	*/
+#define GPP_SAPA_ERR_INVALID_AREA	 		(GPP_SAPA_ERROR_BASE-14)	/*	-54014	*/
+#define GPP_SAPA_ERR_INVALID_META	 		(GPP_SAPA_ERROR_BASE-15)	/*	-54015	*/
+#define GPP_SAPA_ERR_INVALID_SYS	 		(GPP_SAPA_ERROR_BASE-16)	/*	-54016	*/
+#define GPP_SAPA_ERR_INVALID_OCB_HANDLE		(GPP_SAPA_ERROR_BASE-17)	/*	-54017	*/
+#define GPP_SAPA_ERR_INVALID_TIME_TAG_TYPE 	(GPP_SAPA_ERROR_BASE-18)	/*	-54018	*/
+
 
 
 #define GPP_SAPA_ERR_PREAMBLE				(GPP_SAPA_ERROR_BASE-100) /* -54100	*/
@@ -111,77 +204,90 @@
 #define SAPA_LARGE_IONO_RESIDUAL_SLANT_DELAY	10
 #define SAPA_EXTRA_LARGE_IONO_RESIDUAL_SLANT_DELAY 14
 
-#define SAPA_RES_AREA_REF_LATITUDE	0.1
-#define SAPA_RES_AREA_REF_LONGITUDE 0.1
-#define SAPA_RES_AREA_GRID_LATITUDE_SPACING	 0.1
-#define SAPA_RES_AREA_GRID_LONGITUDE_SPACING 0.1
+
+#define GPP_SAPA_MAX_OCB_CONFIGS 4
+#define GPP_SAPA_OCB_BITS_ORB	0x01
+#define GPP_SAPA_OCB_BITS_CLK	0x02
+#define GPP_SAPA_OCB_BITS_PB	0x04
+#define GPP_SAPA_OCB_BITS_CB	0x08
 
 
-static const GPPUINT1 SAPA_SV_IODE_LEN[GPP_SAPA_MAX_SYS]={SAPA_SV_IODE_LEN_GPS, SAPA_SV_IODE_LEN_GLO,};
 
-static const GPPLONG SAPA_SV_BITMASK_LEN_GPS[4]={32, 44, 56, 64};
-static const GPPLONG SAPA_SV_BITMASK_LEN_GLO[4]={24, 36, 48, 63};
-static const GPPLONG *SAPA_SV_BITMASK_LEN[2]={SAPA_SV_BITMASK_LEN_GPS, SAPA_SV_BITMASK_LEN_GLO};
 
-static const GPPLONG SAPA_BIAS_BITMASK_LEN_GPS[2] = { 6, 11 };
-static const GPPLONG SAPA_BIAS_BITMASK_LEN_GLO[2] = { 5, 9 };
-static const GPPUINT1 *SAPA_BIAS_BITMASK_LEN[2] = { SAPA_BIAS_BITMASK_LEN_GPS, SAPA_BIAS_BITMASK_LEN_GLO };
 
-static const GPPDOUBLE SAPA_CONTI_ID[8] = { 0.0,1.0, 5.0, 10.0, 30.0, 60.0, 120.0, 320.0 };
-static const GPPDOUBLE SAPA_USER_RANGE_ERROR[8] = { 0.00,0.01, 0.02,0.05, 0.10, 0.30, 1.00,1.00 };
-static const GPPDOUBLE SAPA_IONO_QUALITY[16] = { 0.00,0.03, 0.05,0.07, 0.14, 0.28, 0.56,1.12,2.24,4.48,8.96,17.92,35.84,71.68,143.36,143.36 };
-static const GPPDOUBLE SAPA_TROPO_QUALITY[8] = { 0.0,0.010,0.020,0.040,0.080,0.160,0.320,0.320 };
+#define GPP_SAPA_MAX_HPAC_BITS 4
+#define GPP_SAPA_MAX_AREA_BITS 4
 
-static const GPPUINT1 SAPA_TROPO_RESIDUAL_ZENITH_DELAY[2] = { SAPA_SMALL_TROPO_RESIDUAL_ZENITH_DELAY, SAPA_LARGE_TROPO_RESIDUAL_ZENITH_DELAY };
-static const GPPUINT1 SAPA_IONO_RESIDUAL_SLANT_DELAY[4] = { SAPA_SMALL_IONO_RESIDUAL_SLANT_DELAY,SAPA_MEDIUM_IONO_RESIDUAL_SLANT_DELAY,SAPA_LARGE_IONO_RESIDUAL_SLANT_DELAY ,SAPA_EXTRA_LARGE_IONO_RESIDUAL_SLANT_DELAY };
+static const GPPDOUBLE SAPA_TROPO_COEFF_T00_MIN[2] = { GPP_SAPA_HPAC_SMALL_T00_MIN ,GPP_SAPA_HPAC_LARGE_T00_MIN };
+static const GPPDOUBLE SAPA_TROPO_COEFF_T00_MAX[2] = { GPP_SAPA_HPAC_SMALL_T00_MAX ,GPP_SAPA_HPAC_LARGE_T00_MAX };
+static const GPPDOUBLE SAPA_TROPO_COEFF_T01_MIN[2] = { GPP_SAPA_HPAC_SMALL_T01_MIN ,GPP_SAPA_HPAC_LARGE_T01_MIN };
+static const GPPDOUBLE SAPA_TROPO_COEFF_T01_MAX[2] = { GPP_SAPA_HPAC_SMALL_T01_MAX ,GPP_SAPA_HPAC_LARGE_T01_MAX };
+static const GPPDOUBLE SAPA_TROPO_COEFF_T11_MIN[2] = { GPP_SAPA_HPAC_SMALL_T11_MIN ,GPP_SAPA_HPAC_LARGE_T11_MIN };
+static const GPPDOUBLE SAPA_TROPO_COEFF_T11_MAX[2] = { GPP_SAPA_HPAC_SMALL_T11_MAX ,GPP_SAPA_HPAC_LARGE_T11_MAX };
+static const GPPDOUBLE SAPA_TROPO_COEFF_C00_MIN[2] = { GPP_SAPA_HPAC_SMALL_C00_MIN ,GPP_SAPA_HPAC_LARGE_C00_MIN };
+static const GPPDOUBLE SAPA_TROPO_COEFF_C00_MAX[2] = { GPP_SAPA_HPAC_SMALL_C00_MAX ,GPP_SAPA_HPAC_LARGE_C00_MAX };
+static const GPPDOUBLE SAPA_TROPO_COEFF_C01_MIN[2] = { GPP_SAPA_HPAC_SMALL_C01_MIN ,GPP_SAPA_HPAC_LARGE_C01_MIN };
+static const GPPDOUBLE SAPA_TROPO_COEFF_C01_MAX[2] = { GPP_SAPA_HPAC_SMALL_C01_MAX ,GPP_SAPA_HPAC_LARGE_C01_MAX };
+static const GPPDOUBLE SAPA_TROPO_COEFF_C11_MIN[2] = { GPP_SAPA_HPAC_SMALL_C11_MIN ,GPP_SAPA_HPAC_LARGE_C11_MIN };
+static const GPPDOUBLE SAPA_TROPO_COEFF_C11_MAX[2] = { GPP_SAPA_HPAC_SMALL_C11_MAX ,GPP_SAPA_HPAC_LARGE_C11_MAX };
+static const GPPDOUBLE SAPA_TROPO_RESIDUAL_ZENITH_MIN[2] = { GPP_SAPA_HPAC_SMALL_ZENTH_MIN ,GPP_SAPA_HPAC_LARGE_ZENTH_MIN };
+static const GPPDOUBLE SAPA_TROPO_RESIDUAL_ZENITH_MAX[2] = { GPP_SAPA_HPAC_SMALL_ZENTH_MAX ,GPP_SAPA_HPAC_LARGE_ZENTH_MAX };
+static const GPPDOUBLE SAPA_IONO_RESIDUAL_SLANT_MIN[4] = { GPP_SAPA_HPAC_SMALL_SLANT_MIN,GPP_SAPA_HPAC_MEDIUM_SLANT_MIN,GPP_SAPA_HPAC_LARGE_SLANT_MIN,GPP_SAPA_HPAC_EXTRA_LARGE_SLANT_MIN };
+static const GPPDOUBLE SAPA_IONO_RESIDUAL_SLANT_MAX[4] = { GPP_SAPA_HPAC_SMALL_SLANT_MAX,GPP_SAPA_HPAC_MEDIUM_SLANT_MAX,GPP_SAPA_HPAC_LARGE_SLANT_MAX,GPP_SAPA_HPAC_EXTRA_LARGE_SLANT_MAX };
 
-static const GPPLONG SAPA_CRC_BYTES[4] = { SAPA_CONST_LEN_BYTES_CRC_8,SAPA_CONST_LEN_BYTES_CRC_16,SAPA_CONST_LEN_BYTES_CRC_24,SAPA_CONST_LEN_BYTES_CRC_32 };
 
-static const GPPLONG SAPA_TROPO_COEFF_T012[2] = { 7,9 };
-static const GPPLONG SAPA_TROPO_COEFF_T3[2] = { 9,11};
-static const GPPLONG *SAPA_TROPO_COEFF[4] = { SAPA_TROPO_COEFF_T012,SAPA_TROPO_COEFF_T012,SAPA_TROPO_COEFF_T012 ,SAPA_TROPO_COEFF_T3 };
+extern const GPPUINT1 SAPA_SV_IODE_LEN[GPP_SAPA_MAX_SYS];
+extern const GPPUINT1 SAPA_SV_BITMASK_LEN_GPS[4];
+extern const GPPUINT1 SAPA_SV_BITMASK_LEN_GLO[4];
+extern const GPPUINT1 *SAPA_SV_BITMASK_LEN[2];
+extern const GPPUINT1 SAPA_CRC_BYTES[4];
 
-static const GPPLONG SAPA_IONO_COEFF_C012[2] = { 12,14 };
-static const GPPLONG SAPA_IONO_COEFF_C3[2] = { 13,15 };
-static const GPPLONG *SAPA_IONO_COEFF[4] = { SAPA_IONO_COEFF_C012,SAPA_IONO_COEFF_C012,SAPA_IONO_COEFF_C012 ,SAPA_IONO_COEFF_C3 };
+
+
 //============================================= OCB Structures ============================================================================================================================
 typedef struct GPP_SAPA_OCB_HEADER {
-	GPPUINT1		message_sub_type;														//SF001	       -- first charcter of satellite ID
-	GPPUINT1		time_tag_type;															//SF002		   -- can be 0 or 1,will be set manually in the code
-	GPPUINT4		time_tag;																//SF003orSF004 -- <ascii_in>.ocb's OCB_COMMON_INFO[2]
-	GPPUINT1		sol_id;																	//SF006		   -- <ascii_in>.ocb's OCB_COMMON_INFO[3]
-	GPPUINT1		sol_processor_id;														//SF007        -- <ascii_in>.ocb's OCB_COMMON_INFO[4]
-	GPPUINT4		sol_issue_of_update;													//SF005        -- <ascii_in>.ocb's OCB_COMMON_INFO[5]
-	GPPUINT1		end_of_obc_set;															//SF010        -- will be set in the code
-	GPPUINT1		reserved;																//SF069
-	GPPUINT1		yaw_flag;																//SF008        -- <ascii_in>.ocb's OCB_COMMON_INFO[7]
-	GPPUINT1		sat_ref_datum;															//SF009        -- <ascii_in>.ocb's OCB_COMMON_INFO[6]
-	GPPUINT1		ephemeris_type;															//SF016orSF017 -- <ascii_in>.ocb's OCB_COMMON_INFO[8]
+	GPPUINT1		message_sub_type;		//SF001	       -- first charcter of satellite ID
+	GPPUINT1		time_tag_type;			//SF002		   -- can be 0 or 1,will be set manually in the code
+	GPPUINT4		time_tag;				//SF003orSF004 -- <ascii_in>.ocb's OCB_COMMON_INFO[2]
+	GPPUINT4		sol_id;					//SF006		   -- <ascii_in>.ocb's OCB_COMMON_INFO[3]
+	GPPUINT4		sol_processor_id;		//SF007        -- <ascii_in>.ocb's OCB_COMMON_INFO[4]
+	GPPUINT4		sol_issue_of_update;	//SF005        -- <ascii_in>.ocb's OCB_COMMON_INFO[5]
+	GPPUINT1		end_of_obc_set;			//SF010        -- will be set in the code
+	GPPUINT1		reserved;				//SF069
+	GPPUINT1		yaw_flag;				//SF008        -- <ascii_in>.ocb's OCB_COMMON_INFO[7]
+	GPPUINT1		sat_ref_datum;			//SF009        -- <ascii_in>.ocb's OCB_COMMON_INFO[6]
+	GPPUINT1		ephemeris_type;			//SF016orSF017 -- <ascii_in>.ocb's OCB_COMMON_INFO[8]
 } GPP_SAPA_OCB_HEADER, *pGPP_SAPA_OCB_HEADER;
 
 typedef struct GPP_SAPA_OCB_SV_ORB {
-	GPPUINT1		iode;																	//SF018orSF019 -- <ascii_in>.ocb's OCB_SATELLITE_DATA[7]
-	GPPDOUBLE		orb_radial_correction;													//SF020		   -- <ascii_in>.ocb's OCB_SATELLITE_DATA[9]
-	GPPDOUBLE		orb_along_track_correction;												//SF020		   -- <ascii_in>.ocb's OCB_SATELLITE_DATA[10]
-	GPPDOUBLE		orb_cross_track_correction;												//SF020        -- <ascii_in>.ocb's OCB_SATELLITE_DATA[11]
-	GPPDOUBLE		sat_yaw;																//SF021        -- <ascii_in>.ocb's OCB_SATELLITE_DATA[13]
+	GPPUINT4		iode;							//SF018orSF019 -- <ascii_in>.ocb's OCB_SATELLITE_DATA[7]
+	GPPDOUBLE		orb_radial_correction;			//SF020		   -- <ascii_in>.ocb's OCB_SATELLITE_DATA[9]
+	GPPDOUBLE		orb_along_track_correction;		//SF020		   -- <ascii_in>.ocb's OCB_SATELLITE_DATA[10]
+	GPPDOUBLE		orb_cross_track_correction;		//SF020        -- <ascii_in>.ocb's OCB_SATELLITE_DATA[11]
+	GPPDOUBLE		d_orbit[3];
+	GPPDOUBLE		sat_yaw;						//SF021        -- <ascii_in>.ocb's OCB_SATELLITE_DATA[13]
+	GPPT_WNT		wnt;
 } GPP_SAPA_OCB_SV_ORB, *pGPP_SAPA_OCB_SV_ORB;
 
 typedef struct GPP_SAPA_OCB_SV_CLK {
-	GPPDOUBLE		iode_continuity;														//SF022        -- <ascii_in>.ocb's OCB_SATELLITE_DATA[8]
-	GPPDOUBLE		clk_correction;															//SF020        -- <ascii_in>.ocb's OCB_SATELLITE_DATA[14]
-	GPPDOUBLE		user_range_error;														//SF024        -- <ascii_in>.ocb's OCB_SATELLITE_DATA[15]
+	GPPDOUBLE		iode_continuity;			//SF022        -- <ascii_in>.ocb's OCB_SATELLITE_DATA[8]
+	GPPDOUBLE		clk_correction;				//SF020        -- <ascii_in>.ocb's OCB_SATELLITE_DATA[14]
+	GPPDOUBLE		user_range_error;			//SF024        -- <ascii_in>.ocb's OCB_SATELLITE_DATA[15]
+	GPPT_WNT		wnt;
 } GPP_SAPA_OCB_SV_CLK, *pGPP_SAPA_OCB_SV_CLK;
+
 
 typedef struct GPP_SAPA_OCB_SV_BIAS_PB
 {
 	GPPUINT1		fix_flag;																//SF023        -- <ascii_in>.ocb's OCB_SATPHASE_BIAS[3]
 	GPPDOUBLE		countinity_indicator;													//SF015        -- <ascii_in>.ocb's OCB_SATPHASE_BIAS[4]
 	GPPDOUBLE		pb_correction;															//SF020        -- <ascii_in>.ocb's OCB_SATPHASE_BIAS[2]
+	GPPT_WNT		wnt;
 } GPP_SAPA_OCB_SV_BIAS_PB, *pGPP_SAPA_OCB_SV_BIAS_PB;
 
 typedef struct GPP_SAPA_OCB_SV_BIAS_CB {
 	GPPDOUBLE		cb_correction;															//SF029        -- <ascii_in>.ocb's OCB_SATCODE_BIAS[2]
+	GPPT_WNT		wnt;
 } GPP_SAPA_OCB_SV_BIAS_CB, *pGPP_SAPA_OCB_SV_BIAS_CB;
 
 typedef struct GPP_SAPA_OCB_SV_BIAS {
@@ -193,11 +299,11 @@ typedef struct GPP_SAPA_OCB_SV_BIAS {
 
 
 typedef struct GPP_SAPA_OCB_SV {
-    pGPP_SAPA_OCB_SV_ORB		orb;														//Orbit 
+    pGPP_SAPA_OCB_SV_ORB		orb;														//Orbit
     pGPP_SAPA_OCB_SV_CLK		clk;														//Clock
     pGPP_SAPA_OCB_SV_BIAS		bias;														//Bias
 	GPPUINT1					do_not_use;													//SF013       -- <ascii_in>.ocb's OCB_SATELLITE_DATA[2]
-	GPPUINT1					ocb_present_flag;											//SF014       -- <ascii_in>.ocb's OCB_SATELLITE_DATA[3]
+	GPPUINT1 					ocb_bits;
 	GPPDOUBLE					continuity_indicator;										//SF015       -- <ascii_in>.ocb's OCB_SATELLITE_DATA[6]
 } GPP_SAPA_OCB_SV, *pGPP_SAPA_OCB_SV;
 
@@ -205,6 +311,13 @@ typedef struct GPP_SAPA_OCB {
 	GPPUINT8					sv_prn_bits[GPP_SAPA_MAX_CONS];
 	pGPP_SAPA_OCB_HEADER		*header_block;												//Header Block
     pGPP_SAPA_OCB_SV			**sv;														//get access via sv[cons][sat]; cons=GPS,GLO; sat=0,1,2,...N
+
+    GPPUINT8					clk_prn_bits[SAPA_MAX_SYS];	//CP:2019/06/05 valid clock corrections
+    GPPUINT8					orb_prn_bits[SAPA_MAX_SYS];	//CP:2019/06/05 valid orbit corrections
+    GPPUINT8					pb_prn_bits[SAPA_MAX_SYS];	//CP:2019/06/05 valid phase bias corrections
+    GPPUINT8					cb_prn_bits[SAPA_MAX_SYS];	//CP:2019/06/05 valid code bias corrections
+
+
 }GPP_SAPA_OCB, *pGPP_SAPA_OCB;
 //-------------------------------------------------------------------------------------------------------
 
@@ -214,16 +327,16 @@ typedef struct GPP_SAPA_HPAC_HEADER {
 	GPPUINT1		message_sub_type;														//SF001	        -- first charcter of satellite ID
 	GPPUINT1		time_tag_type;															//SF002			-- can be 0 or 1,will be set manually in the code
 	GPPUINT4		time_tag;																//SF003orSF004	-- <ascii_in>.atm's ATM_HPAC_HEADER[1] & ATM_HPAC_HEADER[2]
-	GPPUINT1		sol_id;																	//SF006			-- <ascii_in>.atm's ATM_HPAC_HEADER[3]
-	GPPUINT1		sol_processor_id;														//SF007			-- <ascii_in>.atm's ATM_HPAC_HEADER[4]
+	GPPUINT4		sol_id;																	//SF006			-- <ascii_in>.atm's ATM_HPAC_HEADER[3]
+	GPPUINT4		sol_processor_id;														//SF007			-- <ascii_in>.atm's ATM_HPAC_HEADER[4]
 	GPPUINT4		sol_issue_of_update;													//SF005			-- <ascii_in>.atm's ATM_HPAC_HEADER[5]
 	GPPUINT1		reserved;																//SF069
 	GPPUINT1		area_issue_of_update;													//SF068
-	GPPUINT1        area_count;																//SF030			-- 
+	GPPUINT1        area_count;																//SF030			--
 } GPP_SAPA_HPAC_HEADER, *pGPP_SAPA_HPAC_HEADER;
 
 typedef struct GPP_SAPA_HPAC_AREA {
-	GPPUINT1		area_id;																//SF031			-- <ascii_in>.atm's ATM_HPAC_COMMON_DATA[1]
+	GPPUINT4		area_id;																//SF031			-- <ascii_in>.atm's ATM_HPAC_COMMON_DATA[1]
 	GPPUINT1		number_of_grid_point;													//SF039			--
 	GPPUINT1		tropo_block_indicator;													//SF040			-- <ascii_in>.atm's ATM_HPAC_COMMON_DATA[3]
 	GPPUINT1		iono_block_indicator;													//SF040			-- <ascii_in>.atm's ATM_HPAC_COMMON_DATA[5]
@@ -254,7 +367,7 @@ typedef struct GPP_SAPA_HPAC_TROPO
 typedef struct GPP_SAPA_HPAC_IONO_SAT_POLY
 {
 	GPPDOUBLE  iono_quality;																//SF055     -- <ascii_in>.atm's ATM_IONOSAT_DATA[2]
-	GPPUINT1  iono_coeff_size;																//SF056     
+	GPPUINT1  iono_coeff_size;																//SF056
 }GPP_SAPA_HPAC_IONO_SAT_POLY,*pGPP_SAPA_HPAC_IONO_SAT_POLY;
 
 typedef struct GPP_SAPA_HPAC_IONO_SAT_COEFFICIENT
@@ -264,7 +377,7 @@ typedef struct GPP_SAPA_HPAC_IONO_SAT_COEFFICIENT
 
 typedef struct GPP_SAPA_HPAC_IONO_GRID_BLOCK
 {
-	GPPUINT1  iono_residual_field_size;														//SF063     
+	GPPUINT1  iono_residual_field_size;														//SF063
 	GPPDOUBLE  iono_residuals[GPP_SAPA_MAX_GRID_POINT_PRESENT];								//SF064orSF065orSF066  -- <ascii_in>.atm's ATM_IONOSAT_DATA[7] to .....
 }GPP_SAPA_HPAC_IONO_GRID_BLOCK, *pGPP_SAPA_HPAC_IONO_GRID_BLOCK;
 
@@ -278,7 +391,7 @@ typedef struct GPP_SAPA_HPAC_IONO_SAT_BLOCK
 typedef struct GPP_SAPA_HPAC_IONO
 {
 	GPPUINT1  iono_equation_type;															//SF054     -- will be set manually in the code
-	GPPUINT8  sat_prn_bits[GPP_SAPA_MAX_CONS];												//SF011      
+	GPPUINT8  sat_prn_bits[GPP_SAPA_MAX_CONS];												//SF011
 	pGPP_SAPA_HPAC_IONO_SAT_BLOCK		**iono_sat_block;									//Ionosphere Block
 } GPP_SAPA_HPAC_IONO, *pGPP_SAPA_HPAC_IONO;
 
@@ -299,17 +412,17 @@ typedef struct GPP_SAPA_HPAC {
 //============================================= AREA Structures =========================================
 typedef struct GPP_SAPA_AREA_DEF_HEADER {
 	GPPUINT1		message_sub_type;														//SF001	        -- first charcter of satellite ID
-	GPPUINT1		sol_id;																	//SF006			-- <ascii_in>.atm's ATM_AREADEF_HEADER[1]
-	GPPUINT1		sol_processor_id;														//SF007			-- <ascii_in>.atm's ATM_AREADEF_HEADER[2]
+	GPPUINT4		sol_id;																	//SF006			-- <ascii_in>.atm's ATM_AREADEF_HEADER[1]
+	GPPUINT4		sol_processor_id;														//SF007			-- <ascii_in>.atm's ATM_AREADEF_HEADER[2]
 	GPPUINT4		sol_issue_of_update;													//SF005			-- <ascii_in>.atm's ATM_AREADEF_HEADER[3]
 	GPPUINT1		area_issue_of_update;													//SF068
 	GPPUINT1		reserved;																//SF069
-	GPPUINT1        area_count;																//SF030			-- 
+	GPPUINT1        area_count;																//SF030			--
 } GPP_SAPA_AREA_DEF_HEADER, *pGPP_SAPA_AREA_DEF_HEADER;
 
 typedef struct GPP_SAPA_AREA_DEF_BLOCK
 {
-	GPPUINT1		area_id;																//SF031		   -- <ascii_in>.atm's ATM_AREA_DEF[1]
+	GPPUINT4		area_id;																//SF031		   -- <ascii_in>.atm's ATM_AREA_DEF[1]
 	GPPDOUBLE       area_ref_lat;															//SF032		   -- <ascii_in>.atm's ATM_AREA_DEF[2]
 	GPPDOUBLE       area_ref_long;															//SF033		   -- <ascii_in>.atm's ATM_AREA_DEF[3]
 	GPPUINT1        area_lat_grid_node_count;												//SF034		   -- <ascii_in>.atm's ATM_AREA_DEF[4]
@@ -330,6 +443,63 @@ typedef struct GPP_SAPA_USE_STATES{
     pGPP_SAPA_AREA  area;
 } GPP_SAPA_USE_STATES, *pGPP_SAPA_USE_STATES;
 
+
+
+/************************************************************************************************************
+ * SAPA MSG HANDLE
+ * This handle allows for the SAPA Msg settings
+ ************************************************************************************************************/
+ /************************************************************************************************************
+  * SAPA MSG HANDLE
+  * This handle allows for the SAPA Msg settings
+  ************************************************************************************************************/
+typedef struct SAPA_OCB_HANDLE {
+	GPPUINT1 sys;
+	GPPUINT1 time_tag_type;
+	GPPUINT1 reserved;													//SF069
+	GPPUINT1 ocb_bits; //ocb_bits to configure OCB messages (0001 only orbits, 0010 only clock, 0100 only PB, 1000 only CB)
+} SAPA_OCB_HANDLE, *pSAPA_OCB_HANDLE;
+
+
+typedef struct SAPA_GAD_HANDLE {
+	GPPUINT1  sys;																//SF001
+	GPPUINT1  reserved;															//SF069
+	GPPUINT1  area_issue_of_update;												//SF068
+	//GPPUINT4  area_bits;														//indicating which area is part of the message
+} SAPA_GAD_HANDLE, *pSAPA_GAD_HANDLE;
+
+
+typedef struct SAPA_HPAC_HANDLE {
+	GPPUINT1  sys;																//SF001         -- first charcter of satellite ID
+	GPPUINT1  time_tag_type;
+	GPPUINT1  reserved;															//SF069
+	GPPUINT1  area_issue_of_update;												//SF068
+	GPPUINT8  grid_bits;					 //SF039   --
+	//GPPUINT4  area_bits;					//indicating which area is part of the message
+	GPPUINT1  tropo_coeff_size;              //SF044   --
+	GPPUINT1  tropo_residual_size;             //SF051
+	GPPUINT1  iono_coeff_size;                //SF056
+	GPPUINT1  iono_residual_field_size;              //SF063
+} SAPA_HPAC_HANDLE, *pSAPA_HPAC_HANDLE;
+
+
+
+typedef struct SAPA_HANDLE {
+	pSAPA_OCB_HANDLE  **ocbHdl; //one pointer for each GNSS
+	GPPUINT1   ocb_config_bits[SAPA_MAX_SYS];
+
+	pSAPA_HPAC_HANDLE  **hpacHdl[SAPA_MAX_SYS];
+	pSAPA_GAD_HANDLE gadHdl[SAPA_MAX_SYS];
+} SAPA_HANDLE, *pSAPA_HANDLE;
+
+
+GPPLONG gpp_sapa_handle_free_ocbHdl(SAPA_HANDLE *sapaHdl);
+GPPLONG gpp_sapa_handle_malloc_ocbHdl(SAPA_HANDLE *sapaHdl);
+
+GPPLONG gpp_sapa_handle_free_handle(SAPA_HANDLE **ppSapaHdl);
+GPPLONG gpp_sapa_handle_malloc_handle(SAPA_HANDLE **ppSapaHdl);
+
+
 /******************************************************************************
  *  \brief Write SAPA OCB content to buffer
  *
@@ -342,13 +512,13 @@ typedef struct GPP_SAPA_USE_STATES{
 
  *****************************************************************************/
 
-GPPLONG gpp_sapa_ocb2buffer(const pGPP_SAPA_OCB ocb, GPPUINT1 sys, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
+GPPLONG gpp_sapa_ocb2buffer(const pGPP_SAPA_OCB ocb, const SAPA_OCB_HANDLE *ocbHdl, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
 GPPLONG gpp_sapa_buffer2ocb(pGPP_SAPA_OCB ocb, const GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
 
-GPPLONG gpp_sapa_hpac2buffer(const pGPP_SAPA_HPAC hpac, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
+GPPLONG gpp_sapa_hpac2buffer(const pGPP_SAPA_HPAC hpac, const SAPA_HPAC_HANDLE *hpacHdl, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
 GPPLONG gpp_sapa_buffer2hpac(pGPP_SAPA_HPAC hpac, const GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
 
-GPPLONG gpp_sapa_area2buffer(const pGPP_SAPA_AREA area, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
+GPPLONG gpp_sapa_area2buffer(const pGPP_SAPA_AREA area, const SAPA_GAD_HANDLE *ocbHdl, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
 GPPLONG gpp_sapa_buffer2area(pGPP_SAPA_AREA area, const GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
 //Internal functions
 
@@ -368,19 +538,20 @@ GPPUINT1 gpp_sapa_get_constellation_present_bit(GPPUINT2 cons_bits, GPPUINT1 pos
 GPPUINT1 gpp_sapa_get_highest_cons_set(GPPUINT2 cons_bit);
 //Sets cons_bit position
 GPPUINT1 gpp_sapa_set_cons_bit(GPPUINT1 cons_bits, GPPUINT1 pos);
-//System ID
-GPPCHAR gpp_sapa_system_id(GPPUINT1 sys_id);
+
 
 void gpp_sapa_get_svlist(GPPUINT8 prn_bits, GPPUINT1 *svlist);
 void gpp_sapa_get_siglist(GPPUINT4 sig_bits, GPPUINT1 *siglist);
-int TestBit(GPPUINT8 A, int k);
+
 //==================================Functions required in Data conversion from and to Buffer/Structure===============================================================
 static GPPLONG gpp_sapa_sv_bitmask2buffer(GPPUINT8 sv_prn_bits, GPPUINT1 sys, GPPUINT1 *svlist, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
 static GPPLONG gpp_sapa_buffer2sv_bitmask(GPPUINT8 *sv_prn_bits, GPPUINT1 sys, GPPUINT1 *svlist, const GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
+
 static GPPLONG gpp_sapa_bias_bitmask2buffer(GPPUINT4 sig_prn_bits, GPPUINT1 sys, GPPUINT1 *siglist, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
-static GPPLONG gpp_sapa_bias_buffer2bitmask(GPPUINT1 sys, GPPUINT1 *siglist, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
+static GPPLONG gpp_sapa_bias_buffer2bitmask(GPPUINT1 sys, GPPUINT1 *siglist, const GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
+
 //===================================Declaration to add data to structure For OCB==============================================================================================
-GPPLONG gpp_sapa_ocb_malloc_sv(pGPP_SAPA_OCB ocb,GPPUINT1 sys);
+GPPLONG gpp_sapa_ocb_malloc_sv(pGPP_SAPA_OCB ocb);
 GPPLONG gpp_sapa_ocb_free_ocb(pGPP_SAPA_OCB ocb);
 GPPLONG gpp_sapa_ocb_add_sv(pGPP_SAPA_OCB ocb, GPPUINT1 sys, GPPUINT1 sat, const pGPP_SAPA_OCB_SV pset);
 GPPLONG gpp_sapa_ocb_add_orb(pGPP_SAPA_OCB ocb, GPPUINT1 sys, GPPUINT1 sat, const pGPP_SAPA_OCB_SV_ORB pset);
@@ -390,7 +561,7 @@ GPPLONG gpp_sapa_ocb_add_header(pGPP_SAPA_OCB ocb, GPPUINT1 sys, const pGPP_SAPA
 GPPLONG gpp_sapa_ocb_add_cb(pGPP_SAPA_OCB ocb, GPPUINT1 sys, GPPUINT1 sat, GPPUINT1 sig, const pGPP_SAPA_OCB_SV_BIAS_CB pset);
 
 //=============================================== functions to add data to structure For HPAC =================================================
-//GPPLONG gpp_sapa_hpac_free_hpac(pGPP_SAPA_HPAC hpac);
+GPPLONG gpp_sapa_hpac_free_hpac(pGPP_SAPA_HPAC hpac);
 GPPLONG gpp_sapa_hpac_add_header(pGPP_SAPA_HPAC hpac, const pGPP_SAPA_HPAC_HEADER pset);
 GPPLONG gpp_sapa_hpac_add_area(pGPP_SAPA_HPAC hpac, GPPUINT1 area, const pGPP_SAPA_HPAC_AREA pset);
 GPPLONG gpp_sapa_hpac_add_tropo(pGPP_SAPA_HPAC hpac, GPPUINT1 area, const pGPP_SAPA_HPAC_TROPO pset);
@@ -420,18 +591,31 @@ void compare_files(FILE *pre_binary_filename, FILE *binary_filename);
 GPPLONG gpp_sapa_get_bit_diff(GPPLONG byte_pos, GPPLONG bit_pos, GPPLONG byte_pos0, GPPLONG bit_pos0);
 GPPLONG length_bytes_from_bits(GPPLONG b);
 GPPLONG total_bits(GPPLONG *byte, GPPLONG *bits);
-#if !GNSS_BASE_H_
 
-//static const GPPUINT4 GNSS_PRN_BIT_MASK_8[8]={0x01,0x02,0x04,0x08,
-//								  		0x10,0x20,0x40,0x80};
+
+
+void gpp_sapa_debug_fprintf_ocb(const GPP_SAPA_OCB *p_ocb, FILE *fp);
+void gpp_sapa_debug_fprintf_hpac(pGPP_SAPA_HPAC p_hpac, FILE *fp);
+void gpp_sapa_debug_fprintf_area(pGPP_SAPA_AREA p_area, FILE *fp);
+
+
+
+/************************************************************************************************************
+ * Malloc and free functions for GPP_SAPA_USE_STATES structure
+ ************************************************************************************************************/
+
+GPPLONG gpp_sapa_states_free_ocb(GPP_SAPA_USE_STATES *use_states);
+GPPLONG gpp_sapa_states_malloc_ocb(GPP_SAPA_USE_STATES *use_states);
+
+
+
+/*
+
+# ifndef GNSS_BASE_H_
 static const GPPUINT1 GNSS_PRN_BIT_MASK_8[8] = { 0x01,0x02,0x04,0x08,
 										0x10,0x20,0x40,0x80 };
 
 
-//static const GPPUINT4 GNSS_PRN_BIT_MASK_16[16]={ 	0x0001,0x0002,0x0004,0x0008,
-//								  			0x0010,0x0020,0x0040,0x0080,
-//											0x0100,0x0200,0x0400,0x0800,
-//											0x1000,0x2000,0x4000,0x8000};
 static const GPPUINT2 GNSS_PRN_BIT_MASK_16[16] = { 0x0001,0x0002,0x0004,0x0008,
 											0x0010,0x0020,0x0040,0x0080,
 											0x0100,0x0200,0x0400,0x0800,
@@ -514,6 +698,15 @@ static const GPPUINT8 GNSS_PRN_BIT_MASK_64[64] = {
 #define GNSS_UNSET_IDX_IN_BITS_64(sats,idx) ((sats)&=GNSS_PRN_INV_BIT_MASK_64[(idx)])
 
 #endif //GNSS_BASE_H_
+*/
+
+#ifdef __WATCOMC__
+#pragma on (unreferenced)
+#endif
 
 
-#endif // GPP_SAPA_H
+#ifdef __cplusplus
+}
+#endif
+
+#endif //GPP_SAPA_H_

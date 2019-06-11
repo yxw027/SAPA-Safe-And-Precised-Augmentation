@@ -18,7 +18,8 @@
   #define __STDC_CONSTANT_MACROS
   #define __STDC_LIMIT_MACROS
   #include <stdint.h>  // defines all the nice types like int8_t, uint8_t, int16_t, ... according C99 std
-  #include <math.h>    // defines float_t and double_t according C99 std
+  #include <math.h>    // defines float_t and 
+_t according C99 std
   #define DEFINE_PER_C99
 
   #ifndef __cplusplus

@@ -204,9 +204,9 @@ GPPLONG gpp_sapa_ocb_asciifile2buffer()
 									//gpp_sapa_set_satellite_mask_position(&pOCB->sv_prn_bits[sys], sat);
 
 									sv.do_not_use = atoi(tokens[2]);
-									gpp_sapa_set_ocb_present_flags(&sv.ocb_present_flag, GPP_SAPA_OCB_FLAG_IDX_ORB, atoi(tokens[3]));
-									gpp_sapa_set_ocb_present_flags(&sv.ocb_present_flag, GPP_SAPA_OCB_FLAG_IDX_CLK, atoi(tokens[4]));
-									gpp_sapa_set_ocb_present_flags(&sv.ocb_present_flag, GPP_SAPA_OCB_FLAG_IDX_BIAS, atoi(tokens[5]));
+									gpp_sapa_set_ocb_present_flags(&sv.ocb_bits, GPP_SAPA_OCB_FLAG_IDX_ORB, atoi(tokens[3]));
+									gpp_sapa_set_ocb_present_flags(&sv.ocb_bits, GPP_SAPA_OCB_FLAG_IDX_CLK, atoi(tokens[4]));
+									gpp_sapa_set_ocb_present_flags(&sv.ocb_bits, GPP_SAPA_OCB_FLAG_IDX_BIAS, atoi(tokens[5]));
 
 									sv.continuity_indicator = atof(tokens[6]);
 
@@ -227,7 +227,7 @@ GPPLONG gpp_sapa_ocb_asciifile2buffer()
 										orb.sat_yaw = -1.0;
 									}
 
-									if (sv.ocb_present_flag&(1 << GPP_SAPA_OCB_FLAG_IDX_ORB)) 
+									if (sv.ocb_bits&(1 << GPP_SAPA_OCB_FLAG_IDX_ORB))
 									{
 										if (rc = gpp_sapa_ocb_add_orb(pocb, sys, sat, &orb)) 
 											return rc;
@@ -237,7 +237,7 @@ GPPLONG gpp_sapa_ocb_asciifile2buffer()
 									clk.clk_correction = atof(tokens[14]);
 									clk.user_range_error = atof(tokens[15]);
 
-									if (sv.ocb_present_flag&(1 << GPP_SAPA_OCB_FLAG_IDX_CLK)) 
+									if (sv.ocb_bits&(1 << GPP_SAPA_OCB_FLAG_IDX_CLK))
 									{
 										if (rc = gpp_sapa_ocb_add_clk(pocb, sys, sat, &clk)) 
 											return rc;
@@ -325,7 +325,7 @@ GPPLONG gpp_sapa_ocb_asciifile2buffer()
 				{
 					if (gpp_sapa_get_constellation_present_bit(cons_bits, sys_index1) == 1)			//check whether jth sys is present in epoch
 					{
-						rc=gpp_sapa_ocb2buffer(pocb, sys_index1, ocb_binary_buffer, &byte_pos, &bit_pos);				//add data to buffer //gpp_sapa_ocb2buffer(pocb, sys_index1, ocb_binary_buffer, &byte_pos, &bit_pos);
+						rc=gpp_sapa_ocb2buffer(pocb,0, ocb_binary_buffer, &byte_pos, &bit_pos);				//add data to buffer //gpp_sapa_ocb2buffer(pocb, sys_index1, ocb_binary_buffer, &byte_pos, &bit_pos);
 					}
 				}
 				GPPLONG last_bit_pos=total_bits(&byte_pos, &bit_pos);
@@ -585,10 +585,11 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 			gpp_sapa_hpac_free_hpac(phpac_recive);
 		}
 
-		rc=gpp_sapa_area2buffer(parea, area_binary_buffer, NULL, NULL);
-		gpp_sapa_area_buffer_to_sapa_buffer(area_binary_buffer, rc, ea_flag, message_crc_type, crc_frame, area_sapa_buffer);
+		rc=gpp_sapa_area2buffer(parea, 0,area_binary_buffer, NULL, NULL);
+		/*gpp_sapa_area_buffer_to_sapa_buffer(area_binary_buffer, rc, ea_flag, message_crc_type, crc_frame, area_sapa_buffer);
 		gpp_sapa_sapa_buffer_to_area_buffer(area_binary_buffer_recive, &rc, &ea_flag, &message_crc_type, &crc_frame, area_sapa_buffer);
-		gpp_sapa_buffer2area(parea_receive, area_binary_buffer_recive, NULL, NULL);
+		gpp_sapa_buffer2area(parea_receive, area_binary_buffer_recive, NULL, NULL);*/
+		gpp_sapa_buffer2area(parea_receive, area_binary_buffer, NULL, NULL);
 		gpp_sapa_debug_fprintf_area(parea_receive, fp);
 
 		while (fgets(line_buffer, size, pAsciiDataset) != NULL)					//Read Line and save to line_buffer
@@ -899,19 +900,22 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 				{														// allocate the sys-sat two dimensional pointer array
 					if(rc=gpp_sapa_hpac_free_hpac(phpac_recive)) return rc;
 				}
-				byte_pos = 0;
-				bit_pos = 0;
-				rc = gpp_sapa_hpac2buffer(phpac, hpac_binary_buffer, &byte_pos, &bit_pos);				//add data to buffer
 
-				//printf("\nbytes: %d  and bits: %d \n", byte_pos, bit_pos);
-				GPPLONG last_bit_pos = total_bits(&byte_pos, &bit_pos);
-				//printf("\nrc: %d  and total_bits: %d \n", rc,last_bit_pos);
-				gpp_sapa_hpac_buffer_to_sapa_buffer(hpac_binary_buffer, last_bit_pos, ea_flag, message_crc_type, crc_frame, hpac_sapa_buffer);
-				gpp_sapa_sapa_buffer_to_hpac_buffer(hpac_binary_buffer_recive, &rc, &ea_flag, &message_crc_type, &crc_frame, hpac_sapa_buffer);
+				rc = gpp_sapa_hpac2buffer(phpac,0, hpac_binary_buffer, NULL, NULL);				//add data to buffer  //0 for testing
+				//byte_pos = 0;
+				//bit_pos = 0;
+				//rc = gpp_sapa_hpac2buffer(phpac, hpac_binary_buffer, &byte_pos, &bit_pos);				//add data to buffer
 
-				byte_pos = 0;
-				bit_pos = 0;
-				gpp_sapa_buffer2hpac(phpac_recive, hpac_binary_buffer_recive, &byte_pos, &bit_pos);
+				////printf("\nbytes: %d  and bits: %d \n", byte_pos, bit_pos);
+				//GPPLONG last_bit_pos = total_bits(&byte_pos, &bit_pos);
+				////printf("\nrc: %d  and total_bits: %d \n", rc,last_bit_pos);
+				//gpp_sapa_hpac_buffer_to_sapa_buffer(hpac_binary_buffer, last_bit_pos, ea_flag, message_crc_type, crc_frame, hpac_sapa_buffer);
+				//gpp_sapa_sapa_buffer_to_hpac_buffer(hpac_binary_buffer_recive, &rc, &ea_flag, &message_crc_type, &crc_frame, hpac_sapa_buffer);
+
+				//byte_pos = 0;
+				//bit_pos = 0;
+				//gpp_sapa_buffer2hpac(phpac_recive, hpac_binary_buffer_recive, &byte_pos, &bit_pos);
+				gpp_sapa_buffer2hpac(phpac_recive, hpac_binary_buffer, NULL, NULL);
 
 				gpp_sapa_debug_fprintf_hpac(phpac_recive, fp);
 				
@@ -956,14 +960,6 @@ GPPUINT4 gpp_sapa_split_arg_to_tokens(char **_buffer, GPPUCHAR **tok)
 }
 
 
-
-GPPCHAR gpp_sapa_system_id(GPPUINT1 sys_id)
-{
-	if (sys_id == 0)
-		return 'G';
-	else
-		return 'R';
-}
 
 GPPLONG total_bits(GPPLONG *byte, GPPLONG *bits)
 {

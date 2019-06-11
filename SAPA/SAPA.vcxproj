@@ -133,6 +133,7 @@
   <ItemGroup>
     <ClInclude Include="bit2buff.h" />
     <ClInclude Include="compiler.h" />
+    <ClInclude Include="gnssbase.h" />
     <ClInclude Include="gn_types.h" />
     <ClInclude Include="gpp_sapa.h" />
     <ClInclude Include="gpp_sapa_debug.h" />

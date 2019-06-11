@@ -23,6 +23,8 @@ extern GN_LONG gn_add_val_long_to_buffer(char *buffer, long *byte_pos, long *bit
 extern GN_LONG gn_add_val_longlong_to_buffer(char *buffer, long *byte_pos, long *bit_pos, unsigned int bits, GN_LONGLONG value);
 extern GN_LONG gn_add_val_double_to_buffer(char *buffer, long *byte_pos, long *bit_pos, unsigned int bits, double value, double factor);
 extern GN_DOUBLE gn_get_val_double_from_buffer(const char *buffer, long *byte_pos, long *bit_pos, unsigned int bits, double factor);
+extern GN_LONG gpp_sapa_float2buffer(char *buffer, long *byte_pos, long *bit_pos, double min, double max, unsigned int bits, double res, int *invalid, double value);
+extern GN_FLOAT gpp_sapa_buffer2float(const char *buffer, long *byte_pos, long *bit_pos, double min, unsigned int bits, double res, int *invalid);
 
 // new, untested NM 2019-01-11 -- do we have them somewhere else already ??? probably yes ...
 double gn_get_double_from_buffer(const unsigned char *buffer,long *byte_pos,long *bit_pos);

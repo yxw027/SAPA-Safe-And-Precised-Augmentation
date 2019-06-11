@@ -56,5 +56,8 @@
     <ClInclude Include="gpp_sapa_debug.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="gnssbase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -296,7 +296,31 @@ GN_LONG gn_add_val_double_to_buffer(char *buffer, long *byte_pos, long *bit_pos,
 		return gn_add_val_longlong_to_buffer(buffer, byte_pos, bit_pos, bits, lval);
 	}
 } /* gn_add_val_double_to_buffer() */
+extern GN_LONG gpp_sapa_float2buffer(char *buffer, long *byte_pos, long *bit_pos, double min, double max, unsigned int bits, double res, int *invalid, double value)
+{
+	GN_LONG lval;
 
+	if (value<min || value>max) {
+		if (invalid) {
+			gn_add_long_to_buffer(buffer, byte_pos, bit_pos, bits, *invalid);
+		}
+	}
+
+	lval = (value - min) / res;
+
+	gn_add_val_long_to_buffer(buffer, byte_pos, bit_pos, bits, lval);
+
+} /* gpp_sapa_float2buffer() */
+
+extern GN_FLOAT gpp_sapa_buffer2float(const char *buffer, long *byte_pos, long *bit_pos, double min, unsigned int bits, double res, int *invalid)
+{
+	GN_LONG lval = gn_get_long_from_buffer(buffer, byte_pos, bit_pos, bits);
+	if (invalid == lval)
+		return lval;
+	else
+		return ((lval*res) + min);
+
+} /* gpp_sapa_buffer2float() */
 /**********************************************************************/
 
 /* functions for float & double -- 1zu1 aus gnzdm.c,  NM 2019-01-11 */
