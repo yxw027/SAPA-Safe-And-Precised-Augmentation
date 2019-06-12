@@ -53,6 +53,9 @@ GPPLONG gpp_sapa_area2buffer(const pGPP_SAPA_AREA p_area, const SAPA_GAD_HANDLE 
 	byte_pos0 = *byte_pos;
 	bit_pos0 = *bit_pos;
 
+	if (!p_area) return GPP_SAPA_ERR_INVALID_AREA;
+	if (!gadHdl) return GPP_SAPA_ERR_INVALID_GAD_HANDLE;
+
 	if (rc = gpp_sapa_area_header2buffer(p_area, gadHdl, buffer, byte_pos, bit_pos)) return rc;
 	no_of_areas = p_area->header_block->area_count;
 	for (ia = 0; ia < no_of_areas; ia++) {

@@ -20,6 +20,9 @@ GPPLONG gpp_sapa_ocb_asciifile2buffer()
 
 	pGPP_SAPA_OCB pocb= NULL;													//Structure for SAPA
 	pGPP_SAPA_OCB pocb_recive = NULL;
+
+	pSAPA_HANDLE psapa_handle = NULL;
+
 	GPPUCHAR *ocb_binary_buffer = NULL;											//Buffer to store the binary data
 	GPPUCHAR *ocb_binary_buffer_recive = NULL;											//Buffer to store the binary data
 	GPPUCHAR *ocb_sapa_buffer = NULL;
@@ -57,6 +60,7 @@ GPPLONG gpp_sapa_ocb_asciifile2buffer()
 					if (!pocb)
 					{
 						pocb = calloc(1, sizeof(GPP_SAPA_OCB));
+						psapa_handle = calloc(1, sizeof(SAPA_HANDLE));
 						
 						if (!pocb) 
 							return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
@@ -64,6 +68,7 @@ GPPLONG gpp_sapa_ocb_asciifile2buffer()
 					if (pocb) 
 					{														// allocate the sys-sat two dimensional pointer array
 						gpp_sapa_ocb_free_ocb(pocb);
+						gpp_sapa_handle_free_ocbHdl(psapa_handle);
 					}
 					//Check for number of satellites in this particular epoc data.
 					fgetpos(pAsciiDataset, &last_pos);														//Save file index current position
@@ -100,6 +105,9 @@ GPPLONG gpp_sapa_ocb_asciifile2buffer()
 					}
 					fsetpos(pAsciiDataset, &last_pos);													//Set file pointer to saved position after COMMON_INFO
 
+					//
+					SAPA_OCB_HANDLE ocb_handle = { 0, };
+
 					//Add OCB data to structure for this epoch.
 					memset(tokens, NULL, sizeof(tokens));												//Clearing token memory for new data
 					gpp_sapa_split_arg_to_tokens(line_buffer_for_common, tokens);
@@ -112,6 +120,7 @@ GPPLONG gpp_sapa_ocb_asciifile2buffer()
 							GPP_SAPA_OCB_HEADER header = { 0, };
 							header.message_sub_type = sys_index;				//Message SubType
 							header.time_tag_type = 1;							//0 OR 1 User's Preference
+							ocb_handle.time_tag_type = 1;
 
 							GPPT_WNT wn_t = { 0, };														// Geo++ Time Handling Structure
 							wn_t.wn = atoi(tokens[1]);
@@ -133,13 +142,16 @@ GPPLONG gpp_sapa_ocb_asciifile2buffer()
 							if (sys_index == gpp_sapa_get_highest_cons_set(cons_bits))						//Check End Of OCB data
 							{
 								header.end_of_obc_set = 1;							//End Of OCB 
+								ocb_handle.end_of_obc_set = 1;
 							}
 							else
 							{
 								header.end_of_obc_set = 0;							//End Of OCB
+								ocb_handle.end_of_obc_set = 0;
 							}
 
 							header.reserved = 0;
+							ocb_handle.reserved = 0;
 							header.sat_ref_datum = atoi(tokens[6]);
 							header.yaw_flag = atoi(tokens[7]);
 							header.ephemeris_type = atoi(tokens[8]);
@@ -203,6 +215,8 @@ GPPLONG gpp_sapa_ocb_asciifile2buffer()
 									//pOCB->sv_prn_bits[sys] = gpp_sapa_set_satellite_mask_position(pOCB->sv_prn_bits[sys], sat);
 									//gpp_sapa_set_satellite_mask_position(&pOCB->sv_prn_bits[sys], sat);
 
+									ocb_handle.sys = sys;
+
 									sv.do_not_use = atoi(tokens[2]);
 									gpp_sapa_set_ocb_present_flags(&sv.ocb_bits, GPP_SAPA_OCB_FLAG_IDX_ORB, atoi(tokens[3]));
 									gpp_sapa_set_ocb_present_flags(&sv.ocb_bits, GPP_SAPA_OCB_FLAG_IDX_CLK, atoi(tokens[4]));
@@ -214,9 +228,9 @@ GPPLONG gpp_sapa_ocb_asciifile2buffer()
 										return rc;
 
 									orb.iode = atoi(tokens[7]);
-									orb.orb_radial_correction = atof(tokens[9]);
-									orb.orb_along_track_correction = atof(tokens[10]);
-									orb.orb_cross_track_correction = atof(tokens[11]);
+									orb.d_orbit[0] = atof(tokens[9]);
+									orb.d_orbit[1] = atof(tokens[10]);
+									orb.d_orbit[2] = atof(tokens[11]);
 									
 									if (atof(tokens[12])) 
 									{
@@ -311,6 +325,8 @@ GPPLONG gpp_sapa_ocb_asciifile2buffer()
 											//printf("code bias write end.\r\n");
 										} // CODE_BIAS ends
 									} // PHASE_BIAS ends
+									if (rc = gpp_sapa_config_add_ocb_config(psapa_handle, sys, &ocb_handle, fp))
+										return rc;
 								}
 							} // SATALLITE_DATA ends
 						}
@@ -325,7 +341,7 @@ GPPLONG gpp_sapa_ocb_asciifile2buffer()
 				{
 					if (gpp_sapa_get_constellation_present_bit(cons_bits, sys_index1) == 1)			//check whether jth sys is present in epoch
 					{
-						rc=gpp_sapa_ocb2buffer(pocb,0, ocb_binary_buffer, &byte_pos, &bit_pos);				//add data to buffer //gpp_sapa_ocb2buffer(pocb, sys_index1, ocb_binary_buffer, &byte_pos, &bit_pos);
+						rc=gpp_sapa_ocb2buffer(pocb, psapa_handle->ocbHdl, ocb_binary_buffer, &byte_pos, &bit_pos);				//add data to buffer //gpp_sapa_ocb2buffer(pocb, sys_index1, ocb_binary_buffer, &byte_pos, &bit_pos);
 					}
 				}
 				GPPLONG last_bit_pos=total_bits(&byte_pos, &bit_pos);
@@ -391,6 +407,8 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 
 	pGPP_SAPA_HPAC phpac = NULL;													//Structure for SAPA
 	pGPP_SAPA_HPAC phpac_recive = NULL;
+
+	pSAPA_HANDLE psapa_handle = NULL;
 	
 	GPPUCHAR *area_binary_buffer = NULL;											//Buffer to store the binary data
 	GPPUCHAR *area_binary_buffer_recive = NULL;											//Buffer to store the binary data
@@ -443,6 +461,7 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 					if (!parea)
 					{
 						parea = calloc(1, sizeof(GPP_SAPA_AREA));
+						psapa_handle = calloc(1, sizeof(SAPA_HANDLE));
 
 						if (!parea)
 							return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
@@ -450,6 +469,7 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 					if (parea)
 					{														// allocate the sys-sat two dimensional pointer array
 						gpp_sapa_area_free_area(parea);
+						gpp_sapa_handle_free_gadHdl(psapa_handle);
 					}
 					//Check for number of satellites in this particular epoc data.
 					fgetpos(pAsciiDataset, &last_pos);														//Save file index current position
@@ -508,6 +528,9 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 
 					fsetpos(pAsciiDataset, &last_pos);
 
+					//
+					SAPA_GAD_HANDLE gad_handle = { 0, };
+
 					memset(tokens, NULL, sizeof(tokens));												//Clearing token memory for new data
 					ntok = gpp_sapa_split_arg_to_tokens(line_buffer_for_common, tokens);
 
@@ -515,11 +538,14 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 					{
 						GPP_SAPA_AREA_DEF_HEADER area_header = { 0, };
 						area_header.message_sub_type = 0;
+						gad_handle.sys = 0;
 						area_header.sol_id = atoi(tokens[1]);
 						area_header.sol_processor_id = atoi(tokens[2]);
 						area_header.sol_issue_of_update = atoi(tokens[3]);
 						area_header.area_issue_of_update = 0;
+						gad_handle.area_issue_of_update = 0;
 						area_header.reserved = 0;
+						gad_handle.reserved = 0;
 						area_header.area_count = area_count;
 						if (rc = gpp_sapa_area_add_header(parea, &area_header))
 							return rc;
@@ -553,6 +579,7 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 									area_def_block.area_lat_grid_node_spacing = atof(tokens[6]);
 									area_def_block.area_long_grid_node_spacing = atof(tokens[7]);
 									grid_points = area_def_block.area_lat_grid_node_count*area_def_block.area_long_grid_node_count;
+									
 									//
 									//check for area index
 									int ai;
@@ -568,6 +595,8 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 								}
 							}
 						}
+						if (rc = gpp_sapa_config_add_gad_config(psapa_handle, 0, &gad_handle, fp))
+							return rc;
 						break;
 					}
 				}
@@ -585,11 +614,10 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 			gpp_sapa_hpac_free_hpac(phpac_recive);
 		}
 
-		rc=gpp_sapa_area2buffer(parea, 0,area_binary_buffer, NULL, NULL);
-		/*gpp_sapa_area_buffer_to_sapa_buffer(area_binary_buffer, rc, ea_flag, message_crc_type, crc_frame, area_sapa_buffer);
+		rc=gpp_sapa_area2buffer(parea, psapa_handle->gadHdl, area_binary_buffer, NULL, NULL);
+		gpp_sapa_area_buffer_to_sapa_buffer(area_binary_buffer, rc, ea_flag, message_crc_type, crc_frame, area_sapa_buffer);
 		gpp_sapa_sapa_buffer_to_area_buffer(area_binary_buffer_recive, &rc, &ea_flag, &message_crc_type, &crc_frame, area_sapa_buffer);
-		gpp_sapa_buffer2area(parea_receive, area_binary_buffer_recive, NULL, NULL);*/
-		gpp_sapa_buffer2area(parea_receive, area_binary_buffer, NULL, NULL);
+		gpp_sapa_buffer2area(parea_receive, area_binary_buffer_recive, NULL, NULL);
 		gpp_sapa_debug_fprintf_area(parea_receive, fp);
 
 		while (fgets(line_buffer, size, pAsciiDataset) != NULL)					//Read Line and save to line_buffer
@@ -609,6 +637,7 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 					if (!phpac)
 					{
 						phpac = calloc(1, sizeof(GPP_SAPA_HPAC));
+						psapa_handle = calloc(1, sizeof(SAPA_HANDLE));
 
 						if (!phpac)
 							return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
@@ -616,6 +645,7 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 					if (phpac)
 					{														// allocate the sys-sat two dimensional pointer array
 						gpp_sapa_hpac_free_hpac(phpac);
+						gpp_sapa_handle_free_hpacHdl(psapa_handle);
 					}
 
 					//Check for number of satellites in this particular epoc data.
@@ -661,6 +691,8 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 					}
 					fsetpos(pAsciiDataset, &last_pos);
 
+					SAPA_HPAC_HANDLE hpac_handle = { 0, };
+
 					memset(tokens, NULL, sizeof(tokens));												//Clearing token memory for new data
 					ntok = gpp_sapa_split_arg_to_tokens(line_buffer_for_common, tokens);
 					//printf(line_buffer_for_common);
@@ -669,6 +701,8 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 						GPP_SAPA_HPAC_HEADER header = { 0, };
 						header.message_sub_type = 0;				//Message SubType
 						header.time_tag_type = 1;							//0 OR 1 User's Preference
+
+						hpac_handle.time_tag_type = 1;
 
 						GPPT_WNT wn_t = { 0, };														// Geo++ Time Handling Structure
 						wn_t.wn = atoi(tokens[1]);
@@ -688,6 +722,8 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 						header.sol_issue_of_update = atoi(tokens[5]);
 						header.reserved = 0;
 						header.area_issue_of_update = 0;
+						hpac_handle.area_issue_of_update = 0;
+						hpac_handle.reserved = 0;
 						header.area_count = area_count;
 
 						//printf("%d", header.area_count);
@@ -777,6 +813,7 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 												h_tropo_coeff.tropo_quality = atof(tokens[1]);
 												h_tropo_coeff.tropo_avhd = atof(tokens[2]);
 												h_tropo_coeff.tropo_coeff_size = 1;									//Placed manually
+												hpac_handle.tropo_coeff_size = 1;
 
 												h_tropo_coeff.tropo_poly_coeff[TROPO_POLY_COEFF_INDX_T00] = atof(tokens[3]);
 												h_tropo_coeff.tropo_poly_coeff[TROPO_POLY_COEFF_INDX_T01] = atof(tokens[4]);
@@ -784,6 +821,8 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 												h_tropo_coeff.tropo_poly_coeff[TROPO_POLY_COEFF_INDX_T11] = atof(tokens[6]);
 
 												h_grid_block.tropo_residual_size = 1;								//Placed manually
+												hpac_handle.tropo_residual_size = 1;
+
 												int k = 7, res_index = 0;
 												while (k < grid_points + 7)
 												{
@@ -845,12 +884,14 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 															else if (tokens[1][0] == 'R')
 																sys = 1;
 
+															hpac_handle.sys = sys;
 															//Getting satellite number from token
 															char sat_id[] = { tokens[1][1] , tokens[1][2] , tokens[1][3] };					//Checking satellite number
 															sat = atoi(sat_id);
 
 															iono_sat_poly.iono_quality = atof(tokens[2]);
 															iono_sat_poly.iono_coeff_size = 1;
+															hpac_handle.iono_coeff_size = 1;
 
 															if (rc = gpp_sapa_hpac_add_iono_sat_poly_block(phpac, sys, sat, ai, &iono_sat_poly))
 																return rc;
@@ -864,6 +905,7 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 																return rc;
 
 															iono_grid.iono_residual_field_size = 1;								//Placed manually
+															hpac_handle.iono_residual_field_size = 1;
 															res_index = 0;
 															k = 7;
 															while (k < grid_points + 7)
@@ -874,6 +916,10 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 															}
 															if (rc = gpp_sapa_hpac_add_iono_sat_grid_block(phpac, sys, sat, ai, &iono_grid))
 																return rc;
+
+															if (rc = gpp_sapa_config_add_hpac_config(psapa_handle, sys, &hpac_handle, fp))
+																return rc;
+
 														} // IONO_DATA ends
 													}
 												}
@@ -900,22 +946,19 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 				{														// allocate the sys-sat two dimensional pointer array
 					if(rc=gpp_sapa_hpac_free_hpac(phpac_recive)) return rc;
 				}
+				byte_pos = 0;
+				bit_pos = 0;
+				rc = gpp_sapa_hpac2buffer(phpac,psapa_handle->hpacHdl, hpac_binary_buffer, &byte_pos, &bit_pos);				//add data to buffer
 
-				rc = gpp_sapa_hpac2buffer(phpac,0, hpac_binary_buffer, NULL, NULL);				//add data to buffer  //0 for testing
-				//byte_pos = 0;
-				//bit_pos = 0;
-				//rc = gpp_sapa_hpac2buffer(phpac, hpac_binary_buffer, &byte_pos, &bit_pos);				//add data to buffer
+				//printf("\nbytes: %d  and bits: %d \n", byte_pos, bit_pos);
+				GPPLONG last_bit_pos = total_bits(&byte_pos, &bit_pos);
+				//printf("\nrc: %d  and total_bits: %d \n", rc,last_bit_pos);
+				gpp_sapa_hpac_buffer_to_sapa_buffer(hpac_binary_buffer, last_bit_pos, ea_flag, message_crc_type, crc_frame, hpac_sapa_buffer);
+				gpp_sapa_sapa_buffer_to_hpac_buffer(hpac_binary_buffer_recive, &rc, &ea_flag, &message_crc_type, &crc_frame, hpac_sapa_buffer);
 
-				////printf("\nbytes: %d  and bits: %d \n", byte_pos, bit_pos);
-				//GPPLONG last_bit_pos = total_bits(&byte_pos, &bit_pos);
-				////printf("\nrc: %d  and total_bits: %d \n", rc,last_bit_pos);
-				//gpp_sapa_hpac_buffer_to_sapa_buffer(hpac_binary_buffer, last_bit_pos, ea_flag, message_crc_type, crc_frame, hpac_sapa_buffer);
-				//gpp_sapa_sapa_buffer_to_hpac_buffer(hpac_binary_buffer_recive, &rc, &ea_flag, &message_crc_type, &crc_frame, hpac_sapa_buffer);
-
-				//byte_pos = 0;
-				//bit_pos = 0;
-				//gpp_sapa_buffer2hpac(phpac_recive, hpac_binary_buffer_recive, &byte_pos, &bit_pos);
-				gpp_sapa_buffer2hpac(phpac_recive, hpac_binary_buffer, NULL, NULL);
+				byte_pos = 0;
+				bit_pos = 0;
+				gpp_sapa_buffer2hpac(phpac_recive, hpac_binary_buffer_recive, &byte_pos, &bit_pos);
 
 				gpp_sapa_debug_fprintf_hpac(phpac_recive, fp);
 				

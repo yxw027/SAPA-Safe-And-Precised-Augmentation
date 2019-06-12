@@ -56,6 +56,8 @@ static GPPLONG gpp_sapa_hpac_buffer2iono_sat(pGPP_SAPA_HPAC p_hpac, GPPUINT1 sys
 static GPPLONG gpp_sapa_hpac_buffer2iono_sat_poly(pGPP_SAPA_HPAC p_hpac, GPPUINT1 sys, GPPUINT1 sat, GPPUINT1 area, const GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
 static GPPLONG gpp_sapa_hpac_buffer2iono_sat_coeff(pGPP_SAPA_HPAC p_hpac, GPPUINT1 sys, GPPUINT1 sat, GPPUINT1 area, const GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
 static GPPLONG gpp_sapa_hpac_buffer2iono_sat_grid(pGPP_SAPA_HPAC p_hpac, GPPUINT1 sys, GPPUINT1 sat, GPPUINT1 area, const GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
+
+
 /**************************************************************************
  *	\brief Write SAPA HPAC message to buffer
  *
@@ -84,7 +86,8 @@ GPPLONG gpp_sapa_hpac2buffer(const pGPP_SAPA_HPAC hpac, const SAPA_HPAC_HANDLE *
 	// get start position of byte_pos and bit_pos to get needed bits
 	byte_pos0 = *byte_pos;
 	bit_pos0 = *bit_pos;
-
+	if (!hpac) return GPP_SAPA_ERR_INVALID_HPAC_HEADER;
+	if (!hpacHdl) return GPP_SAPA_ERR_INVALID_HPAC_HANDLE;
 	if (rc = gpp_sapa_hpac_header2buffer(hpac, hpacHdl,buffer, byte_pos, bit_pos)) return rc;
 	//printf(" byte: %d bit: %d \n", *byte_pos, *bit_pos);
 	no_of_areas = hpac->header_block->area_count;

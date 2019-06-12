@@ -81,9 +81,12 @@ void gpp_sapa_debug_fprintf_ocb(const GPP_SAPA_OCB *p_ocb, FILE *fp)
 					if (o_flag){
 						if(orb=sv->orb){
 							fprintf(fp, " %3d", orb->iode);									//IODE
-							fprintf(fp, " %7.5f", orb->orb_radial_correction);					//Radial Correction
-							fprintf(fp, " %7.5f", orb->orb_along_track_correction);			//Along Track Correction
-							fprintf(fp, " %7.5f", orb->orb_cross_track_correction);			//Cross Track Correction
+							GPPUINT1 ic;
+							for (ic = 0; ic < GPP_SAPA_OCB_CORECTION_MAX; ic++)
+							{
+								fprintf(fp, " %7.5f", orb->d_orbit[ic]);					//Correction
+							}
+							
 							fprintf(fp, " %6.3f", orb->sat_yaw);								//Satellite Yaw
 						}
 						else{

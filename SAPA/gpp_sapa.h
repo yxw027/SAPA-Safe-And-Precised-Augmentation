@@ -146,8 +146,8 @@ extern "C" {
 #define GPP_SAPA_ERR_INVALID_SYS	 		(GPP_SAPA_ERROR_BASE-16)	/*	-54016	*/
 #define GPP_SAPA_ERR_INVALID_OCB_HANDLE		(GPP_SAPA_ERROR_BASE-17)	/*	-54017	*/
 #define GPP_SAPA_ERR_INVALID_TIME_TAG_TYPE 	(GPP_SAPA_ERROR_BASE-18)	/*	-54018	*/
-
-
+#define GPP_SAPA_ERR_INVALID_HPAC_HANDLE	(GPP_SAPA_ERROR_BASE-19)	/*	-54019	*/
+#define GPP_SAPA_ERR_INVALID_GAD_HANDLE		(GPP_SAPA_ERROR_BASE-20)	/*	-54020	*/
 
 #define GPP_SAPA_ERR_PREAMBLE				(GPP_SAPA_ERROR_BASE-100) /* -54100	*/
 #define GPP_SAPA_ERR_TYPE					(GPP_SAPA_ERROR_BASE-101) /* -54101	*/
@@ -210,11 +210,11 @@ extern "C" {
 #define GPP_SAPA_OCB_BITS_CLK	0x02
 #define GPP_SAPA_OCB_BITS_PB	0x04
 #define GPP_SAPA_OCB_BITS_CB	0x08
+#define GPP_MAX_HPAC_CONFIGS 4
 
 
 
-
-
+#define GPP_SAPA_OCB_CORECTION_MAX 3
 #define GPP_SAPA_MAX_HPAC_BITS 4
 #define GPP_SAPA_MAX_AREA_BITS 4
 
@@ -261,10 +261,7 @@ typedef struct GPP_SAPA_OCB_HEADER {
 
 typedef struct GPP_SAPA_OCB_SV_ORB {
 	GPPUINT4		iode;							//SF018orSF019 -- <ascii_in>.ocb's OCB_SATELLITE_DATA[7]
-	GPPDOUBLE		orb_radial_correction;			//SF020		   -- <ascii_in>.ocb's OCB_SATELLITE_DATA[9]
-	GPPDOUBLE		orb_along_track_correction;		//SF020		   -- <ascii_in>.ocb's OCB_SATELLITE_DATA[10]
-	GPPDOUBLE		orb_cross_track_correction;		//SF020        -- <ascii_in>.ocb's OCB_SATELLITE_DATA[11]
-	GPPDOUBLE		d_orbit[3];
+	GPPDOUBLE		d_orbit[GPP_SAPA_OCB_CORECTION_MAX];
 	GPPDOUBLE		sat_yaw;						//SF021        -- <ascii_in>.ocb's OCB_SATELLITE_DATA[13]
 	GPPT_WNT		wnt;
 } GPP_SAPA_OCB_SV_ORB, *pGPP_SAPA_OCB_SV_ORB;
@@ -456,6 +453,7 @@ typedef struct GPP_SAPA_USE_STATES{
 typedef struct SAPA_OCB_HANDLE {
 	GPPUINT1 sys;
 	GPPUINT1 time_tag_type;
+	GPPUINT1 end_of_obc_set;			//SF010        -- will be set in the code
 	GPPUINT1 reserved;													//SF069
 	GPPUINT1 ocb_bits; //ocb_bits to configure OCB messages (0001 only orbits, 0010 only clock, 0100 only PB, 1000 only CB)
 } SAPA_OCB_HANDLE, *pSAPA_OCB_HANDLE;
@@ -496,9 +494,14 @@ typedef struct SAPA_HANDLE {
 GPPLONG gpp_sapa_handle_free_ocbHdl(SAPA_HANDLE *sapaHdl);
 GPPLONG gpp_sapa_handle_malloc_ocbHdl(SAPA_HANDLE *sapaHdl);
 
+GPPLONG gpp_sapa_config_add_ocb_config(SAPA_HANDLE *sapaHdl, GPPUINT1 sys, const SAPA_OCB_HANDLE *pset, FILE *fp);
+GPPLONG gpp_sapa_config_add_hpac_config(SAPA_HANDLE *sapaHdl, GPPUINT1 sys, const SAPA_HPAC_HANDLE *pset, FILE *fp);
+GPPLONG gpp_sapa_config_add_gad_config(SAPA_HANDLE *sapaHdl, GPPUINT1 sys, const SAPA_GAD_HANDLE *pset, FILE *fp);
+
 GPPLONG gpp_sapa_handle_free_handle(SAPA_HANDLE **ppSapaHdl);
 GPPLONG gpp_sapa_handle_malloc_handle(SAPA_HANDLE **ppSapaHdl);
-
+GPPLONG gpp_sapa_handle_free_hpacHdl(SAPA_HANDLE *sapaHdl);
+GPPLONG gpp_sapa_handle_free_gadHdl(SAPA_HANDLE *sapaHdl);
 
 /******************************************************************************
  *  \brief Write SAPA OCB content to buffer
@@ -518,7 +521,7 @@ GPPLONG gpp_sapa_buffer2ocb(pGPP_SAPA_OCB ocb, const GPPUCHAR *buffer, GPPLONG *
 GPPLONG gpp_sapa_hpac2buffer(const pGPP_SAPA_HPAC hpac, const SAPA_HPAC_HANDLE *hpacHdl, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
 GPPLONG gpp_sapa_buffer2hpac(pGPP_SAPA_HPAC hpac, const GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
 
-GPPLONG gpp_sapa_area2buffer(const pGPP_SAPA_AREA area, const SAPA_GAD_HANDLE *ocbHdl, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
+GPPLONG gpp_sapa_area2buffer(const pGPP_SAPA_AREA area, const SAPA_GAD_HANDLE *gadHdl, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
 GPPLONG gpp_sapa_buffer2area(pGPP_SAPA_AREA area, const GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
 //Internal functions
 
@@ -577,6 +580,8 @@ GPPLONG gpp_sapa_area_free_area(pGPP_SAPA_AREA area);
 GPPLONG gpp_sapa_area_add_header(pGPP_SAPA_AREA p_area, const pGPP_SAPA_AREA_DEF_HEADER pset);
 GPPLONG gpp_sapa_area_add_area_def(pGPP_SAPA_AREA p_area, GPPUINT1 area, const pGPP_SAPA_AREA_DEF_BLOCK pset);
 
+//=============================================== functions to add data to structure For Handle =================================================
+//GPPLONG gpp_sapa_handle_malloc_ocbHdl(SAPA_HANDLE *sapaHdl);
 //------------------------------------------------------------Transport Layer SAPA message------------------------------------------------------------------------------------
 GPPLONG gpp_sapa_ocb_buffer_to_sapa_buffer(const GPPUCHAR *ocb_buffer, GPPLONG len_sapa_bits, GPPLONG ea_flag, GPPLONG message_crc_type, GPPLONG crc_frame, GPPUCHAR *sapa_buffer);
 GPPLONG gpp_sapa_sapa_buffer_to_ocb_buffer(GPPUCHAR *ocb_buffer, GPPLONG *len_sapa_bits, GPPLONG *ea_flag, GPPLONG *message_crc_type, GPPLONG *crc_frame, const GPPUCHAR *sapa_buffer);
