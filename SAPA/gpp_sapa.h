@@ -53,9 +53,6 @@ extern "C" {
 #define SAPA_OCB_BIAS_BITS 0x04
 
 
-
-
-
 #define GPP_SAPA_GPS 0
 #define GPP_SAPA_GLO 1
 #define GNSS_HOURLY_TIME_TAG  0
@@ -246,21 +243,24 @@ extern const GPPUINT1 SAPA_CRC_BYTES[4];
 
 //============================================= OCB Structures ============================================================================================================================
 typedef struct GPP_SAPA_OCB_HEADER {
-	GPPUINT1		message_sub_type;		//SF001	       -- first charcter of satellite ID
-	GPPUINT1		time_tag_type;			//SF002		   -- can be 0 or 1,will be set manually in the code
-	GPPUINT4		time_tag;				//SF003orSF004 -- <ascii_in>.ocb's OCB_COMMON_INFO[2]
-	GPPUINT4		sol_id;					//SF006		   -- <ascii_in>.ocb's OCB_COMMON_INFO[3]
-	GPPUINT4		sol_processor_id;		//SF007        -- <ascii_in>.ocb's OCB_COMMON_INFO[4]
-	GPPUINT4		sol_issue_of_update;	//SF005        -- <ascii_in>.ocb's OCB_COMMON_INFO[5]
-	GPPUINT1		end_of_obc_set;			//SF010        -- will be set in the code
-	GPPUINT1		reserved;				//SF069
-	GPPUINT1		yaw_flag;				//SF008        -- <ascii_in>.ocb's OCB_COMMON_INFO[7]
-	GPPUINT1		sat_ref_datum;			//SF009        -- <ascii_in>.ocb's OCB_COMMON_INFO[6]
-	GPPUINT1		ephemeris_type;			//SF016orSF017 -- <ascii_in>.ocb's OCB_COMMON_INFO[8]
+	GPPUINT1		message_sub_type;														//SF001	       -- first charcter of satellite ID
+	GPPUINT1		time_tag_type;															//SF002		   -- can be 0 or 1,will be set manually in the code
+	GPPUINT4		time_tag;																//SF003orSF004 -- <ascii_in>.ocb's OCB_COMMON_INFO[2]
+	GPPUINT4		sol_id;																	//SF006		   -- <ascii_in>.ocb's OCB_COMMON_INFO[3]
+	GPPUINT4		sol_processor_id;														//SF007        -- <ascii_in>.ocb's OCB_COMMON_INFO[4]
+	GPPUINT4		sol_issue_of_update;													//SF005        -- <ascii_in>.ocb's OCB_COMMON_INFO[5]
+	GPPUINT1		end_of_obc_set;															//SF010        -- will be set in the code
+	GPPUINT1		reserved;																//SF069
+	GPPUINT1		yaw_flag;																//SF008        -- <ascii_in>.ocb's OCB_COMMON_INFO[7]
+	GPPUINT1		sat_ref_datum;															//SF009        -- <ascii_in>.ocb's OCB_COMMON_INFO[6]
+	GPPUINT1		ephemeris_type;															//SF016orSF017 -- <ascii_in>.ocb's OCB_COMMON_INFO[8]
 } GPP_SAPA_OCB_HEADER, *pGPP_SAPA_OCB_HEADER;
 
 typedef struct GPP_SAPA_OCB_SV_ORB {
 	GPPUINT4		iode;							//SF018orSF019 -- <ascii_in>.ocb's OCB_SATELLITE_DATA[7]
+	GPPDOUBLE		orb_radial_correction;			//SF020		   -- <ascii_in>.ocb's OCB_SATELLITE_DATA[9]
+	GPPDOUBLE		orb_along_track_correction;		//SF020		   -- <ascii_in>.ocb's OCB_SATELLITE_DATA[10]
+	GPPDOUBLE		orb_cross_track_correction;		//SF020        -- <ascii_in>.ocb's OCB_SATELLITE_DATA[11]
 	GPPDOUBLE		d_orbit[GPP_SAPA_OCB_CORECTION_MAX];
 	GPPDOUBLE		sat_yaw;						//SF021        -- <ascii_in>.ocb's OCB_SATELLITE_DATA[13]
 	GPPT_WNT		wnt;
@@ -407,7 +407,7 @@ typedef struct GPP_SAPA_HPAC {
 //-------------------------------------------------------------------------------------------------------
 
 //============================================= AREA Structures =========================================
-typedef struct GPP_SAPA_AREA_DEF_HEADER {
+typedef struct GPP_SAPA_AREA_DEF_HEADER{
 	GPPUINT1		message_sub_type;														//SF001	        -- first charcter of satellite ID
 	GPPUINT4		sol_id;																	//SF006			-- <ascii_in>.atm's ATM_AREADEF_HEADER[1]
 	GPPUINT4		sol_processor_id;														//SF007			-- <ascii_in>.atm's ATM_AREADEF_HEADER[2]
@@ -415,7 +415,7 @@ typedef struct GPP_SAPA_AREA_DEF_HEADER {
 	GPPUINT1		area_issue_of_update;													//SF068
 	GPPUINT1		reserved;																//SF069
 	GPPUINT1        area_count;																//SF030			--
-} GPP_SAPA_AREA_DEF_HEADER, *pGPP_SAPA_AREA_DEF_HEADER;
+}GPP_SAPA_AREA_DEF_HEADER, *pGPP_SAPA_AREA_DEF_HEADER;
 
 typedef struct GPP_SAPA_AREA_DEF_BLOCK
 {
@@ -428,7 +428,7 @@ typedef struct GPP_SAPA_AREA_DEF_BLOCK
 	GPPDOUBLE       area_long_grid_node_spacing;											//SF037		   -- <ascii_in>.atm's ATM_AREA_DEF[7]
 }GPP_SAPA_AREA_DEF_BLOCK,*pGPP_SAPA_AREA_DEF_BLOCK;
 
-typedef struct GPP_SAPA_AREA {
+typedef struct GPP_SAPA_AREA{
 	pGPP_SAPA_AREA_DEF_HEADER header_block;													// Area Defination Header
 	pGPP_SAPA_AREA_DEF_BLOCK  *area_def_block;												//Area Defination Block
 }GPP_SAPA_AREA, *pGPP_SAPA_AREA;
@@ -438,7 +438,7 @@ typedef struct GPP_SAPA_USE_STATES{
     pGPP_SAPA_OCB   ocb;
     pGPP_SAPA_HPAC  hpac;
     pGPP_SAPA_AREA  area;
-} GPP_SAPA_USE_STATES, *pGPP_SAPA_USE_STATES;
+}GPP_SAPA_USE_STATES, *pGPP_SAPA_USE_STATES;
 
 
 
@@ -450,48 +450,59 @@ typedef struct GPP_SAPA_USE_STATES{
   * SAPA MSG HANDLE
   * This handle allows for the SAPA Msg settings
   ************************************************************************************************************/
-typedef struct SAPA_OCB_HANDLE {
-	GPPUINT1 sys;
-	GPPUINT1 time_tag_type;
-	GPPUINT1 end_of_obc_set;			//SF010        -- will be set in the code
-	GPPUINT1 reserved;													//SF069
+typedef struct SAPA_OCB_HANDLE_SV {
 	GPPUINT1 ocb_bits; //ocb_bits to configure OCB messages (0001 only orbits, 0010 only clock, 0100 only PB, 1000 only CB)
-} SAPA_OCB_HANDLE, *pSAPA_OCB_HANDLE;
+	GPPUINT1 pb_bits;
+	GPPUINT1 cb_bits;
+} SAPA_OCB_HANDLE_SV, *pSAPA_OCB_HANDLE_SV;
 
+typedef struct SAPA_OCB_HANDLE {
+	GPPUINT1 time_tag_type;
+	GPPUINT1 reserved;             //SF069
+	GPPUINT1 sys;
+	GPPUINT1 end_of_obc_set;
+	pSAPA_OCB_HANDLE_SV *ocb_sv_handle;
+}SAPA_OCB_HANDLE, *pSAPA_OCB_HANDLE;
 
 typedef struct SAPA_GAD_HANDLE {
-	GPPUINT1  sys;																//SF001
-	GPPUINT1  reserved;															//SF069
-	GPPUINT1  area_issue_of_update;												//SF068
-	GPPUINT4  area_bits[GPP_SAPA_AREA_BITS64];														//indicating which area is part of the message
+	GPPUINT1  reserved;               //SF069
+	GPPUINT1  area_issue_of_update;            //SF068
+	GPPUINT8  area_bits[4];      //indicating which area is part of the message
 } SAPA_GAD_HANDLE, *pSAPA_GAD_HANDLE;
 
+typedef struct SAPA_HPAC_HANDLE_IONO {
+	GPPUINT1  sys;                //SF001         -- first charcter of satellite ID
+	GPPUINT1  iono_coeff_size;                //SF056
+	GPPUINT1  iono_residual_field_size;              //SF063
+} SAPA_HPAC_HANDLE_IONO, *pSAPA_HPAC_HANDLE_IONO;
+
+typedef struct SAPA_HPAC_HANDLE_AREA {
+	GPPUINT8  grid_bits;      //SF039   --
+	GPPUINT1  tropo_coeff_size;              //SF044   --
+	GPPUINT1  tropo_residual_size;             //SF051
+	GPPUINT2  sys_bits;       //System bits
+	GPPUINT8  sat_bits;       //Satellite bits
+	pSAPA_HPAC_HANDLE_IONO **iono_handle;
+} SAPA_HPAC_HANDLE_AREA, *pSAPA_HPAC_HANDLE_AREA;
 
 typedef struct SAPA_HPAC_HANDLE {
-	GPPUINT1  sys;																//SF001         -- first charcter of satellite ID
 	GPPUINT1  time_tag_type;
-	GPPUINT1  reserved;															//SF069
-	GPPUINT1  area_issue_of_update;												//SF068
-	GPPUINT8  grid_bits;														//SF039   --
-	GPPUINT8  area_bits[GPP_SAPA_AREA_BITS64];									//indicating which area is part of the message
-	GPPUINT1  tropo_coeff_size;													//SF044   --
-	GPPUINT1  tropo_residual_size;												//SF051
-	GPPUINT1  iono_coeff_size;													//SF056
-	GPPUINT1  iono_residual_field_size;											//SF063
+	GPPUINT1  reserved;               //SF069
+	GPPUINT1  area_issue_of_update;            //SF068
+	GPPUINT8  area_bits[4];      //indicating which area is part of the message
+	GPPUINT1 area_id;
+	pSAPA_HPAC_HANDLE_AREA *hpac_area_handle;
 } SAPA_HPAC_HANDLE, *pSAPA_HPAC_HANDLE;
 
-
-
 typedef struct SAPA_HANDLE {
-	pSAPA_OCB_HANDLE  **ocbHdl; //one pointer for each GNSS
+	pSAPA_OCB_HANDLE  *ocbHdl; //one pointer for each GNSS
 	GPPUINT1   ocb_config_bits[SAPA_MAX_SYS];
-
-	pSAPA_HPAC_HANDLE  **hpacHdl[GPP_SAPA_MAX_AREA_COUNT];
-	pSAPA_GAD_HANDLE gadHdl[GPP_SAPA_MAX_AREA_COUNT];
+	pSAPA_HPAC_HANDLE  hpacHdl;
+	pSAPA_GAD_HANDLE gadHdl;
 } SAPA_HANDLE, *pSAPA_HANDLE;
 
 
-GPPLONG gpp_sapa_handle_free_ocbHdl(SAPA_HANDLE *sapaHdl);
+//GPPLONG gpp_sapa_handle_free_ocbHdl(SAPA_HANDLE *sapaHdl);
 GPPLONG gpp_sapa_handle_malloc_ocbHdl(SAPA_HANDLE *sapaHdl);
 
 GPPLONG gpp_sapa_config_add_ocb_config(SAPA_HANDLE *sapaHdl, GPPUINT1 sys, const SAPA_OCB_HANDLE *pset, FILE *fp);
@@ -600,7 +611,7 @@ GPPLONG gpp_sapa_get_bit_diff(GPPLONG byte_pos, GPPLONG bit_pos, GPPLONG byte_po
 GPPLONG length_bytes_from_bits(GPPLONG b);
 GPPLONG total_bits(GPPLONG *byte, GPPLONG *bits);
 void gpp_sapa_get_area_bits(GPPUINT8*area_bits, int value);
-
+void gpp_sapa_get_area_bits_value(GPPUINT8*area_bits, GPPUINT8*arr);
 
 void gpp_sapa_debug_fprintf_ocb(const GPP_SAPA_OCB *p_ocb, FILE *fp);
 void gpp_sapa_debug_fprintf_hpac(pGPP_SAPA_HPAC p_hpac, FILE *fp);

@@ -238,7 +238,7 @@ static GPPLONG gpp_sapa_hpac_area2buffer(const pGPP_SAPA_HPAC p_hpac, const SAPA
 	GPP_SAPA_HPAC_AREA *area_block = NULL;
 	if (!(area_block = p_hpac->atmo[area]->area_def)) return GPP_SAPA_ERR_INVALID_HPAC_AREA;
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 8, area_block->area_id);										//SF031
-	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 7, hpacHdl->grid_bits);															//SF039
+	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 7, hpacHdl->hpac_area_handle[area]->grid_bits);															//SF039
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 2, area_block->tropo_block_indicator);							//SF040
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 2, area_block->iono_block_indicator);							//SF040
     return 0;
@@ -295,7 +295,7 @@ static GPPLONG gpp_sapa_hpac_tropo_poly_coefficient_block2buffer(const pGPP_SAPA
 	GPPUINT1 bit_id = 1;
 	GPP_SAPA_HPAC_TROPO_POLY_COEFFICIENT_BLOCK *tpcb = p_hpac->atmo[area]->tropo->tropo_poly_coeff_block;
 
-	coeff_size = hpacHdl->tropo_coeff_size;
+	coeff_size = hpacHdl->hpac_area_handle[area]->tropo_coeff_size;
 	equ_type = tpcb->tropo_equation_type;
 
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 3, equ_type);											//SF041
@@ -351,9 +351,9 @@ static GPPLONG gpp_sapa_hpac_tropo_grid_block2buffer(const pGPP_SAPA_HPAC p_hpac
 {
 	GPP_SAPA_HPAC_TROPO_GRID_BLOCK *grid_block = p_hpac->atmo[area]->tropo->tropo_grid;
 	GPPUINT1 no_of_grid, ig;
-	GPPUINT1 res_size = hpacHdl->tropo_residual_size;
+	GPPUINT1 res_size = hpacHdl->hpac_area_handle[area]->tropo_residual_size;
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 1, res_size); //SF051
-	no_of_grid= hpacHdl->grid_bits;
+	no_of_grid= hpacHdl->hpac_area_handle[area]->grid_bits;
 	for (ig = 0; ig < no_of_grid; ig++)
 	{
 		gpp_sapa_float2buffer(buffer, byte_pos, bit_pos, SAPA_TROPO_RESIDUAL_ZENITH_MIN[res_size], SAPA_TROPO_RESIDUAL_ZENITH_MAX[res_size], SAPA_TROPO_RESIDUAL_ZENITH_DELAY[res_size], SAPA_RES_TROPO_RESIDUAL_DELAY, &SAPA_TROPO_RESIDUAL_ZENITH_INVALID[res_size], grid_block->tropo_residuals[ig]);//SF052
@@ -388,7 +388,7 @@ static GPPLONG gpp_sapa_hpac_iono2buffer(const pGPP_SAPA_HPAC p_hpac, const SAPA
 	{
 		GPPLONG rc;
 		GPPUINT1 isat,sys;
-		sys = hpacHdl->sys;
+		sys = hpacHdl->hpac_area_handle[area]->sys_bits;				//Convert from bits to Sat ID
 		//printf("hi");
 		gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 3, iono_block->iono_equation_type);     //SF054
 		//printf("hello");
@@ -518,7 +518,7 @@ static GPPLONG gpp_sapa_hpac_iono_sat_coeff2buffer(const pGPP_SAPA_HPAC p_hpac, 
 {
 	GPPUINT1 coeff_size, equ_type;
 	GPP_SAPA_HPAC_IONO_SAT_COEFFICIENT *tpcb = p_hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_sat_coeff;
-	coeff_size = hpacHdl->iono_coeff_size;
+	coeff_size = hpacHdl->hpac_area_handle[area]->iono_handle[sys][sat]->iono_coeff_size;
 	equ_type = p_hpac->atmo[area]->iono->iono_equation_type;
 
 	gpp_sapa_float2buffer(buffer, byte_pos, bit_pos, SAPA_TROPO_COEFF_C00_MIN[coeff_size], SAPA_TROPO_COEFF_C00_MAX[coeff_size], SAPA_IONO_COEFF[coeff_size][IONO_POLY_COEFF_INDX_C00], SAPA_RES_IONO_POLY_COEFF_C00,NULL, tpcb->iono_poly_coeff[IONO_POLY_COEFF_INDX_C00]);	//SF057orSF060
@@ -566,9 +566,9 @@ static GPPLONG gpp_sapa_hpac_iono_sat_grid2buffer(const pGPP_SAPA_HPAC p_hpac, c
 {
 	GPP_SAPA_HPAC_IONO_GRID_BLOCK *iono_grid = p_hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_grid;
 	GPPUINT1 no_of_grid,ig,res_field_size;
-	res_field_size = hpacHdl->iono_residual_field_size;
+	res_field_size = hpacHdl->hpac_area_handle[area]->iono_handle[sys][sat]->iono_residual_field_size;
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos,2, res_field_size);	//SF063
-	no_of_grid = hpacHdl->grid_bits;
+	no_of_grid = hpacHdl->hpac_area_handle[area]->grid_bits;
 	for (ig = 0; ig < no_of_grid; ig++)
 	{
 		gpp_sapa_float2buffer(buffer, byte_pos, bit_pos, SAPA_IONO_RESIDUAL_SLANT_MIN[res_field_size], SAPA_IONO_RESIDUAL_SLANT_MAX[res_field_size], SAPA_IONO_RESIDUAL_SLANT_DELAY[res_field_size],SAPA_RES_IONO_RESIDUAL_DELAY, &SAPA_IONO_RESIDUAL_SLANT_INVALID[res_field_size], iono_grid->iono_residuals[ig]);//SF064

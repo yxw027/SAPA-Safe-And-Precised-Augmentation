@@ -15,7 +15,7 @@ GPPCHAR gpp_sapa_system_id(GPPUINT1 sys)
 
 void gpp_sapa_debug_fprintf_ocb(const GPP_SAPA_OCB *p_ocb, FILE *fp)
 {
-	GPPUINT1 isys, sys, isat, sat, isig, sig;
+	GPPUINT1 isys, isat, sat, isig, sig;
 	GPPUINT1 siglist[34]={0,};
 	GPPUINT1 svlist[66]={0,};
 
@@ -29,6 +29,7 @@ void gpp_sapa_debug_fprintf_ocb(const GPP_SAPA_OCB *p_ocb, FILE *fp)
 	if (!fp) fp = stdout;
 
 	for (isys = 0; isys < GPP_SAPA_MAX_SYS; isys++){
+		GPPUINT1 sys;
 		sys=isys;
 
 		if(p_ocb->header_block){
@@ -83,10 +84,10 @@ void gpp_sapa_debug_fprintf_ocb(const GPP_SAPA_OCB *p_ocb, FILE *fp)
 						if(orb=sv->orb){
 							fprintf(fp, " %3d", orb->iode);									//IODE
 							GPPUINT1 ic;
-							for (ic = 0; ic < GPP_SAPA_OCB_CORECTION_MAX; ic++)
-							{
-								fprintf(fp, " %7.5f", orb->d_orbit[ic]);					//Correction
-							}
+							
+							fprintf(fp, " %7.5f", orb->orb_radial_correction);					//Correction
+							fprintf(fp, " %7.5f", orb->orb_along_track_correction);					//Correction
+							fprintf(fp, " %7.5f", orb->orb_cross_track_correction);					//Correction
 							
 							fprintf(fp, " %6.3f", orb->sat_yaw);								//Satellite Yaw
 						}
@@ -210,7 +211,6 @@ void gpp_sapa_debug_fprintf_hpac(pGPP_SAPA_HPAC p_hpac, FILE *fp)
 	GPP_SAPA_HPAC_IONO_SAT_POLY *iono_poly = NULL;
 	GPP_SAPA_HPAC_IONO_SAT_COEFFICIENT	*iono_coeff = NULL;
 	GPP_SAPA_HPAC_IONO_GRID_BLOCK *iono_grid = NULL;
-	GPPUINT1 isys, sys, isat, sat;
 	GPPUINT1 svlist[66]={0,};
 
 	if (!(fp)) fp = stdout;
@@ -283,21 +283,23 @@ void gpp_sapa_debug_fprintf_hpac(pGPP_SAPA_HPAC p_hpac, FILE *fp)
 				fprintf(fp, " %1d", iono_block->iono_equation_type);							//Iono Equaction Type
 				//fprintf(fp, " %7.3f", p_hpac->atmo[iarea]->iono->sat_prn_bits);							//Satellite prn bits
 
+				GPPUINT1 isys;
 
-
-				for (isys = 0; isys < 2; isys++) {				//isys < 2    for testing (GPP_SAPA_MAX_SYS)
+				for (isys = 0; isys < 2; isys++) {	//isys < 2    for testing (GPP_SAPA_MAX_SYS)
+					GPPUINT1 sys;
 					sys = isys;
 
 					gpp_sapa_get_svlist(iono_block->sat_prn_bits[sys], svlist);
-
+					GPPUINT1 isat;
 					for (isat = 1; isat <= svlist[0]; isat++) {
+						GPPUINT1 sat;
 						sat = svlist[isat];
 						fprintf(fp, "\n");
 						fprintf(fp, "%-25s\n", "ATM_IONOSAT_DATA:");
 						fprintf(fp, " %1c%03d", gpp_sapa_system_id(sys), sat);		//Satellite ID
 						if (iono_poly = iono_block->iono_sat_block[sys][sat]->iono_sat_poly)
 						{
-							fprintf(fp, " %7.3f", p_hpac->atmo[ai]->iono->iono_sat_block[sys][sat]->iono_sat_poly->iono_quality);	//Iono Quality
+							fprintf(fp, " %7.3f", iono_poly->iono_quality);	//Iono Quality
 						}
 						//fprintf(fp, " %1d", p_hpac->atmo[iarea]->iono->iono_sat_block[sat]->iono_sat_poly->iono_coeff_size);	//Iono ply coeff
 						if (iono_coeff = iono_block->iono_sat_block[sys][sat]->iono_sat_coeff) {
@@ -313,7 +315,7 @@ void gpp_sapa_debug_fprintf_hpac(pGPP_SAPA_HPAC p_hpac, FILE *fp)
 							no_of_grid = p_hpac->atmo[ai]->area_def->number_of_grid_point;
 							for (ig = 0; ig < no_of_grid; ig++)
 							{
-								fprintf(fp, " %7.2f", p_hpac->atmo[ai]->iono->iono_sat_block[sys][sat]->iono_grid->iono_residuals[ig]);
+								fprintf(fp, " %7.2f", iono_grid->iono_residuals[ig]);
 							}
 						}
 					}

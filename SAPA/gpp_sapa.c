@@ -900,131 +900,128 @@ GPPLONG gpp_sapa_area_add_area_def(pGPP_SAPA_AREA p_area,GPPUINT1 area, const pG
 
 
 
-GPPLONG gpp_sapa_config_add_ocb_config(SAPA_HANDLE *sapaHdl, GPPUINT1 sys, const SAPA_OCB_HANDLE *pset, FILE *fp)
-{
-	GPPLONG rc;
-	GPPUINT1 icnfg = 0;
-
-	if (!sapaHdl) return -1;
-	if (!pset) return GPP_SAPA_ERR_INVALID_OCB_HANDLE;
-
-	if (sys >= SAPA_MAX_SYS) return GPP_SAPA_ERR_INVALID_SYS;
-
-	if (!sapaHdl->ocbHdl)
-		if (rc = gpp_sapa_handle_malloc_ocbHdl(sapaHdl))
-			return rc;
-
-	if (sapaHdl->ocb_config_bits[sys] >= (1 << GPP_SAPA_MAX_OCB_CONFIGS))
-	{
-		fprintf(fp, "SSRM2SAPA ERROR: TOO many OCB configs!\n");
-		return GPP_SAPA_ERR_INVALID_OCB_HANDLE;
-	}
-
-	for (icnfg = 0; icnfg < GPP_SAPA_MAX_OCB_CONFIGS; icnfg++)
-	{
-		if (!sapaHdl->ocbHdl[sys][icnfg])
-		{
-			sapaHdl->ocbHdl[sys][icnfg] = (SAPA_OCB_HANDLE*)calloc(1, sizeof(SAPA_OCB_HANDLE));
-			if (!(sapaHdl->ocbHdl[sys][icnfg])) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-
-			memcpy(sapaHdl->ocbHdl[sys][icnfg], pset, sizeof(SAPA_OCB_HANDLE));
-			sapaHdl->ocb_config_bits[sys] = (1 << icnfg);
-			break;
-		}
-	}
-
-}
+//GPPLONG gpp_sapa_config_add_ocb_config(SAPA_HANDLE *sapaHdl, GPPUINT1 sys, const SAPA_OCB_HANDLE *pset, FILE *fp)
+//{
+//	GPPUINT1 icnfg = 0;
+//
+//	if (!sapaHdl) return -1;
+//	if (!pset) return GPP_SAPA_ERR_INVALID_OCB_HANDLE;
+//
+//	if (sys >= SAPA_MAX_SYS) return GPP_SAPA_ERR_INVALID_SYS;
+//
+//	if (!sapaHdl->ocbHdl) {
+//		GPPLONG rc;
+//		if (rc = gpp_sapa_handle_malloc_ocbHdl(sapaHdl))
+//			return rc;
+//	}
+//	if (sapaHdl->ocb_config_bits[sys] >= (1 << GPP_SAPA_MAX_OCB_CONFIGS))
+//	{
+//		fprintf(fp, "SSRM2SAPA ERROR: TOO many OCB configs!\n");
+//		return GPP_SAPA_ERR_INVALID_OCB_HANDLE;
+//	}
+//
+//	for (icnfg = 0; icnfg < GPP_SAPA_MAX_OCB_CONFIGS; icnfg++)
+//	{
+//		if (!sapaHdl->ocbHdl[sys][icnfg])
+//		{
+//			sapaHdl->ocbHdl[sys][icnfg] = (SAPA_OCB_HANDLE*)calloc(1, sizeof(SAPA_OCB_HANDLE));
+//			if (!(sapaHdl->ocbHdl[sys][icnfg])) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+//
+//			memcpy(sapaHdl->ocbHdl[sys][icnfg], pset, sizeof(SAPA_OCB_HANDLE));
+//			sapaHdl->ocb_config_bits[sys] = (1 << icnfg);
+//			break;
+//		}
+//	}
+//
+//}
 
 //==================================================================================================================================
 // hpac malloc
 
 
-GPPLONG gpp_sapa_handle_malloc_hpacHdl(pSAPA_HANDLE sapaHdl)
-{
-	if (!sapaHdl) return -1;
+//GPPLONG gpp_sapa_handle_malloc_hpacHdl(pSAPA_HANDLE sapaHdl)
+//{
+//	if (!sapaHdl) return -1;
+//
+//	if (!sapaHdl->hpacHdl)
+//	{
+//		GPPUINT1 area, sys, config,sat;
+//		for (sys = 0; sys < SAPA_MAX_SYS; sys++)
+//		{
+//			for (area = 0; area < GPP_SAPA_MAX_AREA_COUNT; area++)
+//			{
+//				sapaHdl->hpacHdl[sys][area] = (pSAPA_HPAC_HANDLE*)calloc(GPP_SAPA_MAX_AREA_COUNT, sizeof(pSAPA_HPAC_HANDLE));
+//				if (!sapaHdl->hpacHdl[sys][area]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+//
+//				for (sat = 0; sat < GPP_SAPA_MAX_SAT; sat++)
+//				{
+//					sapaHdl->hpacHdl[sys][area][sat] = (pSAPA_HPAC_HANDLE)calloc(GPP_SAPA_MAX_SAT, sizeof(SAPA_HPAC_HANDLE));
+//
+//					if (!sapaHdl->hpacHdl[sys][area][sat]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+//				}
+//			}
+//		}
+//
+//	}
+//	return 0; //ok
+//
+//}//gpp_sapa_sapaHdl_malloc_hpacHdl()
 
-	if (!sapaHdl->hpacHdl)
-	{
-		GPPUINT1 area, sys, config,sat;
-		for (sys = 0; sys < SAPA_MAX_SYS; sys++)
-		{
-			for (area = 0; area < GPP_SAPA_MAX_AREA_COUNT; area++)
-			{
-				sapaHdl->hpacHdl[sys][area] = (pSAPA_HPAC_HANDLE*)calloc(GPP_SAPA_MAX_AREA_COUNT, sizeof(pSAPA_HPAC_HANDLE));
-				if (!sapaHdl->hpacHdl[sys][area]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-
-				for (sat = 0; sat < GPP_SAPA_MAX_SAT; sat++)
-				{
-					sapaHdl->hpacHdl[sys][area][sat] = (pSAPA_HPAC_HANDLE)calloc(GPP_SAPA_MAX_SAT, sizeof(SAPA_HPAC_HANDLE));
-
-					if (!sapaHdl->hpacHdl[sys][area][sat]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-				}
-			}
-		}
-
-	}
-	return 0; //ok
-
-}//gpp_sapa_sapaHdl_malloc_hpacHdl()
 
 
-
-GPPLONG gpp_sapa_config_add_hpac_config(SAPA_HANDLE *sapaHdl, GPPUINT1 sys, const SAPA_HPAC_HANDLE *pset, FILE *fp)
-{
-	GPPLONG rc;
-	GPPUINT1 icnfg = 0, sat;
-
-	if (!sapaHdl) return -1;
-	if (!pset) return GPP_SAPA_ERR_INVALID_HPAC_HANDLE;
-
-	if (sys >= SAPA_MAX_SYS) return GPP_SAPA_ERR_INVALID_SYS;
-
-	if (!sapaHdl->hpacHdl)
-		if (rc = gpp_sapa_handle_malloc_hpacHdl(sapaHdl))
-			return rc;
-
-	//define GPP_MAX_HPAC_CONFIGS
-
-	for (sys = 0; sys < SAPA_MAX_SYS; sys++)
-	{
-		for (icnfg = 0; icnfg < GPP_MAX_HPAC_CONFIGS; icnfg++)
-		{
-			if (!sapaHdl->hpacHdl[sys][icnfg])
-			{
-				sapaHdl->hpacHdl[sys][icnfg] = (SAPA_HPAC_HANDLE*)calloc(1, sizeof(SAPA_HPAC_HANDLE));
-				if (!(sapaHdl->hpacHdl[sys][icnfg])) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-
-				memcpy(sapaHdl->hpacHdl[sys][icnfg], pset, sizeof(SAPA_HPAC_HANDLE));
-				break;
-			}
-		}
-
-	}
-}
-
+//GPPLONG gpp_sapa_config_add_hpac_config(SAPA_HANDLE *sapaHdl, GPPUINT1 sys, const SAPA_HPAC_HANDLE *pset, FILE *fp)
+//{
+//	GPPUINT1 icnfg = 0, sat;
+//
+//	if (!sapaHdl) return -1;
+//	if (!pset) return GPP_SAPA_ERR_INVALID_HPAC_HANDLE;
+//
+//	if (sys >= SAPA_MAX_SYS) return GPP_SAPA_ERR_INVALID_SYS;
+//
+//	if (!sapaHdl->hpacHdl) {
+//		GPPLONG rc;
+//		if (rc = gpp_sapa_handle_malloc_hpacHdl(sapaHdl))
+//			return rc;
+//	}
+//	//define GPP_MAX_HPAC_CONFIGS
+//
+//	for (sys = 0; sys < SAPA_MAX_SYS; sys++)
+//	{
+//		for (icnfg = 0; icnfg < GPP_MAX_HPAC_CONFIGS; icnfg++)
+//		{
+//			if (!sapaHdl->hpacHdl[sys][icnfg])
+//			{
+//				sapaHdl->hpacHdl[sys][icnfg] = (SAPA_HPAC_HANDLE*)calloc(1, sizeof(SAPA_HPAC_HANDLE));
+//				if (!(sapaHdl->hpacHdl[sys][icnfg])) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+//
+//				memcpy(sapaHdl->hpacHdl[sys][icnfg], pset, sizeof(SAPA_HPAC_HANDLE));
+//				break;
+//			}
+//		}
+//
+//	}
+//}
+//
 
 //================================================================================================================================
 
-GPPLONG gpp_sapa_config_add_gad_config(SAPA_HANDLE *sapaHdl,GPPUINT1 sys, const SAPA_GAD_HANDLE *pset, FILE *fp)
-{
-
-	GPPUINT1 icnfg = 0;
-
-	if (!sapaHdl) return -1;
-	if (!pset) return GPP_SAPA_ERR_INVALID_GAD_HANDLE;
-
-	//if (sys >= SAPA_MAX_SYS) return GPP_SAPA_ERR_INVALID_SYS;
-
-	//if (!sapaHdl->gadHdl)
-	// if (rc = gpp_sapa_handle_malloc_gadHdl(sapaHdl))
-	//  return rc;
-
-	sapaHdl->gadHdl[sys] = (SAPA_GAD_HANDLE*)calloc(1, sizeof(SAPA_GAD_HANDLE));
-
-	memcpy(sapaHdl->gadHdl, pset, sizeof(SAPA_GAD_HANDLE));
-
-}
-
+//GPPLONG gpp_sapa_config_add_gad_config(SAPA_HANDLE *sapaHdl,GPPUINT1 sys, const SAPA_GAD_HANDLE *pset, FILE *fp)
+//{
+//	if (!sapaHdl) return -1;
+//	if (!pset) return GPP_SAPA_ERR_INVALID_GAD_HANDLE;
+//
+//	//if (sys >= SAPA_MAX_SYS) return GPP_SAPA_ERR_INVALID_SYS;
+//
+//	//if (!sapaHdl->gadHdl)
+//	// if (rc = gpp_sapa_handle_malloc_gadHdl(sapaHdl))
+//	//  return rc;
+//
+//	sapaHdl->gadHdl[sys] = (SAPA_GAD_HANDLE*)calloc(1, sizeof(SAPA_GAD_HANDLE));
+//
+//	memcpy(sapaHdl->gadHdl, pset, sizeof(SAPA_GAD_HANDLE));
+//
+//}
+//
 GPPLONG gpp_sapa_area_free_area(pGPP_SAPA_AREA area)
 {
 	GPPUINT1 iarea;
@@ -1080,7 +1077,15 @@ void gpp_sapa_get_area_bits(GPPUINT8*area_bits, int value)
 	area_bits[value / 64] = (1 << (value % 64)) | area_bits[value / 64];
 }
 
-
+void gpp_sapa_get_area_bits_value(GPPUINT8*area_bits, GPPUINT8*arr)
+{
+	int z = 1;
+	arr = (GPPUINT8*)malloc(257 * sizeof(GPPUINT8));
+	for (int i = 0; i < 4; i++)
+		for (int j = 0; j < 64; j++)
+			if (area_bits[i] & (63 - j) == 1) arr[z++] = 64 * i + j;
+	arr[0] = z - 1;
+}
 //============================================================================================================================================
 //											Needed for testing (Alternative will we replaced)
 //============================================================================================================================================
@@ -1116,99 +1121,99 @@ GPPUINT1 gpp_sapa_set_cons_bit(GPPUINT1 cons_bits, GPPUINT1 pos)
 /************************************************************************************************************
  *	\brief Free SAPA_OCB_HANDLDE in SAPA_HANDLE
  ************************************************************************************************************/
-GPPLONG gpp_sapa_handle_free_ocbHdl(SAPA_HANDLE *sapaHdl)
-{
-	GPPUINT1 sys, icnfg;
-	if(!sapaHdl) return -1;
-
-	if(!sapaHdl->ocbHdl) return 0;
-
-	for(sys=0; sys<SAPA_MAX_SYS; sys++){
-		if(!sapaHdl->ocbHdl[sys]) continue;
-
-		for(icnfg=0; icnfg<GPP_SAPA_MAX_OCB_CONFIGS; icnfg++){
-			SAPA_OCB_HANDLE *ocbHdl=NULL;
-
-			if(!(ocbHdl=sapaHdl->ocbHdl[sys][icnfg])) continue;
-
-			memset(ocbHdl, 0, sizeof(SAPA_OCB_HANDLE));
-			free(sapaHdl->ocbHdl[sys][icnfg]);
-		}//icnfg
-		memset(sapaHdl->ocbHdl[sys],0, GPP_SAPA_MAX_OCB_CONFIGS*sizeof(SAPA_OCB_HANDLE*));
-		free(sapaHdl->ocbHdl[sys]);
-	}
-	memset(sapaHdl->ocbHdl, 0, SAPA_MAX_SYS*sizeof(SAPA_OCB_HANDLE**));
-	free(sapaHdl->ocbHdl);
-	sapaHdl->ocbHdl=NULL;
-
-	return 0;
-}//gpp_sapa_handle_free_ocbHdl()
-
-GPPLONG gpp_sapa_handle_free_hpacHdl(SAPA_HANDLE *sapaHdl)
-{
-	GPPUINT1 sys, area, sat;
-
-	if (!sapaHdl) return -1;
-
-	if (!sapaHdl->hpacHdl) return 0;
-
-	for (sys = 0; sys < SAPA_MAX_SYS; sys++)
-	{
-		if (!sapaHdl->hpacHdl[sys]) continue;
-
-		for (area = 0; area < GPP_SAPA_MAX_AREA_COUNT; area++)
-		{
-
-			for (sat = 0; sat < GPP_SAPA_MAX_SAT; sat++)
-			{
-				SAPA_HPAC_HANDLE* hpacHdl = NULL;
-				if (!(hpacHdl = sapaHdl->hpacHdl[sys][area][sat]))
-					continue;
-
-				memset(hpacHdl, 0, sizeof(SAPA_HPAC_HANDLE));
-				free(sapaHdl->hpacHdl[sys][area][sat]);
-			}
-
-			memset(sapaHdl->hpacHdl, 0, sizeof(SAPA_HPAC_HANDLE));
-			free(sapaHdl->hpacHdl[sys][area]);
-
-		}
-
-	}
-
-	return 0; //ok
-}
-
-GPPLONG gpp_sapa_handle_free_gadHdl(SAPA_HANDLE *sapaHdl)
-{
-	if (!sapaHdl) return -1;
-
-	if (!sapaHdl->gadHdl) return 0;
-
-	free(sapaHdl->gadHdl);
-
-	return 0;  //ok
-
-}
-/************************************************************************************************************
- *	\brief Free SAPA_OCB_HANDLDE in SAPA_HANDLE
- ************************************************************************************************************/
-GPPLONG gpp_sapa_handle_malloc_ocbHdl(SAPA_HANDLE *sapaHdl)
-{
-	GPPUINT1 sys;
-	if(!sapaHdl) return -1;
-
-	if(!sapaHdl->ocbHdl){
-		sapaHdl->ocbHdl=(pSAPA_OCB_HANDLE**)calloc(SAPA_MAX_SYS, sizeof(SAPA_OCB_HANDLE**));
-		if(!sapaHdl->ocbHdl) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-
-		for(sys=0; sys<SAPA_MAX_SYS; sys++) {
-			sapaHdl->ocbHdl[sys] = (SAPA_OCB_HANDLE**)calloc(GPP_SAPA_MAX_OCB_CONFIGS, sizeof(SAPA_OCB_HANDLE*));
-			if(!sapaHdl->ocbHdl[sys]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-		}
-	}
-	return 0;
-}//gpp_sapa_handle_free_ocbHdl()
+//GPPLONG gpp_sapa_handle_free_ocbHdl(SAPA_HANDLE *sapaHdl)
+//{
+//	GPPUINT1 sys, icnfg;
+//	if(!sapaHdl) return -1;
+//
+//	if(!sapaHdl->ocbHdl) return 0;
+//
+//	for(sys=0; sys<SAPA_MAX_SYS; sys++){
+//		if(!sapaHdl->ocbHdl[sys]) continue;
+//
+//		for(icnfg=0; icnfg<GPP_SAPA_MAX_OCB_CONFIGS; icnfg++){
+//			SAPA_OCB_HANDLE *ocbHdl=NULL;
+//
+//			if(!(ocbHdl=sapaHdl->ocbHdl[sys][icnfg])) continue;
+//
+//			memset(ocbHdl, 0, sizeof(SAPA_OCB_HANDLE));
+//			free(sapaHdl->ocbHdl[sys][icnfg]);
+//		}//icnfg
+//		memset(sapaHdl->ocbHdl[sys],0, GPP_SAPA_MAX_OCB_CONFIGS*sizeof(SAPA_OCB_HANDLE*));
+//		free(sapaHdl->ocbHdl[sys]);
+//	}
+//	memset(sapaHdl->ocbHdl, 0, SAPA_MAX_SYS*sizeof(SAPA_OCB_HANDLE**));
+//	free(sapaHdl->ocbHdl);
+//	sapaHdl->ocbHdl=NULL;
+//
+//	return 0;
+//}//gpp_sapa_handle_free_ocbHdl()
+//
+//GPPLONG gpp_sapa_handle_free_hpacHdl(SAPA_HANDLE *sapaHdl)
+//{
+//	GPPUINT1 sys, area, sat;
+//
+//	if (!sapaHdl) return -1;
+//
+//	if (!sapaHdl->hpacHdl) return 0;
+//
+//	for (sys = 0; sys < SAPA_MAX_SYS; sys++)
+//	{
+//		if (!sapaHdl->hpacHdl[sys]) continue;
+//
+//		for (area = 0; area < GPP_SAPA_MAX_AREA_COUNT; area++)
+//		{
+//
+//			for (sat = 0; sat < GPP_SAPA_MAX_SAT; sat++)
+//			{
+//				SAPA_HPAC_HANDLE* hpacHdl = NULL;
+//				if (!(hpacHdl = sapaHdl->hpacHdl[sys][area][sat]))
+//					continue;
+//
+//				memset(hpacHdl, 0, sizeof(SAPA_HPAC_HANDLE));
+//				free(sapaHdl->hpacHdl[sys][area][sat]);
+//			}
+//
+//			memset(sapaHdl->hpacHdl, 0, sizeof(SAPA_HPAC_HANDLE));
+//			free(sapaHdl->hpacHdl[sys][area]);
+//
+//		}
+//
+//	}
+//
+//	return 0; //ok
+//}
+//
+//GPPLONG gpp_sapa_handle_free_gadHdl(SAPA_HANDLE *sapaHdl)
+//{
+//	if (!sapaHdl) return -1;
+//
+//	if (!sapaHdl->gadHdl) return 0;
+//
+//	free(sapaHdl->gadHdl);
+//
+//	return 0;  //ok
+//
+//}
+///************************************************************************************************************
+// *	\brief Free SAPA_OCB_HANDLDE in SAPA_HANDLE
+// ************************************************************************************************************/
+//GPPLONG gpp_sapa_handle_malloc_ocbHdl(SAPA_HANDLE *sapaHdl)
+//{
+//	if(!sapaHdl) return -1;
+//
+//	if(!sapaHdl->ocbHdl){
+//		sapaHdl->ocbHdl=(pSAPA_OCB_HANDLE**)calloc(SAPA_MAX_SYS, sizeof(SAPA_OCB_HANDLE**));
+//		if(!sapaHdl->ocbHdl) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+//
+//		GPPUINT1 sys;
+//		for(sys=0; sys<SAPA_MAX_SYS; sys++) {
+//			sapaHdl->ocbHdl[sys] = (SAPA_OCB_HANDLE**)calloc(GPP_SAPA_MAX_OCB_CONFIGS, sizeof(SAPA_OCB_HANDLE*));
+//			if(!sapaHdl->ocbHdl[sys]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+//		}
+//	}
+//	return 0;
+//}//gpp_sapa_handle_free_ocbHdl()
 
 /*
 if (!ocb->sv) {
@@ -1239,7 +1244,7 @@ GPPLONG gpp_sapa_handle_free_handle(SAPA_HANDLE **ppSapaHdl)
 
 	if(!sapaHdl) return 0;
 
-	gpp_sapa_handle_free_ocbHdl(sapaHdl);
+	//gpp_sapa_handle_free_ocbHdl(sapaHdl);
 
 	free(*ppSapaHdl);
 	*ppSapaHdl=NULL;
@@ -1287,7 +1292,7 @@ GPPLONG gpp_sapa_ocb_buffer_to_sapa_buffer(const GPPUCHAR *ocb_buffer,GPPLONG le
 
 GPPLONG gpp_sapa_sapa_buffer_to_ocb_buffer(GPPUCHAR *ocb_buffer, GPPLONG *len_sapa_bits, GPPLONG *ea_flag, GPPLONG *message_crc_type, GPPLONG *crc_frame, const GPPUCHAR *sapa_buffer)
 {
-	GPPLONG byte_pos = 0, bit_pos = 0, numDataBytes = 0, crc;
+	GPPLONG byte_pos = 0, bit_pos = 0, numDataBytes = 0;
 
 	int type;
 	long sapa_preamble = gn_get_ulong_from_buffer(sapa_buffer, &byte_pos, &bit_pos, 8);
@@ -1311,7 +1316,7 @@ GPPLONG gpp_sapa_sapa_buffer_to_ocb_buffer(GPPUCHAR *ocb_buffer, GPPLONG *len_sa
 	memcpy(ocb_buffer, (sapa_buffer + byte_pos), numDataBytes);
 	byte_pos += numDataBytes;
 
-	crc = gn_get_ulong_from_buffer(sapa_buffer, &byte_pos, &bit_pos, SAPA_CRC_BYTES[*message_crc_type]);
+	GPPLONG crc = gn_get_ulong_from_buffer(sapa_buffer, &byte_pos, &bit_pos, SAPA_CRC_BYTES[*message_crc_type]);
 
 	return 0;
 }
@@ -1340,7 +1345,7 @@ GPPLONG gpp_sapa_hpac_buffer_to_sapa_buffer(const GPPUCHAR *hpac_buffer, GPPLONG
 }
 GPPLONG gpp_sapa_sapa_buffer_to_hpac_buffer(GPPUCHAR *hpac_buffer, GPPLONG *len_sapa_bits, GPPLONG *ea_flag, GPPLONG *message_crc_type, GPPLONG *crc_frame, const GPPUCHAR *sapa_buffer)
 {
-	GPPLONG byte_pos = 0, bit_pos = 0, numDataBytes = 0, crc;
+	GPPLONG byte_pos = 0, bit_pos = 0, numDataBytes = 0;
 
 	int type;
 	long sapa_preamble = gn_get_ulong_from_buffer(sapa_buffer, &byte_pos, &bit_pos, 8);
@@ -1364,7 +1369,7 @@ GPPLONG gpp_sapa_sapa_buffer_to_hpac_buffer(GPPUCHAR *hpac_buffer, GPPLONG *len_
 	memcpy(hpac_buffer, (sapa_buffer + byte_pos), numDataBytes);
 	byte_pos += numDataBytes;
 
-	crc = gn_get_ulong_from_buffer(sapa_buffer, &byte_pos, &bit_pos, SAPA_CRC_BYTES[*message_crc_type]);
+	GPPLONG crc = gn_get_ulong_from_buffer(sapa_buffer, &byte_pos, &bit_pos, SAPA_CRC_BYTES[*message_crc_type]);
 
 	return 0;
 }
@@ -1394,7 +1399,7 @@ GPPLONG gpp_sapa_area_buffer_to_sapa_buffer(const GPPUCHAR *area_buffer, GPPLONG
 
 GPPLONG gpp_sapa_sapa_buffer_to_area_buffer(GPPUCHAR *area_buffer, GPPLONG *len_sapa_bits, GPPLONG *ea_flag, GPPLONG *message_crc_type, GPPLONG *crc_frame, const GPPUCHAR *sapa_buffer)
 {
-	GPPLONG byte_pos = 0, bit_pos = 0, numDataBytes = 0, crc;
+	GPPLONG byte_pos = 0, bit_pos = 0, numDataBytes = 0;
 
 	int type;
 	long sapa_preamble = gn_get_ulong_from_buffer(sapa_buffer, &byte_pos, &bit_pos, 8);
@@ -1418,7 +1423,7 @@ GPPLONG gpp_sapa_sapa_buffer_to_area_buffer(GPPUCHAR *area_buffer, GPPLONG *len_
 	memcpy(area_buffer, (sapa_buffer + byte_pos), numDataBytes);
 	byte_pos += numDataBytes;
 
-	crc = gn_get_ulong_from_buffer(sapa_buffer, &byte_pos, &bit_pos, SAPA_CRC_BYTES[*message_crc_type]);
+	GPPLONG crc = gn_get_ulong_from_buffer(sapa_buffer, &byte_pos, &bit_pos, SAPA_CRC_BYTES[*message_crc_type]);
 
 	//int i;
 	//for (i = 0; i <= numDataBytes; i++)
