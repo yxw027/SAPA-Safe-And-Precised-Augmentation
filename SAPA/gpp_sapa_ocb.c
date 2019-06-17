@@ -140,8 +140,8 @@ static GPPLONG gpp_sapa_ocb_header2buffer(const pGPP_SAPA_OCB p_ocb, const SAPA_
 	GPPUINT8 sv_prn_bits=0;
 	GPP_SAPA_OCB_HEADER *header_block=p_ocb->header_block[sys];
 
-	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 4, header_block->message_sub_type);	//SF001
-	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 1, ocbHdl->time_tag_type);		//SF002
+	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 4, header_block->message_sub_type);					//SF001
+	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 1, ocbHdl->time_tag_type);							//SF002
 
 	switch (ocbHdl->time_tag_type){
 		case SAPA_FULL_TIME_TAG:
@@ -152,15 +152,15 @@ static GPPLONG gpp_sapa_ocb_header2buffer(const pGPP_SAPA_OCB p_ocb, const SAPA_
 			break;
 		default: return GPP_SAPA_ERR_INVALID_TIME_TAG_TYPE;
 	}
-	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, time_tag_nbits, header_block->time_tag);	//SF004
-	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 7, header_block->sol_id);								//SF006
-	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 4, header_block->sol_processor_id);					//SF007
-	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 9, header_block->sol_issue_of_update);				//SF005
-	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 1, ocbHdl->end_of_obc_set);							//SF010
-	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 1, ocbHdl->reserved);									//SF069
-	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 1, header_block->yaw_flag);							//SF008
-	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 1, header_block->sat_ref_datum);						//SF009
-	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 2, header_block->ephemeris_type);						//SF017
+	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, time_tag_nbits, header_block->time_tag);							//SF004
+	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 7, header_block->sol_id);											//SF006
+	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 4, header_block->sol_processor_id);								//SF007
+	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 9, header_block->sol_issue_of_update);							//SF005
+	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 1, ocbHdl->end_of_obc_set);										//SF010
+	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 1, ocbHdl->reserved);												//SF069
+	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 1, header_block->yaw_flag);										//SF008
+	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 1, header_block->sat_ref_datum);									//SF009
+	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 2, header_block->ephemeris_type);									//SF017
 
 	//select only satellites with valid corrections and according to message
 	if(ocbHdl->ocb_sv_handle[sys]->ocb_bits&GPP_SAPA_OCB_BITS_CLK)	sv_prn_bits|=p_ocb->clk_prn_bits[sys];
@@ -194,25 +194,25 @@ static GPPLONG gpp_sapa_ocb_buffer2header(pGPP_SAPA_OCB p_ocb, GPPUINT1 *sys, GP
 	header.message_sub_type = gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 4);									//SF001
 	*sys = header.message_sub_type;
 
-	header.time_tag_type = gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 1);									//SF002
+	header.time_tag_type = gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 1);										//SF002
 
 	if (header.time_tag_type == GNSS_FULL_TIME_TAG)
 	{
-		header.time_tag = gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 32);									//SF004
+		header.time_tag = gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 32);										//SF004
 	}
 	else if (header.time_tag_type == GNSS_HOURLY_TIME_TAG)
 	{
-		header.time_tag = gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 12);									//SF003
+		header.time_tag = gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 12);										//SF003
 	}
 
-	header.sol_id = gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 7);											//SF006
+	header.sol_id = gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 7);												//SF006
 	header.sol_processor_id = gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 4);									//SF007
 	header.sol_issue_of_update = gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 9);								//SF005
-	header.end_of_obc_set = gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 1);									//SF010
-	header.reserved = gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 1);									//SF069
+	header.end_of_obc_set = gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 1);										//SF010
+	header.reserved = gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 1);											//SF069
 	header.yaw_flag = gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 1);											//SF008
-	header.sat_ref_datum = gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 1);									//SF009
-	header.ephemeris_type = gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 2);									//SF017
+	header.sat_ref_datum = gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 1);										//SF009
+	header.ephemeris_type = gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 2);										//SF017
 
 	if (rc = gpp_sapa_ocb_add_header(p_ocb, header.message_sub_type, &header)) return rc;
 

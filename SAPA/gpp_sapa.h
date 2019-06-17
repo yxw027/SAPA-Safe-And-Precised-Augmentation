@@ -441,11 +441,6 @@ typedef struct GPP_SAPA_USE_STATES{
 }GPP_SAPA_USE_STATES, *pGPP_SAPA_USE_STATES;
 
 
-
-/************************************************************************************************************
- * SAPA MSG HANDLE
- * This handle allows for the SAPA Msg settings
- ************************************************************************************************************/
  /************************************************************************************************************
   * SAPA MSG HANDLE
   * This handle allows for the SAPA Msg settings
@@ -458,27 +453,27 @@ typedef struct SAPA_OCB_HANDLE_SV {
 
 typedef struct SAPA_OCB_HANDLE {
 	GPPUINT1 time_tag_type;
-	GPPUINT1 reserved;             //SF069
+	GPPUINT1 reserved;																	//SF069
 	GPPUINT1 sys;
 	GPPUINT1 end_of_obc_set;
 	pSAPA_OCB_HANDLE_SV *ocb_sv_handle;
 }SAPA_OCB_HANDLE, *pSAPA_OCB_HANDLE;
 
 typedef struct SAPA_GAD_HANDLE {
-	GPPUINT1  reserved;               //SF069
-	GPPUINT1  area_issue_of_update;            //SF068
-	GPPUINT8  area_bits[4];      //indicating which area is part of the message
+	GPPUINT1  reserved;																	//SF069
+	GPPUINT1  area_issue_of_update;													   //SF068
+	GPPUINT8  area_bits[4];															   //indicating which area is part of the message
 } SAPA_GAD_HANDLE, *pSAPA_GAD_HANDLE;
 
 typedef struct SAPA_HPAC_HANDLE_IONO {
-	GPPUINT1  sys;                //SF001         -- first charcter of satellite ID
-	GPPUINT1  iono_coeff_size;                //SF056
-	GPPUINT1  iono_residual_field_size;              //SF063
+	GPPUINT1  sys;																		//SF001         -- first charcter of satellite ID
+	GPPUINT1  iono_coeff_size;															//SF056
+	GPPUINT1  iono_residual_field_size;													//SF063
 } SAPA_HPAC_HANDLE_IONO, *pSAPA_HPAC_HANDLE_IONO;
 
 typedef struct SAPA_HPAC_HANDLE_AREA {
-	GPPUINT8  grid_bits;      //SF039   --
-	GPPUINT1  tropo_coeff_size;              //SF044   --
+	GPPUINT8  grid_bits;																 //SF039   --
+	GPPUINT1  tropo_coeff_size;											//SF044   --
 	GPPUINT1  tropo_residual_size;             //SF051
 	GPPUINT2  sys_bits;       //System bits
 	GPPUINT8  sat_bits;       //Satellite bits
@@ -502,12 +497,12 @@ typedef struct SAPA_HANDLE {
 } SAPA_HANDLE, *pSAPA_HANDLE;
 
 
-//GPPLONG gpp_sapa_handle_free_ocbHdl(SAPA_HANDLE *sapaHdl);
+GPPLONG gpp_sapa_handle_free_ocbHdl(SAPA_HANDLE *sapaHdl);
 GPPLONG gpp_sapa_handle_malloc_ocbHdl(SAPA_HANDLE *sapaHdl);
 
 GPPLONG gpp_sapa_config_add_ocb_config(SAPA_HANDLE *sapaHdl, GPPUINT1 sys, const SAPA_OCB_HANDLE *pset, FILE *fp);
-GPPLONG gpp_sapa_config_add_hpac_config(SAPA_HANDLE *sapaHdl, GPPUINT1 sys, const SAPA_HPAC_HANDLE *pset, FILE *fp);
-GPPLONG gpp_sapa_config_add_gad_config(SAPA_HANDLE *sapaHdl, GPPUINT1 sys, const SAPA_GAD_HANDLE *pset, FILE *fp);
+GPPLONG gpp_sapa_config_add_hpac_config(SAPA_HANDLE *sapaHdl, GPPUINT1 area, const SAPA_HPAC_HANDLE *pset, FILE *fp);
+GPPLONG gpp_sapa_config_add_gad_config(SAPA_HANDLE *sapaHdl, const SAPA_GAD_HANDLE *pset, FILE *fp);
 
 GPPLONG gpp_sapa_handle_free_handle(SAPA_HANDLE **ppSapaHdl);
 GPPLONG gpp_sapa_handle_malloc_handle(SAPA_HANDLE **ppSapaHdl);
