@@ -491,7 +491,7 @@ typedef struct SAPA_HPAC_HANDLE {
 
 typedef struct SAPA_HANDLE {
 	pSAPA_OCB_HANDLE  *ocbHdl; //one pointer for each GNSS
-	GPPUINT1   ocb_config_bits[SAPA_MAX_SYS];
+	GPPUINT1   ocbHdl_bits[SAPA_MAX_SYS];
 	pSAPA_HPAC_HANDLE  hpacHdl;
 	pSAPA_GAD_HANDLE gadHdl;
 } SAPA_HANDLE, *pSAPA_HANDLE;

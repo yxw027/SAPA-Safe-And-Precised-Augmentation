@@ -1,5 +1,10 @@
-#if !GNSS_BASE_H_
+#ifndef GNSS_BASE_H_
 #define GNSS_BASE_H_
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "compiler.h"
 
 //static const GPPUINT4 GNSS_PRN_BIT_MASK_8[8]={0x01,0x02,0x04,0x08,
@@ -92,5 +97,6 @@ static const GPPUINT8 GNSS_PRN_BIT_MASK_64[64] = {
 #define GNSS_UNSET_IDX_IN_BITS_16(sats,idx) ((sats)&=GNSS_PRN_INV_BIT_MASK_16[(idx)])
 #define GNSS_UNSET_IDX_IN_BITS_32(sats,idx) ((sats)&=GNSS_PRN_INV_BIT_MASK_32[(idx)])
 #define GNSS_UNSET_IDX_IN_BITS_64(sats,idx) ((sats)&=GNSS_PRN_INV_BIT_MASK_64[(idx)])
+
 
 #endif //GNSS_BASE_H_

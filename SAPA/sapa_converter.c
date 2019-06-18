@@ -68,7 +68,7 @@ GPPLONG gpp_sapa_ocb_asciifile2buffer()
 					if (pocb) 
 					{														// allocate the sys-sat two dimensional pointer array
 						gpp_sapa_ocb_free_ocb(pocb);
-						//gpp_sapa_handle_free_ocbHdl(psapa_handle);
+						gpp_sapa_handle_free_ocbHdl(psapa_handle);
 					}
 					//Check for number of satellites in this particular epoc data.
 					fgetpos(pAsciiDataset, &last_pos);														//Save file index current position
