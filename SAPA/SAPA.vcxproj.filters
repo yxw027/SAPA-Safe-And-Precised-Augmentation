@@ -39,9 +39,6 @@
     <ClCompile Include="sapa_converter.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ssrm2sapa_util.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bit2buff.h">
@@ -60,12 +57,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gnssbase.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ssrm2sapa_util.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="gnssrgen.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

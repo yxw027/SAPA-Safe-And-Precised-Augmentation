@@ -888,15 +888,13 @@ GPPLONG gpp_sapa_handle_free_ocbHdl(SAPA_HANDLE *sapaHdl)
 	{
 		if (!sapaHdl->ocbHdl[sys])
 			continue;
-		if (!sapaHdl->ocbHdl[sys]->ocb_sv_handle)
-			continue;
+
 		for (config = 0; config < GPP_SAPA_MAX_OCB_CONFIGS; config++)
 		{
-			if (!sapaHdl->ocbHdl[sys]->ocb_sv_handle[config])
+			if (!sapaHdl->ocbHdl[sys][config])
 				continue;
-			free(sapaHdl->ocbHdl[sys]->ocb_sv_handle[config]);
+			free(sapaHdl->ocbHdl[sys][config]);
 		}
-		free(sapaHdl->ocbHdl[sys]->ocb_sv_handle);
 		free(sapaHdl->ocbHdl[sys]);
 	}
 	free(sapaHdl->ocbHdl);
@@ -951,8 +949,9 @@ GPPLONG gpp_sapa_handle_malloc_ocbHdl(SAPA_HANDLE *sapaHdl)
 			if (!(sapaHdl->ocbHdl[sys])) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 			for (config = 0; config < GPP_SAPA_MAX_OCB_CONFIGS; config++)
 			{
-				sapaHdl->ocbHdl[sys]->ocb_sv_handle[config] = (pSAPA_OCB_HANDLE_SV)calloc(1, sizeof(SAPA_OCB_HANDLE_SV));
-				if (!sapaHdl->ocbHdl[sys]->ocb_sv_handle[config]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+				sapaHdl->ocbHdl[sys][config]->ocb_sv_handle = (pSAPA_OCB_HANDLE_SV)calloc(GPP_SAPA_MAX_SAT, sizeof(SAPA_OCB_HANDLE_SV));
+				GPPUINT1 sat = 1;		//For testing -> Add additional loop for sys memory allocation
+				if (!sapaHdl->ocbHdl[sys][config]->ocb_sv_handle[sat]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 			}
 		}
 	}
@@ -1041,12 +1040,13 @@ GPPLONG gpp_sapa_config_add_ocb_config(SAPA_HANDLE *sapaHdl, GPPUINT1 sys, const
 
 	for (icnfg = 0; icnfg < GPP_SAPA_MAX_OCB_CONFIGS; icnfg++)
 	{
-		if (!sapaHdl->ocbHdl[sys]->ocb_sv_handle[icnfg])
+		if (!sapaHdl->ocbHdl[sys][icnfg]->ocb_sv_handle)
 		{
-			sapaHdl->ocbHdl[sys]->ocb_sv_handle[icnfg] = (SAPA_OCB_HANDLE*)calloc(1, sizeof(SAPA_OCB_HANDLE));
-			if (!(sapaHdl->ocbHdl[sys]->ocb_sv_handle[icnfg])) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+			GPPUINT1 sat = 1;		//For testing -> Add additional loop for sys memory allocation
+			sapaHdl->ocbHdl[sys][icnfg]->ocb_sv_handle[sat] = (SAPA_OCB_HANDLE*)calloc(1, sizeof(SAPA_OCB_HANDLE));
+			if (!(sapaHdl->ocbHdl[sys][icnfg]->ocb_sv_handle[sat])) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 
-			memcpy(sapaHdl->ocbHdl[sys]->ocb_sv_handle[icnfg], pset, sizeof(SAPA_OCB_HANDLE));
+			memcpy(sapaHdl->ocbHdl[sys][icnfg]->ocb_sv_handle[sat], pset, sizeof(SAPA_OCB_HANDLE));
 			sapaHdl->ocbHdl_bits[sys] = (1 << icnfg);
 			break;
 		}

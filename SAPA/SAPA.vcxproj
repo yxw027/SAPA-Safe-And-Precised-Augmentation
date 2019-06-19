@@ -129,17 +129,14 @@
     <ClCompile Include="gpp_sapa_ocb.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="sapa_converter.c" />
-    <ClCompile Include="ssrm2sapa_util.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bit2buff.h" />
     <ClInclude Include="compiler.h" />
     <ClInclude Include="gnssbase.h" />
-    <ClInclude Include="gnssrgen.h" />
     <ClInclude Include="gn_types.h" />
     <ClInclude Include="gpp_sapa.h" />
     <ClInclude Include="gpp_sapa_debug.h" />
-    <ClInclude Include="ssrm2sapa_util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

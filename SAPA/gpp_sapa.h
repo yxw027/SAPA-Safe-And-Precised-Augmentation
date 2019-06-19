@@ -456,6 +456,7 @@ typedef struct SAPA_OCB_HANDLE {
 	GPPUINT1 reserved;																	//SF069
 	GPPUINT1 sys;
 	GPPUINT1 end_of_obc_set;
+	GPPUINT8  sat_prn_bits[GPP_SAPA_MAX_CONS];												//SF011
 	pSAPA_OCB_HANDLE_SV *ocb_sv_handle;
 }SAPA_OCB_HANDLE, *pSAPA_OCB_HANDLE;
 
@@ -472,6 +473,7 @@ typedef struct SAPA_HPAC_HANDLE_IONO {
 } SAPA_HPAC_HANDLE_IONO, *pSAPA_HPAC_HANDLE_IONO;
 
 typedef struct SAPA_HPAC_HANDLE_AREA {
+	GPPUINT1  area_id;
 	GPPUINT8  grid_bits;																 //SF039   --
 	GPPUINT1  tropo_coeff_size;											//SF044   --
 	GPPUINT1  tropo_residual_size;             //SF051
@@ -485,13 +487,12 @@ typedef struct SAPA_HPAC_HANDLE {
 	GPPUINT1  reserved;               //SF069
 	GPPUINT1  area_issue_of_update;            //SF068
 	GPPUINT8  area_bits[4];      //indicating which area is part of the message
-	GPPUINT1 area_id;
 	pSAPA_HPAC_HANDLE_AREA *hpac_area_handle;
 } SAPA_HPAC_HANDLE, *pSAPA_HPAC_HANDLE;
 
 typedef struct SAPA_HANDLE {
-	pSAPA_OCB_HANDLE  *ocbHdl; //one pointer for each GNSS
-	GPPUINT1   ocbHdl_bits[SAPA_MAX_SYS];
+	pSAPA_OCB_HANDLE  **ocbHdl; //one pointer for each GNSS
+	GPPUINT1   ocbHdl_bits[GPP_SAPA_MAX_OCB_CONFIGS];
 	pSAPA_HPAC_HANDLE  hpacHdl;
 	pSAPA_GAD_HANDLE gadHdl;
 } SAPA_HANDLE, *pSAPA_HANDLE;

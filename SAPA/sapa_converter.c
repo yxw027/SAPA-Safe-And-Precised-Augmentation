@@ -60,7 +60,7 @@ GPPLONG gpp_sapa_ocb_asciifile2buffer()
 					if (!pocb)
 					{
 						pocb = calloc(1, sizeof(GPP_SAPA_OCB));
-						//psapa_handle = calloc(1, sizeof(SAPA_HANDLE));
+						psapa_handle = calloc(1, sizeof(SAPA_HANDLE));
 						
 						if (!pocb) 
 							return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
@@ -142,12 +142,12 @@ GPPLONG gpp_sapa_ocb_asciifile2buffer()
 							if (sys_index == gpp_sapa_get_highest_cons_set(cons_bits))						//Check End Of OCB data
 							{
 								header.end_of_obc_set = 1;							//End Of OCB 
-								//ocb_handle.end_of_obc_set = 1;
+								ocb_handle.end_of_obc_set = 1;
 							}
 							else
 							{
 								header.end_of_obc_set = 0;							//End Of OCB
-								//ocb_handle.end_of_obc_set = 0;
+								ocb_handle.end_of_obc_set = 0;
 							}
 
 							header.reserved = 0;
@@ -325,8 +325,8 @@ GPPLONG gpp_sapa_ocb_asciifile2buffer()
 											//printf("code bias write end.\r\n");
 										} // CODE_BIAS ends
 									} // PHASE_BIAS ends
-									/*if (rc = gpp_sapa_config_add_ocb_config(psapa_handle, sys, &ocb_handle, fp))
-										return rc;*/
+									if (rc = gpp_sapa_config_add_ocb_config(psapa_handle, sys, &ocb_handle, fp))
+										return rc;
 								}
 							} // SATALLITE_DATA ends
 						}
@@ -461,7 +461,7 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 					if (!parea)
 					{
 						parea = calloc(1, sizeof(GPP_SAPA_AREA));
-						//psapa_handle = calloc(1, sizeof(SAPA_HANDLE));
+						psapa_handle = calloc(1, sizeof(SAPA_HANDLE));
 
 						if (!parea)
 							return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
@@ -469,7 +469,7 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 					if (parea)
 					{														// allocate the sys-sat two dimensional pointer array
 						gpp_sapa_area_free_area(parea);
-						//gpp_sapa_handle_free_gadHdl(psapa_handle);
+						gpp_sapa_handle_free_gadHdl(psapa_handle);
 					}
 					//Check for number of satellites in this particular epoc data.
 					fgetpos(pAsciiDataset, &last_pos);														//Save file index current position
@@ -537,6 +537,7 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 					if ((strncmp(tokens[0], "<ATM_AREADEF_HEADER>", 20) == 0) && ntok == 4)
 					{
 						GPP_SAPA_AREA_DEF_HEADER area_header = { 0, };
+						SAPA_GAD_HANDLE gad_handle = { 0, };
 						area_header.message_sub_type = 0;
 						area_header.sol_id = atoi(tokens[1]);
 						area_header.sol_processor_id = atoi(tokens[2]);
@@ -594,8 +595,8 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 								}
 							}
 						}
-						/*if (rc = gpp_sapa_config_add_gad_config(psapa_handle, 0, &gad_handle, fp))
-							return rc;*/
+						if (rc = gpp_sapa_config_add_gad_config(psapa_handle, 0, &gad_handle, fp))
+							return rc;
 						break;
 					}
 				}
@@ -636,7 +637,7 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 					if (!phpac)
 					{
 						phpac = calloc(1, sizeof(GPP_SAPA_HPAC));
-						//psapa_handle = calloc(1, sizeof(SAPA_HANDLE));
+						psapa_handle = calloc(1, sizeof(SAPA_HANDLE));
 
 						if (!phpac)
 							return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
@@ -644,7 +645,7 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 					if (phpac)
 					{														// allocate the sys-sat two dimensional pointer array
 						gpp_sapa_hpac_free_hpac(phpac);
-						/*gpp_sapa_handle_free_hpacHdl(psapa_handle);*/
+						gpp_sapa_handle_free_hpacHdl(psapa_handle);
 					}
 
 					//Check for number of satellites in this particular epoc data.
@@ -756,6 +757,7 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 								if (strncmp(tokens[0], "<ATM_HPAC_COMMON_DATA>", 22) == 0)				//Checking for Satellite Data
 								{
 									GPP_SAPA_HPAC_AREA h_area = { 0, };
+									SAPA_HPAC_HANDLE_AREA handle_h_area = { 0, };
 									GPPUINT1 tropo_equation_type = 0;
 									GPPUINT1 iono_equation_type = 0;
 
@@ -774,6 +776,8 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 										}
 									}
 
+									handle_h_area.area_id = ai;
+									
 									//printf(" ==== %d %d ====", h_area.area_id, ai);
 									//for (isys = 0; isys < GPP_SAPA_MAX_SYS; isys++)
 									//{
@@ -812,7 +816,7 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 												h_tropo_coeff.tropo_quality = atof(tokens[1]);
 												h_tropo_coeff.tropo_avhd = atof(tokens[2]);
 												h_tropo_coeff.tropo_coeff_size = 1;									//Placed manually
-												//hpac_handle.hpac_area_handle[ai].tropo_coeff_size = 1;
+												handle_h_area.tropo_coeff_size = 1;
 
 												h_tropo_coeff.tropo_poly_coeff[TROPO_POLY_COEFF_INDX_T00] = atof(tokens[3]);
 												h_tropo_coeff.tropo_poly_coeff[TROPO_POLY_COEFF_INDX_T01] = atof(tokens[4]);
@@ -820,7 +824,7 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 												h_tropo_coeff.tropo_poly_coeff[TROPO_POLY_COEFF_INDX_T11] = atof(tokens[6]);
 
 												h_grid_block.tropo_residual_size = 1;								//Placed manually
-												//hpac_handle.tropo_residual_size = 1;
+												handle_h_area.tropo_residual_size = 1;
 
 												int k = 7, res_index = 0;
 												while (k < grid_points + 7)
@@ -870,7 +874,7 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 															GPP_SAPA_HPAC_IONO_SAT_POLY iono_sat_poly = { 0, };   //Ionosphere Satellite Poloynomial
 															GPP_SAPA_HPAC_IONO_SAT_COEFFICIENT iono_sat_coeff = { 0, }; //Ionosphere Satellite Coefficient
 															GPP_SAPA_HPAC_IONO_GRID_BLOCK iono_grid = { 0, };   //Ionosphere Grid Block
-
+															SAPA_HPAC_HANDLE_IONO handle_h_iono = { 0, };
 															//iono_grid.iono_residuals = (GPPDOUBLE*)calloc(grid_points, sizeof(GPPDOUBLE));
 															//if (!iono_grid.iono_residuals) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 
@@ -883,14 +887,14 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 															else if (tokens[1][0] == 'R')
 																sys = 1;
 
-															//hpac_handle.sys = sys;
+															handle_h_iono.sys = sys;
 															//Getting satellite number from token
 															char sat_id[] = { tokens[1][1] , tokens[1][2] , tokens[1][3] };					//Checking satellite number
 															sat = atoi(sat_id);
 
 															iono_sat_poly.iono_quality = atof(tokens[2]);
 															iono_sat_poly.iono_coeff_size = 1;
-															//hpac_handle.iono_coeff_size = 1;
+															handle_h_iono.iono_coeff_size = 1;
 
 															if (rc = gpp_sapa_hpac_add_iono_sat_poly_block(phpac, sys, sat, ai, &iono_sat_poly))
 																return rc;
@@ -904,7 +908,7 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 																return rc;
 
 															iono_grid.iono_residual_field_size = 1;								//Placed manually
-															//hpac_handle.iono_residual_field_size = 1;
+															handle_h_iono.iono_residual_field_size = 1;
 															res_index = 0;
 															k = 7;
 															while (k < grid_points + 7)
@@ -916,8 +920,8 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 															if (rc = gpp_sapa_hpac_add_iono_sat_grid_block(phpac, sys, sat, ai, &iono_grid))
 																return rc;
 
-															/*if (rc = gpp_sapa_config_add_hpac_config(psapa_handle, sys, &hpac_handle, fp))
-																return rc;*/
+															if (rc = gpp_sapa_config_add_hpac_config(psapa_handle, sys, &handle_h_iono, fp))
+																return rc;
 
 														} // IONO_DATA ends
 													}
