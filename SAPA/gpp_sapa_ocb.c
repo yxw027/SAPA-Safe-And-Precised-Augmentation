@@ -157,7 +157,7 @@ static GPPLONG gpp_sapa_ocb_header2buffer(const pGPP_SAPA_OCB p_ocb, const SAPA_
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 4, header_block->sol_processor_id);								//SF007
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 9, header_block->sol_issue_of_update);							//SF005
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 1, ocbHdl->end_of_obc_set);										//SF010
-	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 1, ocbHdl->reserved);												//SF069
+	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 1, header_block->reserved);												//SF069
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 1, header_block->yaw_flag);										//SF008
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 1, header_block->sat_ref_datum);									//SF009
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 2, header_block->ephemeris_type);									//SF017

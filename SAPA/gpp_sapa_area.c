@@ -115,8 +115,8 @@ static GPPLONG gpp_sapa_area_header2buffer(const pGPP_SAPA_AREA p_area, const SA
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 7, header->sol_id);											//SF006
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 4, header->sol_processor_id);								//SF007
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 9, header->sol_issue_of_update);						    //SF005
-	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 4, gadHdl->area_issue_of_update);
-	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 1, gadHdl->reserved);
+	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 4, header->area_issue_of_update);
+	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 1, header->reserved);
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 5, header->area_count);										//SF030
 	return 0;
 }//gpp_sapa_area_header2buffer()

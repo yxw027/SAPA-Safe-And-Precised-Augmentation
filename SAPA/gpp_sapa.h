@@ -207,7 +207,7 @@ extern "C" {
 #define GPP_SAPA_OCB_BITS_CLK	0x02
 #define GPP_SAPA_OCB_BITS_PB	0x04
 #define GPP_SAPA_OCB_BITS_CB	0x08
-#define GPP_MAX_HPAC_CONFIGS 4
+#define GPP_MAX_HPAC_CONFIGS 3
 
 #define GPP_SAPA_AREA_BITS64 4
 
@@ -445,66 +445,113 @@ typedef struct GPP_SAPA_USE_STATES{
   * SAPA MSG HANDLE
   * This handle allows for the SAPA Msg settings
   ************************************************************************************************************/
+//typedef struct SAPA_OCB_HANDLE_SV {
+//	GPPUINT1 ocb_bits; //ocb_bits to configure OCB messages (0001 only orbits, 0010 only clock, 0100 only PB, 1000 only CB)
+//	GPPUINT1 pb_sig_bits;
+//	GPPUINT1 cb_sig_bits;
+//} SAPA_OCB_HANDLE_SV, *pSAPA_OCB_HANDLE_SV;
+//
+//typedef struct SAPA_OCB_HANDLE {
+//	GPPUINT1 sys;
+//	GPPUINT1 time_tag_type;
+//	GPPUINT1 end_of_obc_set;
+//	GPPUINT1 reserved;																	//SF069
+//	GPPUINT8  sat_prn_bits[GPP_SAPA_MAX_CONS];												//SF011
+//	pSAPA_OCB_HANDLE_SV *ocb_sv_handle;
+//}SAPA_OCB_HANDLE, *pSAPA_OCB_HANDLE;
+//
+//typedef struct SAPA_GAD_HANDLE {
+//	GPPUINT1  area_issue_of_update;													   //SF068
+//	GPPUINT1  reserved;																	//SF069
+//	GPPUINT8  area_bits[4];															   //indicating which area is part of the message
+//} SAPA_GAD_HANDLE, *pSAPA_GAD_HANDLE;
+//
+//typedef struct SAPA_HPAC_HANDLE_IONO {
+//	GPPUINT1  sys;																		//SF001         -- first charcter of satellite ID
+//	GPPUINT1  iono_coeff_size;															//SF056
+//	GPPUINT1  iono_residual_field_size;													//SF063
+//} SAPA_HPAC_HANDLE_IONO, *pSAPA_HPAC_HANDLE_IONO;
+//
+//typedef struct SAPA_HPAC_HANDLE_AREA {
+//	GPPUINT1  area_id;
+//	GPPUINT8  grid_bits;																 //SF039   --
+//	GPPUINT1  tropo_coeff_size;											//SF044   --
+//	GPPUINT1  tropo_residual_size;             //SF051
+//	GPPUINT2  sys_bits;       //System bits
+//	GPPUINT8  sat_bits;       //Satellite bits
+//	pSAPA_HPAC_HANDLE_IONO **iono_handle;
+//} SAPA_HPAC_HANDLE_AREA, *pSAPA_HPAC_HANDLE_AREA;
+//
+//typedef struct SAPA_HPAC_HANDLE {
+//	GPPUINT1  time_tag_type;
+//	GPPUINT1  reserved;               //SF069
+//	GPPUINT1  area_issue_of_update;            //SF068
+//	GPPUINT8  area_bits[4];      //indicating which area is part of the message
+//	pSAPA_HPAC_HANDLE_AREA *hpac_area_handle;
+//} SAPA_HPAC_HANDLE, *pSAPA_HPAC_HANDLE;
+//
+//typedef struct SAPA_HANDLE {
+//	pSAPA_OCB_HANDLE  **ocbHdl; //one pointer for each GNSS
+//	GPPUINT1   ocbHdl_bits[GPP_SAPA_MAX_OCB_CONFIGS];
+//	pSAPA_HPAC_HANDLE  hpacHdl;
+//	pSAPA_GAD_HANDLE gadHdl;
+//} SAPA_HANDLE, *pSAPA_HANDLE;
+
 typedef struct SAPA_OCB_HANDLE_SV {
 	GPPUINT1 ocb_bits; //ocb_bits to configure OCB messages (0001 only orbits, 0010 only clock, 0100 only PB, 1000 only CB)
-	GPPUINT1 pb_bits;
-	GPPUINT1 cb_bits;
+	GPPUINT1 pb_sig_bits;
+	GPPUINT1 cb_sig_bits;
 } SAPA_OCB_HANDLE_SV, *pSAPA_OCB_HANDLE_SV;
 
 typedef struct SAPA_OCB_HANDLE {
-	GPPUINT1 time_tag_type;
-	GPPUINT1 reserved;																	//SF069
 	GPPUINT1 sys;
+	GPPUINT1 time_tag_type;
 	GPPUINT1 end_of_obc_set;
-	GPPUINT8  sat_prn_bits[GPP_SAPA_MAX_CONS];												//SF011
+	GPPUINT8  sat_prn_bits;            //SF011
 	pSAPA_OCB_HANDLE_SV *ocb_sv_handle;
-}SAPA_OCB_HANDLE, *pSAPA_OCB_HANDLE;
-
-typedef struct SAPA_GAD_HANDLE {
-	GPPUINT1  reserved;																	//SF069
-	GPPUINT1  area_issue_of_update;													   //SF068
-	GPPUINT8  area_bits[4];															   //indicating which area is part of the message
-} SAPA_GAD_HANDLE, *pSAPA_GAD_HANDLE;
+} SAPA_OCB_HANDLE, *pSAPA_OCB_HANDLE;
 
 typedef struct SAPA_HPAC_HANDLE_IONO {
-	GPPUINT1  sys;																		//SF001         -- first charcter of satellite ID
-	GPPUINT1  iono_coeff_size;															//SF056
-	GPPUINT1  iono_residual_field_size;													//SF063
+	GPPUINT1 sys;                   //SF001
+	GPPUINT1  iono_coeff_size;               //SF056
+	GPPUINT1  iono_residual_field_size;             //SF063
 } SAPA_HPAC_HANDLE_IONO, *pSAPA_HPAC_HANDLE_IONO;
 
-typedef struct SAPA_HPAC_HANDLE_AREA {
-	GPPUINT1  area_id;
-	GPPUINT8  grid_bits;																 //SF039   --
-	GPPUINT1  tropo_coeff_size;											//SF044   --
-	GPPUINT1  tropo_residual_size;             //SF051
-	GPPUINT2  sys_bits;       //System bits
-	GPPUINT8  sat_bits;       //Satellite bits
-	pSAPA_HPAC_HANDLE_IONO **iono_handle;
-} SAPA_HPAC_HANDLE_AREA, *pSAPA_HPAC_HANDLE_AREA;
+typedef struct SAPA_HPAC_HANDLE_TROPO {
+	GPPUINT1  tropo_coeff_size;               //SF056
+	GPPUINT1  tropo_residual_size;             //SF063
+} SAPA_HPAC_HANDLE_TROPO, *pSAPA_HPAC_HANDLE_TROPO;
 
 typedef struct SAPA_HPAC_HANDLE {
 	GPPUINT1  time_tag_type;
-	GPPUINT1  reserved;               //SF069
-	GPPUINT1  area_issue_of_update;            //SF068
+	GPPUINT1  grid_bits;
 	GPPUINT8  area_bits[4];      //indicating which area is part of the message
-	pSAPA_HPAC_HANDLE_AREA *hpac_area_handle;
+	pSAPA_HPAC_HANDLE_IONO  *hpacIonoHdl;
+	GPPUINT8   hpacIonoHdl_bits[GPP_SAPA_MAX_AREA_COUNT];
+	pSAPA_HPAC_HANDLE_TROPO *hpacTropoHdl;
+	GPPUINT8   hpacTropoHdl_bits[GPP_SAPA_MAX_AREA_COUNT];
 } SAPA_HPAC_HANDLE, *pSAPA_HPAC_HANDLE;
+
+typedef struct SAPA_GAD_HANDLE {
+	GPPUINT8  area_bits[4];                  //indicating which area is part of the message
+} SAPA_GAD_HANDLE, *pSAPA_GAD_HANDLE;
 
 typedef struct SAPA_HANDLE {
 	pSAPA_OCB_HANDLE  **ocbHdl; //one pointer for each GNSS
-	GPPUINT1   ocbHdl_bits[GPP_SAPA_MAX_OCB_CONFIGS];
-	pSAPA_HPAC_HANDLE  hpacHdl;
+	GPPUINT8   ocbHdl_bits[GPP_SAPA_MAX_SYS];
+	pSAPA_HPAC_HANDLE *hpacHdl;
 	pSAPA_GAD_HANDLE gadHdl;
 } SAPA_HANDLE, *pSAPA_HANDLE;
-
 
 GPPLONG gpp_sapa_handle_free_ocbHdl(SAPA_HANDLE *sapaHdl);
 GPPLONG gpp_sapa_handle_malloc_ocbHdl(SAPA_HANDLE *sapaHdl);
 
 GPPLONG gpp_sapa_config_add_ocb_config(SAPA_HANDLE *sapaHdl, GPPUINT1 sys, const SAPA_OCB_HANDLE *pset, FILE *fp);
-GPPLONG gpp_sapa_config_add_hpac_config(SAPA_HANDLE *sapaHdl, GPPUINT1 area, const SAPA_HPAC_HANDLE *pset, FILE *fp);
+GPPLONG gpp_sapa_config_add_ocb_sv_config(SAPA_HANDLE *sapaHdl, GPPUINT1 sys, GPPUINT1 sat, const SAPA_OCB_HANDLE_SV *pset, FILE *fp);
+GPPLONG gpp_sapa_config_add_hpac_config(SAPA_HANDLE *sapaHdl, const SAPA_HPAC_HANDLE *pset, FILE *fp);
+GPPLONG gpp_sapa_config_add_hpac_iono_config(SAPA_HANDLE *sapaHdl, GPPUINT1 area, const SAPA_HPAC_HANDLE_IONO *pset, FILE *fp);
+GPPLONG gpp_sapa_config_add_hpac_tropo_config(SAPA_HANDLE *sapaHdl, GPPUINT1 area, const SAPA_HPAC_HANDLE_TROPO *pset, FILE *fp);
 GPPLONG gpp_sapa_config_add_gad_config(SAPA_HANDLE *sapaHdl, const SAPA_GAD_HANDLE *pset, FILE *fp);
-
 GPPLONG gpp_sapa_handle_free_handle(SAPA_HANDLE **ppSapaHdl);
 GPPLONG gpp_sapa_handle_malloc_handle(SAPA_HANDLE **ppSapaHdl);
 GPPLONG gpp_sapa_handle_free_hpacHdl(SAPA_HANDLE *sapaHdl);
@@ -521,7 +568,6 @@ GPPLONG gpp_sapa_handle_free_gadHdl(SAPA_HANDLE *sapaHdl);
  *  \retval  needed bits (>0) or error code (<0)
 
  *****************************************************************************/
-
 GPPLONG gpp_sapa_ocb2buffer(const pGPP_SAPA_OCB ocb, const SAPA_OCB_HANDLE *ocbHdl, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
 GPPLONG gpp_sapa_buffer2ocb(pGPP_SAPA_OCB ocb, const GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
 
@@ -588,7 +634,8 @@ GPPLONG gpp_sapa_area_add_header(pGPP_SAPA_AREA p_area, const pGPP_SAPA_AREA_DEF
 GPPLONG gpp_sapa_area_add_area_def(pGPP_SAPA_AREA p_area, GPPUINT1 area, const pGPP_SAPA_AREA_DEF_BLOCK pset);
 
 //=============================================== functions to add data to structure For Handle =================================================
-//GPPLONG gpp_sapa_handle_malloc_ocbHdl(SAPA_HANDLE *sapaHdl);
+GPPLONG gpp_sapa_hpac_handle_add_hpac_iono_handle(pSAPA_HANDLE sapaHdl, GPPUINT1 config, GPPUINT1 area, const pSAPA_HPAC_HANDLE_IONO pset);
+GPPLONG gpp_sapa_hpac_handle_add_hpac_tropo_handle(pSAPA_HANDLE sapaHdl, GPPUINT1 config, GPPUINT1 area, const pSAPA_HPAC_HANDLE_TROPO pset);
 //------------------------------------------------------------Transport Layer SAPA message------------------------------------------------------------------------------------
 GPPLONG gpp_sapa_ocb_buffer_to_sapa_buffer(const GPPUCHAR *ocb_buffer, GPPLONG len_sapa_bits, GPPLONG ea_flag, GPPLONG message_crc_type, GPPLONG crc_frame, GPPUCHAR *sapa_buffer);
 GPPLONG gpp_sapa_sapa_buffer_to_ocb_buffer(GPPUCHAR *ocb_buffer, GPPLONG *len_sapa_bits, GPPLONG *ea_flag, GPPLONG *message_crc_type, GPPLONG *crc_frame, const GPPUCHAR *sapa_buffer);
@@ -606,7 +653,7 @@ void compare_files(FILE *pre_binary_filename, FILE *binary_filename);
 GPPLONG gpp_sapa_get_bit_diff(GPPLONG byte_pos, GPPLONG bit_pos, GPPLONG byte_pos0, GPPLONG bit_pos0);
 GPPLONG length_bytes_from_bits(GPPLONG b);
 GPPLONG total_bits(GPPLONG *byte, GPPLONG *bits);
-void gpp_sapa_get_area_bits(GPPUINT8*area_bits, int value);
+void gpp_sapa_set_area_bits(GPPUINT8*area_bits, int value);
 void gpp_sapa_get_area_bits_value(GPPUINT8*area_bits, GPPUINT8*arr);
 
 void gpp_sapa_debug_fprintf_ocb(const GPP_SAPA_OCB *p_ocb, FILE *fp);
@@ -621,8 +668,6 @@ void gpp_sapa_debug_fprintf_area(pGPP_SAPA_AREA p_area, FILE *fp);
 
 GPPLONG gpp_sapa_states_free_ocb(GPP_SAPA_USE_STATES *use_states);
 GPPLONG gpp_sapa_states_malloc_ocb(GPP_SAPA_USE_STATES *use_states);
-
-
 
 
 

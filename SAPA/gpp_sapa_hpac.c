@@ -168,8 +168,8 @@ static GPPLONG gpp_sapa_hpac_header2buffer(const pGPP_SAPA_HPAC p_hpac, const SA
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 7, header->sol_id);													//SF006
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 4, header->sol_processor_id);										//SF007
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 9, header->sol_issue_of_update);									   //SF005
-	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 1, hpacHdl->reserved);
-	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 4, hpacHdl->area_issue_of_update);
+	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 1, header->reserved);
+	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 4, header->area_issue_of_update);
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 5, header->area_count);												//SF030
 	return 0;
 }//gpp_sapa_hpac_header2buffer()
@@ -238,7 +238,7 @@ static GPPLONG gpp_sapa_hpac_area2buffer(const pGPP_SAPA_HPAC p_hpac, const SAPA
 	GPP_SAPA_HPAC_AREA *area_block = NULL;
 	if (!(area_block = p_hpac->atmo[area]->area_def)) return GPP_SAPA_ERR_INVALID_HPAC_AREA;
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 8, area_block->area_id);										//SF031
-	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 7, hpacHdl->hpac_area_handle[area]->grid_bits);															//SF039
+	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 7, area_block->number_of_grid_point);															//SF039
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 2, area_block->tropo_block_indicator);							//SF040
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 2, area_block->iono_block_indicator);							//SF040
     return 0;
@@ -289,13 +289,13 @@ static GPPLONG gpp_sapa_hpac_buffer2tropo(pGPP_SAPA_HPAC p_hpac,GPPUINT1 area,co
 /******************************************************************************
  *	\brief Store Troposphere Polynomial Coefficient block data into buffer
  ******************************************************************************/
-static GPPLONG gpp_sapa_hpac_tropo_poly_coefficient_block2buffer(const pGPP_SAPA_HPAC p_hpac, const SAPA_HPAC_HANDLE *hpacHdl,GPPUINT1 area, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos)
+static GPPLONG gpp_sapa_hpac_tropo_poly_coefficient_block2buffer(const pGPP_SAPA_HPAC p_hpac, const SAPA_HPAC_HANDLE *hpacHdl, GPPUINT1 area, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos)
 {
 	GPPUINT1 coeff_size, equ_type;
 	GPPUINT1 bit_id = 1;
 	GPP_SAPA_HPAC_TROPO_POLY_COEFFICIENT_BLOCK *tpcb = p_hpac->atmo[area]->tropo->tropo_poly_coeff_block;
-
-	coeff_size = hpacHdl->hpac_area_handle[area]->tropo_coeff_size;
+	
+		coeff_size = hpacHdl->hpacTropoHdl[area]->tropo_coeff_size;
 	equ_type = tpcb->tropo_equation_type;
 
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 3, equ_type);											//SF041
@@ -351,9 +351,9 @@ static GPPLONG gpp_sapa_hpac_tropo_grid_block2buffer(const pGPP_SAPA_HPAC p_hpac
 {
 	GPP_SAPA_HPAC_TROPO_GRID_BLOCK *grid_block = p_hpac->atmo[area]->tropo->tropo_grid;
 	GPPUINT1 no_of_grid, ig;
-	GPPUINT1 res_size = hpacHdl->hpac_area_handle[area]->tropo_residual_size;
+	GPPUINT1 res_size = hpacHdl->hpacTropoHdl[area]->tropo_residual_size;
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 1, res_size); //SF051
-	no_of_grid= hpacHdl->hpac_area_handle[area]->grid_bits;
+	no_of_grid = hpacHdl->grid_bits;
 	for (ig = 0; ig < no_of_grid; ig++)
 	{
 		gpp_sapa_float2buffer(buffer, byte_pos, bit_pos, SAPA_TROPO_RESIDUAL_ZENITH_MIN[res_size], SAPA_TROPO_RESIDUAL_ZENITH_MAX[res_size], SAPA_TROPO_RESIDUAL_ZENITH_DELAY[res_size], SAPA_RES_TROPO_RESIDUAL_DELAY, &SAPA_TROPO_RESIDUAL_ZENITH_INVALID[res_size], grid_block->tropo_residuals[ig]);//SF052
@@ -388,7 +388,7 @@ static GPPLONG gpp_sapa_hpac_iono2buffer(const pGPP_SAPA_HPAC p_hpac, const SAPA
 	{
 		GPPLONG rc;
 		GPPUINT1 isat,sys;
-		sys = hpacHdl->hpac_area_handle[area]->sys_bits;				//Convert from bits to Sat ID
+		sys = hpacHdl->hpacIonoHdl[area]->sys;				//Convert from bits to Sat ID
 		//printf("hi");
 		gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 3, iono_block->iono_equation_type);     //SF054
 		//printf("hello");
@@ -468,9 +468,15 @@ static GPPLONG gpp_sapa_hpac_buffer2iono_sv_bitmask(GPPUINT8 *sv_prn_bits, GPPUI
 static GPPLONG gpp_sapa_hpac_iono_sat2buffer(const pGPP_SAPA_HPAC p_hpac, const SAPA_HPAC_HANDLE *hpacHdl,GPPUINT1 sys, GPPUINT1 sat, GPPUINT1 area, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos)
 {
 	GPPLONG rc=0;
-	if(rc=gpp_sapa_hpac_iono_sat_poly2buffer(p_hpac, sys,sat, area, buffer, byte_pos, bit_pos)) return 0;
-	if(rc=gpp_sapa_hpac_iono_sat_coeff2buffer(p_hpac, hpacHdl,sys, sat, area, buffer, byte_pos, bit_pos)) return 0;
-	if(rc=gpp_sapa_hpac_iono_sat_grid2buffer(p_hpac, hpacHdl ,sys,sat, area, buffer, byte_pos, bit_pos)) return 0;
+	if (p_hpac->atmo[area]->area_def->iono_block_indicator != 0)					//1 or 2
+	{
+		if (rc = gpp_sapa_hpac_iono_sat_poly2buffer(p_hpac, sys, sat, area, buffer, byte_pos, bit_pos)) return 0;
+		if (rc = gpp_sapa_hpac_iono_sat_coeff2buffer(p_hpac, hpacHdl, sys, sat, area, buffer, byte_pos, bit_pos)) return 0;
+	}
+	if (p_hpac->atmo[area]->area_def->iono_block_indicator == 2)					// 2
+	{
+		if (rc = gpp_sapa_hpac_iono_sat_grid2buffer(p_hpac, hpacHdl, sys, sat, area, buffer, byte_pos, bit_pos)) return 0;
+	}
 	return rc;
 }//gpp_sapa_hpac_iono_sat2buffer()
 /******************************************************************************
@@ -518,7 +524,7 @@ static GPPLONG gpp_sapa_hpac_iono_sat_coeff2buffer(const pGPP_SAPA_HPAC p_hpac, 
 {
 	GPPUINT1 coeff_size, equ_type;
 	GPP_SAPA_HPAC_IONO_SAT_COEFFICIENT *tpcb = p_hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_sat_coeff;
-	coeff_size = hpacHdl->hpac_area_handle[area]->iono_handle[sys][sat]->iono_coeff_size;
+	coeff_size = hpacHdl->hpacIonoHdl[area]->iono_coeff_size;
 	equ_type = p_hpac->atmo[area]->iono->iono_equation_type;
 
 	gpp_sapa_float2buffer(buffer, byte_pos, bit_pos, SAPA_TROPO_COEFF_C00_MIN[coeff_size], SAPA_TROPO_COEFF_C00_MAX[coeff_size], SAPA_IONO_COEFF[coeff_size][IONO_POLY_COEFF_INDX_C00], SAPA_RES_IONO_POLY_COEFF_C00,NULL, tpcb->iono_poly_coeff[IONO_POLY_COEFF_INDX_C00]);	//SF057orSF060
@@ -566,9 +572,9 @@ static GPPLONG gpp_sapa_hpac_iono_sat_grid2buffer(const pGPP_SAPA_HPAC p_hpac, c
 {
 	GPP_SAPA_HPAC_IONO_GRID_BLOCK *iono_grid = p_hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_grid;
 	GPPUINT1 no_of_grid,ig,res_field_size;
-	res_field_size = hpacHdl->hpac_area_handle[area]->iono_handle[sys][sat]->iono_residual_field_size;
+	res_field_size = hpacHdl->hpacIonoHdl[area]->iono_residual_field_size;
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos,2, res_field_size);	//SF063
-	no_of_grid = hpacHdl->hpac_area_handle[area]->grid_bits;
+	no_of_grid = hpacHdl->grid_bits;
 	for (ig = 0; ig < no_of_grid; ig++)
 	{
 		gpp_sapa_float2buffer(buffer, byte_pos, bit_pos, SAPA_IONO_RESIDUAL_SLANT_MIN[res_field_size], SAPA_IONO_RESIDUAL_SLANT_MAX[res_field_size], SAPA_IONO_RESIDUAL_SLANT_DELAY[res_field_size],SAPA_RES_IONO_RESIDUAL_DELAY, &SAPA_IONO_RESIDUAL_SLANT_INVALID[res_field_size], iono_grid->iono_residuals[ig]);//SF064
