@@ -1,16 +1,10 @@
-©Client GmbH 2019  1 / 4 
- 
- 
- 
+SAFE AND AUGMENTED PRECISION
+
 Introduction and Goals 
  
 Client Software estimates GNSS (Global Navigation Satellite Systems) corrections based on network observations. These corrections are transmitted from a service 
 provider to the users by different communication technologies and formats. 
-The following slides give an introduction to GNSS corrections. 
- ©Client GmbH 2019  2 / 4 
- 
- 
- ©Client GmbH 2019  3 / 4 
+
  
 The SAPA Format is an open format realization from Sapcorda to transmit SSR corrections. The SAPA format content is based on the State State Representation (SSR) 
 model with basic SSR parameters orbit, clock, biases, and atmospheric corrections for the ionosphere and troposphere, respectively. 

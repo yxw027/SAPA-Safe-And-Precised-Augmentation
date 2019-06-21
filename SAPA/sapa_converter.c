@@ -107,12 +107,14 @@ GPPLONG gpp_sapa_ocb_asciifile2buffer()
 
 					//
 					SAPA_OCB_HANDLE ocb_handle = { 0, };
+					SAPA_OCB_HANDLE_SV ocb_sv_handle = { 0, };
 
 					//Add OCB data to structure for this epoch.
 					memset(tokens, NULL, sizeof(tokens));												//Clearing token memory for new data
 					gpp_sapa_split_arg_to_tokens(line_buffer_for_common, tokens);
 
 					int sys_index;
+					GPPT_WNT wn_t = { 0, };														// Geo++ Time Handling Structure
 					for (sys_index = 0; sys_index < GPP_SAPA_MAX_CONS; sys_index++)						//Add header to all the Systems used in this epoch
 					{
 						if (gpp_sapa_get_constellation_present_bit(cons_bits, sys_index) == 1)			//Check whether jth sys is present in epoch
@@ -122,7 +124,7 @@ GPPLONG gpp_sapa_ocb_asciifile2buffer()
 							header.time_tag_type = 1;							//0 OR 1 User's Preference
 							ocb_handle.time_tag_type = 1;
 
-							GPPT_WNT wn_t = { 0, };														// Geo++ Time Handling Structure
+							
 							wn_t.wn = atoi(tokens[1]);
 							wn_t.t = atof(tokens[2]);
 							GPPUINT4 sec;
@@ -142,12 +144,12 @@ GPPLONG gpp_sapa_ocb_asciifile2buffer()
 							if (sys_index == gpp_sapa_get_highest_cons_set(cons_bits))						//Check End Of OCB data
 							{
 								header.end_of_obc_set = 1;							//End Of OCB 
-								ocb_handle.end_of_obc_set = 1;
+								//ocb_handle.end_of_obc_set = 1;
 							}
 							else
 							{
 								header.end_of_obc_set = 0;							//End Of OCB
-								ocb_handle.end_of_obc_set = 0;
+								//ocb_handle.end_of_obc_set = 0;
 							}
 
 							header.reserved = 0;
@@ -161,7 +163,7 @@ GPPLONG gpp_sapa_ocb_asciifile2buffer()
 							if (rc = gpp_sapa_ocb_add_header(pocb, sys_index, &header))
 								return rc;
 
-							if (rc = gpp_sapa_config_add_ocb_config(pocb, sys_index, &ocb_handle,fp))
+							if (rc = gpp_sapa_config_add_ocb_config(psapa_handle, sys_index, &ocb_handle,fp))
 								return rc;
 						}
 					}
@@ -204,6 +206,8 @@ GPPLONG gpp_sapa_ocb_asciifile2buffer()
 									char sat_id[] = { tokens[1][1] , tokens[1][2] , tokens[1][3] };					//Checking satellite number
 									sat = atoi(sat_id);
 
+									GNSS_SET_IDX_IN_BITS_64(psapa_handle->ocbHdl_bits[sys], sat);
+
 									//char s			
 									// The no of tokens must be XX
 									// If no of tokens is not 14 then skip to next SATELLITE_DATA
@@ -232,7 +236,13 @@ GPPLONG gpp_sapa_ocb_asciifile2buffer()
 									orb.orb_radial_correction = atof(tokens[9]);
 									orb.orb_along_track_correction = atof(tokens[10]);
 									orb.orb_cross_track_correction = atof(tokens[11]);
-									
+
+									orb.d_orbit[0] = atof(tokens[9]);
+									orb.d_orbit[1] = atof(tokens[10]);
+									orb.d_orbit[2] = atof(tokens[11]);
+
+									ocb_sv_handle.ocb_bits = GPP_SAPA_OCB_BITS_ORB;
+
 									if (atof(tokens[12])) 
 									{
 										orb.sat_yaw = atof(tokens[13]);
@@ -241,6 +251,10 @@ GPPLONG gpp_sapa_ocb_asciifile2buffer()
 									{
 										orb.sat_yaw = -1.0;
 									}
+
+									orb.wnt.wn = wn_t.wn;
+									orb.wnt.t = wn_t.t;
+									
 
 									if (sv.ocb_bits&(1 << GPP_SAPA_OCB_FLAG_IDX_ORB))
 									{
@@ -252,6 +266,11 @@ GPPLONG gpp_sapa_ocb_asciifile2buffer()
 									clk.clk_correction = atof(tokens[14]);
 									clk.user_range_error = atof(tokens[15]);
 
+									clk.wnt.wn = wn_t.wn;
+									clk.wnt.t = wn_t.t;
+
+									ocb_sv_handle.ocb_bits = GPP_SAPA_OCB_BITS_CLK;
+
 									if (sv.ocb_bits&(1 << GPP_SAPA_OCB_FLAG_IDX_CLK))
 									{
 										if (rc = gpp_sapa_ocb_add_clk(pocb, sys, sat, &clk)) 
@@ -262,11 +281,11 @@ GPPLONG gpp_sapa_ocb_asciifile2buffer()
 									fgets(line_buffer, size, pAsciiDataset);										
 									memset(tokens, NULL, sizeof(tokens));											//Clearing token memory for new data
 									gpp_sapa_split_arg_to_tokens(line_buffer, tokens);
-									
-									SAPA_OCB_HANDLE_SV ocb_sv_handle;
 
 									if ((strncmp(tokens[0], "<OCB_SATPHASE_BIAS>", 19) == 0))						//Checking for Phase Bias data
 									{
+										ocb_sv_handle.ocb_bits = GPP_SAPA_OCB_BITS_PB;
+										
 										int count_index = 1;
 										int sig_pb = atoi(tokens[count_index]);										//Phase Bias data slot
 
@@ -283,6 +302,9 @@ GPPLONG gpp_sapa_ocb_asciifile2buffer()
 											count_index++;
 											pb.countinity_indicator = atof(tokens[count_index]);
 
+											pb.wnt.wn = wn_t.wn;
+											pb.wnt.t = wn_t.t;
+
 											if (rc = gpp_sapa_ocb_add_pb(pocb, sys, sat, sig_pb, &pb))
 												return rc;
 
@@ -295,7 +317,7 @@ GPPLONG gpp_sapa_ocb_asciifile2buffer()
 
 											sig_pb = atoi(tokens[count_index]);
 										}
-										ocb_sv_handle.pb_sig_bits = count_index - 1;
+										//ocb_sv_handle.pb_sig_bits = count_index - 1;
 
 										//Reading next line from file
 										fgets(line_buffer, size, pAsciiDataset);
@@ -304,6 +326,8 @@ GPPLONG gpp_sapa_ocb_asciifile2buffer()
 
 										if ((strncmp(tokens[0], "<OCB_SATCODE_BIAS>", 18) == 0))					//Checking for Code Bias data
 										{
+											ocb_sv_handle.ocb_bits = GPP_SAPA_OCB_BITS_CB;
+
 											int count_index_code = 1;
 											int sig_cb = atoi(tokens[count_index_code]);						//Code Bias data slot
 											//printf("code bias write start.\r\n");
@@ -313,6 +337,9 @@ GPPLONG gpp_sapa_ocb_asciifile2buffer()
 
 												count_index_code++;
 												cb.cb_correction = atof(tokens[count_index_code]);
+
+												cb.wnt.wn = wn_t.wn;
+												cb.wnt.t = wn_t.t;
 
 												if (rc = gpp_sapa_ocb_add_cb(pocb, sys, sat, sig_cb, &cb))
 													return rc;
@@ -326,12 +353,12 @@ GPPLONG gpp_sapa_ocb_asciifile2buffer()
 
 												sig_cb = atoi(tokens[count_index_code]);
 											}
-											ocb_sv_handle.cb_sig_bits = count_index_code - 1;
+											//ocb_sv_handle.cb_sig_bits = count_index_code - 1;
 											//printf("code bias write end.\r\n");
 										} // CODE_BIAS ends
 									} // PHASE_BIAS ends
 									
-									ocb_sv_handle.ocb_bits = pocb->sv[sys][sat]->ocb_bits;
+									//ocb_sv_handle.ocb_bits = pocb->sv[sys][sat]->ocb_bits;
 									if (rc = gpp_sapa_config_add_ocb_sv_config(psapa_handle, sys, sat, &ocb_sv_handle, fp))
 										return rc;
 								}
@@ -594,7 +621,7 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 										}
 									}
 									//= GetAreaIndex(area_id, area_count, area_def_block.area_id);
-									gpp_sapa_set_area_bits(gad_handle.area_bits, ai);
+									gpp_sapa_set_area_bits(&gad_handle.area_bits, ai);
 									
 									if (rc = gpp_sapa_area_add_area_def(parea,ai, &area_def_block))
 										return rc;
@@ -730,6 +757,7 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 						header.reserved = 0;
 						header.area_issue_of_update = 0;
 						header.area_count = area_count;
+						hpac_handle.no_of_grids = grid_points;
 
 						//printf("%d", header.area_count);
 						//int isys;
@@ -780,7 +808,9 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 										}
 									}
 
-									gpp_sapa_set_area_bits(hpac_handle.area_bits, ai);
+									gpp_sapa_set_hpac_bits(&hpac_handle.hpacTropoHdl_bits[ai], h_area.tropo_block_indicator);
+									gpp_sapa_set_hpac_bits(&hpac_handle.hpacIonoHdl_bits[ai], h_area.iono_block_indicator);
+									gpp_sapa_set_area_bits(&hpac_handle.area_bits, ai);
 									gpp_sapa_config_add_hpac_config(psapa_handle, &hpac_handle, fp);
 									
 									//printf(" ==== %d %d ====", h_area.area_id, ai);

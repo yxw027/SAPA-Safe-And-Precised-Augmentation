@@ -43,7 +43,7 @@ GPPLONG gpp_sapa_area2buffer(const pGPP_SAPA_AREA p_area, const SAPA_GAD_HANDLE 
 
 	GPPLONG byte_pos0, bit_pos0;
 	GPPLONG mybyte = 0, mybit = 0;
-
+	GPPUINT8 arealist[4] = { 0, };
 	if (!byte_pos) byte_pos = &mybyte;
 	if (!bit_pos) bit_pos = &mybit;
 
@@ -54,8 +54,8 @@ GPPLONG gpp_sapa_area2buffer(const pGPP_SAPA_AREA p_area, const SAPA_GAD_HANDLE 
 	if (!gadHdl) return GPP_SAPA_ERR_INVALID_GAD_HANDLE;
 
 	if (rc = gpp_sapa_area_header2buffer(p_area, gadHdl, buffer, byte_pos, bit_pos)) return rc;
-	no_of_areas = p_area->header_block->area_count;
-	for (ia = 0; ia < no_of_areas; ia++) {
+	gpp_sapa_get_area_bits_value(gadHdl->area_bits, arealist);
+	for (ia = 0; ia < arealist[0]; ia++) {
 		if(rc=gpp_sapa_area_area2buffer(p_area,ia, buffer, byte_pos, bit_pos)) return rc;
 	}
 
