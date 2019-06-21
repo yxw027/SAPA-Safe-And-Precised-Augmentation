@@ -533,8 +533,9 @@ static GPPLONG gpp_sapa_hpac_buffer2iono_sat_poly(pGPP_SAPA_HPAC p_hpac, GPPUINT
 	GPP_SAPA_HPAC_IONO_SAT_POLY iono_sat_poly = { 0, };
 	iono_sat_poly.iono_quality=SAPA_IONO_QUALITY[gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 4)];				//SF055
 	iono_sat_poly.iono_coeff_size=gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 1);								//SF056
-	if(rc=gpp_sapa_hpac_add_iono_sat_poly_block(p_hpac,sys,sat,area,&iono_sat_poly)) return rc;
-	return 0;
+	printf("M>CHECKING %d", sat);
+	//if(rc=gpp_sapa_hpac_add_iono_sat_poly_block(p_hpac,sys,sat,area,&iono_sat_poly)) return rc;
+	//return 0;
 }//gpp_sapa_hpac_buffer2iono_sat_poly()
 
 /******************************************************************************************************************************************************************

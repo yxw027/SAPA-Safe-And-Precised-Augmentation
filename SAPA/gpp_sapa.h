@@ -150,6 +150,8 @@ extern "C" {
 #define GPP_SAPA_ERR_INVALID_TIME_TAG_TYPE 	(GPP_SAPA_ERROR_BASE-18)	/*	-54018	*/
 #define GPP_SAPA_ERR_INVALID_HPAC_HANDLE	(GPP_SAPA_ERROR_BASE-19)	/*	-54019	*/
 #define GPP_SAPA_ERR_INVALID_GAD_HANDLE		(GPP_SAPA_ERROR_BASE-20)	/*	-54020	*/
+#define GPP_SAPA_ERR_INVALID_CONFIG			(GPP_SAPA_ERROR_BASE-21)	/*	-54021	*/
+#define GPP_SAPA_ERR_INVALID_SAT			(GPP_SAPA_ERROR_BASE-22)	/*	-54022	*/
 
 #define GPP_SAPA_ERR_PREAMBLE				(GPP_SAPA_ERROR_BASE-100) /* -54100	*/
 #define GPP_SAPA_ERR_TYPE					(GPP_SAPA_ERROR_BASE-101) /* -54101	*/
@@ -671,7 +673,7 @@ GPPUINT1 gpp_sapa_set_cons_bit(GPPUINT1 cons_bits, GPPUINT1 pos);
 /******************************************************************************
   * Sets the bit position according to the index value
   *****************************************************************************/
-void gpp_sapa_set_hpac_bits(GPPUINT1 *set_bits, GPPUINT1 *value);
+void gpp_sapa_set_hpac_bits(GPPUINT1 *set_bits, GPPUINT1 value);
 
 /******************************************************************************
   * Returns the set bit position in the arguement, -1 if no SetBit

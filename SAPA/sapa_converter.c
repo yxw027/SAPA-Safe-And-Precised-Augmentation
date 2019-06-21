@@ -934,8 +934,8 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 															iono_sat_poly.iono_coeff_size = 1;
 															iono_handle.iono_coeff_size = 1;
 
-															if (rc = gpp_sapa_hpac_add_iono_sat_poly_block(phpac, sys, sat, ai, &iono_sat_poly))
-																return rc;
+															//if (rc = gpp_sapa_hpac_add_iono_sat_poly_block(phpac, sys, sat, ai, &iono_sat_poly))
+																//return rc;
 
 															iono_sat_coeff.iono_poly_coeff[0] = atof(tokens[3]);
 															iono_sat_coeff.iono_poly_coeff[1] = atof(tokens[4]);

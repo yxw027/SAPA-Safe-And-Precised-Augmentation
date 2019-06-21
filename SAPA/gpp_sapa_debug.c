@@ -256,6 +256,7 @@ void gpp_sapa_debug_fprintf_hpac(pGPP_SAPA_HPAC p_hpac, FILE *fp)
 					fprintf(fp, " %1d", area_def->tropo_block_indicator);					//Tropo Block Indicator
 					fprintf(fp, " %1d", area_def->iono_block_indicator);					//Iono Block Indicator
 				}
+				if(tropo_poly_coeff = atmo_block->tropo)
 				if (tropo_poly_coeff = atmo_block->tropo->tropo_poly_coeff_block){
 						fprintf(fp, "\n");
 					fprintf(fp, "%-25s\n", "ATM_TROPO_DATA:");
@@ -269,6 +270,8 @@ void gpp_sapa_debug_fprintf_hpac(pGPP_SAPA_HPAC p_hpac, FILE *fp)
 					fprintf(fp, " %7.3f", tropo_poly_coeff->tropo_poly_coeff[TROPO_POLY_COEFF_INDX_T10]);//Tropo Poly Coeff
 					fprintf(fp, " %7.3f", tropo_poly_coeff->tropo_poly_coeff[TROPO_POLY_COEFF_INDX_T11]);//Tropo Poly Coeff
 				}
+				if(atmo_block->tropo)
+				if(atmo_block->tropo->tropo_grid)
 				if (tropo_grid = atmo_block->tropo->tropo_grid) {
 					//fprintf(fp, " %1d", p_hpac->atmo[ai]->tropo->tropo_grid->tropo_residual_size);			//Tropo Residual Field Size
 					GPPUINT1 ig, no_of_grid;
