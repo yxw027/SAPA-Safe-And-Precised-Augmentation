@@ -43,7 +43,7 @@ GPPLONG gpp_sapa_area2buffer(const pGPP_SAPA_AREA p_area, const SAPA_GAD_HANDLE 
 
 	GPPLONG byte_pos0, bit_pos0;
 	GPPLONG mybyte = 0, mybit = 0;
-	GPPUINT8 arealist[4] = { 0, };
+	GPPUINT8 arealist[257] = { 0, };
 	if (!byte_pos) byte_pos = &mybyte;
 	if (!bit_pos) bit_pos = &mybit;
 
@@ -55,6 +55,7 @@ GPPLONG gpp_sapa_area2buffer(const pGPP_SAPA_AREA p_area, const SAPA_GAD_HANDLE 
 
 	if (rc = gpp_sapa_area_header2buffer(p_area, gadHdl, buffer, byte_pos, bit_pos)) return rc;
 	gpp_sapa_get_area_bits_value(gadHdl->area_bits, arealist);
+	//printf("\naaaaaaaaaaarea=%d", arealist[0]);
 	for (ia = 0; ia < arealist[0]; ia++) {
 		if(rc=gpp_sapa_area_area2buffer(p_area,ia, buffer, byte_pos, bit_pos)) return rc;
 	}
@@ -156,6 +157,7 @@ static GPPLONG gpp_sapa_area_area2buffer(const pGPP_SAPA_AREA p_area, GPPUINT1 a
 {
 	GPP_SAPA_AREA_DEF_BLOCK *area_def;
 	if (!(area_def = p_area->area_def_block[area])) return GPP_SAPA_ERR_INVALID_AREA;
+	printf("area id=%d", area_def->area_id);
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 8, area_def->area_id);																//SF031
 	gpp_sapa_float2buffer(buffer, byte_pos, bit_pos, GPP_SAPA_AREA_REF_LAT_MIN, GPP_SAPA_AREA_REF_LAT_MAX,11, SAPA_RES_AREA_REF_LATITUDE,NULL, area_def->area_ref_lat);							//SF032
 	gpp_sapa_float2buffer(buffer, byte_pos, bit_pos, GPP_SAPA_AREA_REF_LONG_MIN, GPP_SAPA_AREA_REF_LONG_MAX, 12,SAPA_RES_AREA_REF_LONGITUDE,NULL, area_def->area_ref_long);						//SF033

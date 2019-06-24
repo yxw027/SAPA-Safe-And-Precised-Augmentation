@@ -179,8 +179,10 @@ void gpp_sapa_debug_fprintf_area(pGPP_SAPA_AREA p_area, FILE *fp)
 
 	if (p_area->area_def_block)
 	{
+		printf("hi");
 		GPPUINT1 area_count, iarea;
 		area_count = p_area->header_block->area_count;
+		printf("area count=%d", area_count);
 		for (iarea = 0; iarea < area_count; iarea++) {
 			GPPUINT1 ai = iarea;
 			if (area_def = p_area->area_def_block[ai])
