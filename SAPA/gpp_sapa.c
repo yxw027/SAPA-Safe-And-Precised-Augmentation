@@ -75,6 +75,28 @@ void gpp_sapa_get_siglist(GPPUINT4 sig_bits, GPPUINT1 *siglist)
 	siglist[0] = num;
 }//gpp_sapa_get_siglist()
 
+/***************************************************************************
+ *	\brief Get an Index list (starting with zero) of bits set in bitmask (prn_bits).
+ *	configlist is an GPPUINT1 array with 34 fields. configlist[0] contains the total number of set bits in prn_bits
+ *	configlist[32] is zero (control bit)
+ *  configlist[1] is the idx of the first set bit
+ ***************************************************************************/
+void gpp_sapa_get_configlist(GPPUINT4 config_bits, GPPUINT1 *configlist)
+{
+	GPPUINT1 config = 0, num = 0;
+	GPPUINT4 bit = 1;
+	if (!configlist) return;
+
+	memset(configlist, 0, 34 * sizeof(GPPUINT1));
+
+	for (config = 0; config < GPP_SAPA_MAX_SIG; config++) {
+		if (config_bits&(bit << config)) {
+			configlist[num + 1] = config;
+			num++;
+		}
+	}
+	configlist[0] = num;
+}//gpp_sapa_get_siglist()
 
 /************************************************************************************************************
  * \brief Return Seconds passed in the hour when data is received.
@@ -156,12 +178,15 @@ GPPLONG gpp_sapa_ocb_malloc_sv(pGPP_SAPA_OCB ocb)
 		ocb->sv = (pGPP_SAPA_OCB_SV**)calloc(GPP_SAPA_MAX_CONS, sizeof(GPP_SAPA_OCB_SV**));
 
 		if (!ocb->sv) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-
 		for (sys = 0; sys < GPP_SAPA_MAX_CONS; sys++)
 		{
-			ocb->sv[sys] = (GPP_SAPA_OCB_SV**)calloc(GPP_SAPA_MAX_SAT, sizeof(GPP_SAPA_OCB_SV));
 
-			if (!(ocb->sv[sys])) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+			if (!ocb->sv[sys])
+			{
+				ocb->sv[sys] = (GPP_SAPA_OCB_SV**)calloc(GPP_SAPA_MAX_SAT, sizeof(GPP_SAPA_OCB_SV));
+
+				if (!(ocb->sv[sys])) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+			}
 		}
 	}
 
@@ -275,14 +300,23 @@ GPPLONG gpp_sapa_ocb_add_sv(pGPP_SAPA_OCB ocb, GPPUINT1 sys, GPPUINT1 sat, const
  ***********************************************************************************************************/
 GPPLONG gpp_sapa_ocb_add_orb(pGPP_SAPA_OCB ocb, GPPUINT1 sys, GPPUINT1 sat, const pGPP_SAPA_OCB_SV_ORB pset)
 {
-	pGPP_SAPA_OCB_SV sv = NULL;			// Pointer to OCB_SV
+	GPP_SAPA_OCB_SV *sv = NULL;			// Pointer to OCB_SV
 
 	GPPLONG rc;						//control variable
 	GPPUINT1 ic;
-	if (pset->sat_yaw< GPP_SAPA_OCB_SAT_YAW_MIN || pset->sat_yaw>GPP_SAPA_OCB_SAT_YAW_MAX) return 0;
-	if (rc = gpp_sapa_ocb_malloc_sv(ocb)) return rc;
+	//if (rc = gpp_sapa_ocb_malloc_sv(ocb)) return rc;
+	if (!ocb) return GPP_SAPA_ERR_INVALID_OCB;
 
-	if (!(sv = ocb->sv[sys][sat])) { // check if sv[sys][sat] is allocated
+	if (!ocb->sv)
+	{
+		ocb->sv = (GPP_SAPA_OCB_SV***)calloc(GPP_SAPA_MAX_SYS, sizeof(GPP_SAPA_OCB_SV**));
+		if (!ocb->sv) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+	}
+	if (!(sv = ocb->sv[sys])) { // check if sv[sys][sat] is allocated
+		ocb->sv[sys] = (GPP_SAPA_OCB_SV**)calloc(GPP_SAPA_MAX_SAT, sizeof(GPP_SAPA_OCB_SV*));
+		if (!( ocb->sv[sys])) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+	}
+	if (!(sv =ocb->sv[sys][sat])) { // check if sv[sys][sat] is allocated
 		ocb->sv[sys][sat] = (GPP_SAPA_OCB_SV*)calloc(1, sizeof(GPP_SAPA_OCB_SV));
 		if (!(sv = ocb->sv[sys][sat])) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 	}
@@ -291,9 +325,10 @@ GPPLONG gpp_sapa_ocb_add_orb(pGPP_SAPA_OCB ocb, GPPUINT1 sys, GPPUINT1 sat, cons
 		sv->orb = (pGPP_SAPA_OCB_SV_ORB)calloc(1, sizeof(GPP_SAPA_OCB_SV_ORB));
 		if (!sv->orb) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 	}
-	if (pset->orb_radial_correction<GPP_SAPA_OCB_SAT_CORRECTION_MIN || pset->orb_radial_correction>GPP_SAPA_OCB_SAT_CORRECTION_MAX) return 0;
+	/*if (pset->orb_radial_correction<GPP_SAPA_OCB_SAT_CORRECTION_MIN || pset->orb_radial_correction>GPP_SAPA_OCB_SAT_CORRECTION_MAX) return 0;
 	if (pset->orb_along_track_correction<GPP_SAPA_OCB_SAT_CORRECTION_MIN || pset->orb_along_track_correction>GPP_SAPA_OCB_SAT_CORRECTION_MAX) return 0;
 	if (pset->orb_cross_track_correction<GPP_SAPA_OCB_SAT_CORRECTION_MIN || pset->orb_cross_track_correction>GPP_SAPA_OCB_SAT_CORRECTION_MAX) return 0;
+	if (pset->sat_yaw< GPP_SAPA_OCB_SAT_YAW_MIN || pset->sat_yaw>GPP_SAPA_OCB_SAT_YAW_MAX) return 0;*/
 	memcpy(sv->orb, pset, sizeof(GPP_SAPA_OCB_SV_ORB));	//copy orbit data
 	GNSS_SET_IDX_IN_BITS_64(ocb->sv_prn_bits[sys], sat);							//set sat ID in sv_prn_bits bit mask
 	GNSS_SET_IDX_IN_BITS_64(ocb->orb_prn_bits[sys], sat);							//set sat ID in sv_prn_bits bit mask
@@ -307,6 +342,7 @@ GPPLONG gpp_sapa_ocb_add_orb(pGPP_SAPA_OCB ocb, GPPUINT1 sys, GPPUINT1 sat, cons
 
 GPPLONG gpp_sapa_ocb_add_clk(pGPP_SAPA_OCB ocb, GPPUINT1 sys, GPPUINT1 sat, const pGPP_SAPA_OCB_SV_CLK pset)
 {
+	//printf("value of sys=%d", sys);
 	pGPP_SAPA_OCB_SV sv = NULL;			// Pointer to OCB_SV
 	GPPLONG rc;							//control variable
 	if (rc = gpp_sapa_ocb_malloc_sv(ocb)) return rc;
@@ -320,7 +356,7 @@ GPPLONG gpp_sapa_ocb_add_clk(pGPP_SAPA_OCB ocb, GPPUINT1 sys, GPPUINT1 sat, cons
 		sv->clk = (pGPP_SAPA_OCB_SV_CLK)calloc(1, sizeof(GPP_SAPA_OCB_SV_CLK));
 		if (!sv->clk) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 	}
-	if (pset->clk_correction< GPP_SAPA_OCB_SAT_CORRECTION_MIN || pset->clk_correction>GPP_SAPA_OCB_SAT_CORRECTION_MAX) return 0;
+	//if (pset->clk_correction< GPP_SAPA_OCB_SAT_CORRECTION_MIN || pset->clk_correction>GPP_SAPA_OCB_SAT_CORRECTION_MAX) return 0;
 	memcpy(sv->clk, pset, sizeof(GPP_SAPA_OCB_SV_CLK));	//copy clock data
 	GNSS_SET_IDX_IN_BITS_64(ocb->sv_prn_bits[sys], sat);						//set sat ID in sv_prn_bits bit mask
 	GNSS_SET_IDX_IN_BITS_64(ocb->clk_prn_bits[sys], sat);						//set sat ID in sv_prn_bits bit mask
@@ -362,7 +398,7 @@ GPPLONG gpp_sapa_ocb_add_pb(pGPP_SAPA_OCB ocb, GPPUINT1 sys, GPPUINT1 sat, GPPUI
 		if (!bias->pb[sig]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 	}
 	pb = bias->pb[sig];
-	if (pset->pb_correction< GPP_SAPA_OCB_SAT_CORRECTION_MIN || pset->pb_correction>GPP_SAPA_OCB_SAT_CORRECTION_MAX) return 0;
+	//if (pset->pb_correction< GPP_SAPA_OCB_SAT_CORRECTION_MIN || pset->pb_correction>GPP_SAPA_OCB_SAT_CORRECTION_MAX) return 0;
 	memcpy(pb, pset, sizeof(GPP_SAPA_OCB_SV_BIAS_PB)); 	//Copy Phase bias content
 	GNSS_SET_IDX_IN_BITS_32(bias->pb_sig_bits, sig);		//set signal in signal bit mask for this satellite
 	GNSS_SET_IDX_IN_BITS_64(ocb->sv_prn_bits[sys], sat);					//set sat ID in sv_prn_bits bit mask
@@ -395,42 +431,36 @@ GPPLONG gpp_sapa_ocb_add_header(pGPP_SAPA_OCB ocb, GPPUINT1 sys, const pGPP_SAPA
 
 GPPLONG gpp_sapa_ocb_add_cb(pGPP_SAPA_OCB ocb, GPPUINT1 sys, GPPUINT1 sat, GPPUINT1 sig, const pGPP_SAPA_OCB_SV_BIAS_CB pset)
 {
-	pGPP_SAPA_OCB_SV sv = NULL;					// Pointer to OCB_SV
-	pGPP_SAPA_OCB_SV_BIAS bias = NULL;			// Pointer to OCB_SV_BIAS
-	pGPP_SAPA_OCB_SV_BIAS_CB cb = NULL;	// Pointer to OCB_SV_SATPHASEBIAS
 
 	GPPLONG rc;					//control variable
 	if(rc=gpp_sapa_ocb_malloc_sv(ocb)) return rc;
 
-	if(!(sv=ocb->sv[sys][sat])) { // check if sv[sys][sat] is allocated
+	if(!(ocb->sv[sys][sat])) { // check if sv[sys][sat] is allocated
 		ocb->sv[sys][sat]=(GPP_SAPA_OCB_SV*)calloc(1, sizeof(GPP_SAPA_OCB_SV));
-		if (!(sv = ocb->sv[sys][sat])) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+		if (!(ocb->sv[sys][sat])) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 	}
 
-	if (!sv->bias){//check if orbit structure is allocated
-		sv->bias=(pGPP_SAPA_OCB_SV_BIAS)calloc(1, sizeof(GPP_SAPA_OCB_SV_BIAS));
-		if (!sv->bias) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-	}
-	bias=sv->bias;
-
-
-	if(!bias->cb) {
-		bias->cb=(pGPP_SAPA_OCB_SV_BIAS_CB*)calloc(GPP_SAPA_MAX_SIG, sizeof(pGPP_SAPA_OCB_SV_BIAS_CB));// allocate pointer array with GPP_SAPA_MAX_SIG Pointers
-		if(!bias->cb) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+	if (!ocb->sv[sys][sat]->bias){//check if orbit structure is allocated
+		ocb->sv[sys][sat]->bias =(pGPP_SAPA_OCB_SV_BIAS)calloc(1, sizeof(GPP_SAPA_OCB_SV_BIAS));
+		if (!ocb->sv[sys][sat]->bias) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 	}
 
-	if(!bias->cb[sig]) {
-		bias->cb[sig] = (pGPP_SAPA_OCB_SV_BIAS_CB)calloc(1, sizeof(GPP_SAPA_OCB_SV_BIAS_CB)); //allocate memory for SATPHASE_BIAS structure
-		if(!bias->cb[sig]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+
+	if(!ocb->sv[sys][sat]->bias->cb) {
+		ocb->sv[sys][sat]->bias->cb=(pGPP_SAPA_OCB_SV_BIAS_CB*)calloc(GPP_SAPA_MAX_SIG, sizeof(pGPP_SAPA_OCB_SV_BIAS_CB));// allocate pointer array with GPP_SAPA_MAX_SIG Pointers
+		if(!ocb->sv[sys][sat]->bias->cb) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 	}
-	cb = bias->cb[sig];
-	if (pset->cb_correction< GPP_SAPA_OCB_CB_CORRECTION_MIN || pset->cb_correction>GPP_SAPA_OCB_CB_CORRECTION_MAX) return 0;
-	memcpy(cb, pset, sizeof(GPP_SAPA_OCB_SV_BIAS_CB)); 	//Copy Phase bias content
-	GNSS_SET_IDX_IN_BITS_32(bias->cb_sig_bits, sig);							//set signal in signal bit mask for this satellite
+
+	if(!ocb->sv[sys][sat]->bias->cb[sig]) {
+		ocb->sv[sys][sat]->bias->cb[sig] = (pGPP_SAPA_OCB_SV_BIAS_CB)calloc(1, sizeof(GPP_SAPA_OCB_SV_BIAS_CB)); //allocate memory for SATPHASE_BIAS structure
+		if(!ocb->sv[sys][sat]->bias->cb[sig]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+	}
+	//if (pset->cb_correction< GPP_SAPA_OCB_CB_CORRECTION_MIN || pset->cb_correction>GPP_SAPA_OCB_CB_CORRECTION_MAX) return 0;
+	memcpy(ocb->sv[sys][sat]->bias->cb[sig], pset, sizeof(GPP_SAPA_OCB_SV_BIAS_CB)); 	//Copy Phase bias content
+	GNSS_SET_IDX_IN_BITS_32(ocb->sv[sys][sat]->bias->cb_sig_bits, sig);							//set signal in signal bit mask for this satellite
 	GNSS_SET_IDX_IN_BITS_64(ocb->sv_prn_bits[sys], sat);							//set sat ID in sv_prn_bits bit mask
 	GNSS_SET_IDX_IN_BITS_64(ocb->cb_prn_bits[sys], sat);							//set sat ID in sv_prn_bits bit mask
-	sv->ocb_bits |= (1<<GPP_SAPA_OCB_FLAG_IDX_BIAS);
-
+	ocb->sv[sys][sat]->ocb_bits |= (1<<GPP_SAPA_OCB_FLAG_IDX_BIAS);
 	return 0; //GPP_SAPA_OK
 }//gpp_sapa_ocb_add_cb()
 
@@ -943,15 +973,6 @@ GPPLONG gpp_sapa_handle_free_ocbHdl(SAPA_HANDLE *sapaHdl)
 		{
 			if (!sapaHdl->ocbHdl[sys][config])
 				continue;
-			if (!sapaHdl->ocbHdl[sys][config]->ocb_sv_handle)
-				continue;
-			for (sat = 0; sat < GPP_SAPA_MAX_SAT; sat++)
-			{
-				if (!sapaHdl->ocbHdl[sys][config]->ocb_sv_handle[sat])
-					continue;
-				free(sapaHdl->ocbHdl[sys][config]->ocb_sv_handle[sat]);
-			}
-			free(sapaHdl->ocbHdl[sys][config]->ocb_sv_handle);
 			free(sapaHdl->ocbHdl[sys][config]);
 
 		}
@@ -1073,7 +1094,7 @@ GPPLONG gpp_sapa_handle_malloc_gadHdl(pSAPA_HANDLE sapaHdl)
 	return 0; //ok
 }
 
-GPPLONG gpp_sapa_config_add_ocb_config(SAPA_HANDLE *sapaHdl, GPPUINT1 sys, const SAPA_OCB_HANDLE *pset, FILE *fp)
+GPPLONG gpp_sapa_config_add_ocb_config(SAPA_HANDLE *sapaHdl, GPPUINT1 sys, GPPUINT1 sat,GPPUINT1 config, const SAPA_OCB_HANDLE *pset, FILE *fp)
 {
 	if (!sapaHdl) return -1;
 	if (!pset) return GPP_SAPA_ERR_INVALID_OCB_HANDLE;
@@ -1087,25 +1108,27 @@ GPPLONG gpp_sapa_config_add_ocb_config(SAPA_HANDLE *sapaHdl, GPPUINT1 sys, const
 			return rc;
 	}
 
-	printf("%d", sapaHdl->ocbHdl_bits[sys] + ">%d", (1 << GPP_SAPA_MAX_OCB_CONFIGS - 1));
-	if (sapaHdl->ocbHdl_bits[sys] > (1 << GPP_SAPA_MAX_OCB_CONFIGS - 1))
+	if (sapaHdl->ocbHdl_bits[sys] >= (1 << GPP_SAPA_MAX_OCB_CONFIGS))
 	{
 		fprintf(fp, "SSRM2SAPA ERROR: TOO many OCB configs!\n");
 		return GPP_SAPA_ERR_INVALID_OCB_HANDLE;
 	}
-	GPPUINT1 config;
-	for (config = 0; config < GPP_SAPA_MAX_OCB_CONFIGS; config++)
-	{
-		if (!sapaHdl->ocbHdl[sys][config])
-		{
-			sapaHdl->ocbHdl[sys][config] = (pSAPA_OCB_HANDLE)calloc(1, sizeof(SAPA_OCB_HANDLE));
-			if (!(sapaHdl->ocbHdl[sys][config])) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-		}
-		memcpy(sapaHdl->ocbHdl[sys][config], pset, sizeof(SAPA_OCB_HANDLE));
-		break;
-	}
 	
-	sapaHdl->ocbHdl_bits[sys] = (1 << config - 1);
+	GPPUINT1 iconf = gpp_sapa_get_config_bits(config);
+	printf(" iconfig=%d ", iconf);
+	if (iconf > GPP_SAPA_MAX_OCB_CONFIGS)
+		return GPP_SAPA_ERR_INVALID_CONFIG;
+
+	if (!sapaHdl->ocbHdl[sys][iconf])
+	{
+		sapaHdl->ocbHdl[sys][iconf] = (pSAPA_OCB_HANDLE)calloc(1, sizeof(SAPA_OCB_HANDLE));
+		if (!(sapaHdl->ocbHdl[sys][iconf])) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+	}
+	memcpy(sapaHdl->ocbHdl[sys][iconf], pset, sizeof(SAPA_OCB_HANDLE));
+	sapaHdl->ocbHdl[sys][iconf]->prn_bits[sys] |= (1 << iconf);
+	sapaHdl->ocbHdl[sys][iconf]->ocb_bits[sat] |= (1 << iconf);
+	sapaHdl->ocbHdl_bits[sys] = (1 << iconf);
+	
 	return 0; //ok
 }
 //==================================================================================================================================
@@ -1284,7 +1307,7 @@ GPPUINT1 gpp_sapa_get_highest_cons_set(GPPUINT2 cons_bit)
 //Sets cons_bit position
 GPPUINT1 gpp_sapa_set_cons_bit(GPPUINT1 cons_bits, GPPUINT1 pos)
 {
-	return ((1 << pos));
+	return ((1 << pos)|cons_bits);
 }
 
 //============================================================================================================================================
@@ -1327,51 +1350,6 @@ GPPLONG gpp_sapa_handle_free_gadHdl(SAPA_HANDLE *sapaHdl)
 	return 0; //ok
 }
 
-GPPLONG gpp_sapa_config_add_ocb_sv_config(SAPA_HANDLE *sapaHdl, GPPUINT1 sys, GPPUINT1 sat, const SAPA_OCB_HANDLE_SV *pset, FILE *fp)
-{
-	if (!sapaHdl) return -1;
-	if (!pset) return GPP_SAPA_ERR_INVALID_OCB_HANDLE;
-	
-	if (!sapaHdl->ocbHdl) {
-		GPPLONG rc;
-		if (rc = gpp_sapa_handle_malloc_ocbHdl(sapaHdl))
-			return rc;
-	}
-
-	if (sys >=GPP_SAPA_MAX_SYS)
-		return GPP_SAPA_ERR_INVALID_SYS;
-	
-
-	if (sapaHdl->ocbHdl_bits[sys] > (1 << GPP_SAPA_MAX_OCB_CONFIGS - 1))
-	{
-		fprintf(fp, "SSRM2SAPA ERROR: TOO many OCB configs!\n");
-		return GPP_SAPA_ERR_INVALID_OCB_HANDLE;
-	}
-	GPPUINT1 config;
-	for (config = 0; config < GPP_SAPA_MAX_OCB_CONFIGS; config++)
-	{
-		if (config >= GPP_SAPA_MAX_OCB_CONFIGS)
-			return GPP_SAPA_ERR_INVALID_CONFIG;
-		if (!sapaHdl->ocbHdl[sys][config])
-		{
-			sapaHdl->ocbHdl[sys][config] = (pSAPA_OCB_HANDLE)calloc(1, sizeof(SAPA_OCB_HANDLE));
-			if (!(sapaHdl->ocbHdl[sys][config])) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-		}
-		if (!sapaHdl->ocbHdl[sys][config]->ocb_sv_handle)
-		{
-			sapaHdl->ocbHdl[sys][config]->ocb_sv_handle = (pSAPA_OCB_HANDLE_SV*)calloc(GPP_SAPA_MAX_SAT, sizeof(SAPA_OCB_HANDLE_SV*));
-			if (!(sapaHdl->ocbHdl[sys][config]->ocb_sv_handle)) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-		}
-		/*if (!sapaHdl->ocbHdl[sys][config]->ocb_sv_handle[sat])
-		{
-			sapaHdl->ocbHdl[sys][config]->ocb_sv_handle[sat] = (pSAPA_OCB_HANDLE_SV)calloc(1, sizeof(SAPA_OCB_HANDLE_SV));
-			if (!(sapaHdl->ocbHdl[sys][config]->ocb_sv_handle[sat])) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-		}*/
-		memcpy(sapaHdl->ocbHdl[sys][config]->ocb_sv_handle, pset, sizeof(SAPA_OCB_HANDLE_SV));
-	
-	}
-	return 0;
-}//gpp_sapa_config_add_ocb_sv_config()
 
 GPPLONG gpp_sapa_config_add_hpac_config(SAPA_HANDLE *sapaHdl, const SAPA_HPAC_HANDLE *pset, FILE *fp)
 {
@@ -1728,6 +1706,15 @@ GPPUINT1 gpp_sapa_get_hpac_bits(GPPUINT1 *set_bits)
 	int i;
 	for (i = 0; i < 8; i++)
 		if ((1 << i) & *set_bits)
+			return i;
+}
+
+//Returns the set bit position in the arguement, -1 if no SetBit
+GPPUINT1 gpp_sapa_get_config_bits(GPPUINT1 set_bits)
+{
+	int i;
+	for (i = 0; i < 8; i++)
+		if ((1 << i) & set_bits)
 			return i;
 }
 

@@ -458,17 +458,12 @@ typedef struct GPP_SAPA_USE_STATES{
   * This handle allows for the SAPA Msg settings
   ************************************************************************************************************/
 
-typedef struct SAPA_OCB_HANDLE_SV {
-	GPPUINT1 ocb_bits;										//ocb_bits to configure OCB messages (0001 only orbits, 0010 only clock, 0100 only PB, 1000 only CB)
-	//GPPUINT1 pb_sig_bits;
-	//GPPUINT1 cb_sig_bits;
-} SAPA_OCB_HANDLE_SV, *pSAPA_OCB_HANDLE_SV;
-
 typedef struct SAPA_OCB_HANDLE {
 	GPPUINT1 sys;
 	GPPUINT1 time_tag_type;
 	//GPPUINT1 end_of_obc_set;																	//SF011
-	pSAPA_OCB_HANDLE_SV *ocb_sv_handle;
+	GPPUINT8 prn_bits[GPP_SAPA_MAX_SYS];
+	GPPUINT1 ocb_bits[GPP_SAPA_MAX_SAT];										//ocb_bits to configure OCB messages (0001 only orbits, 0010 only clock, 0100 only PB, 1000 only CB)
 } SAPA_OCB_HANDLE, *pSAPA_OCB_HANDLE;
 
 typedef struct SAPA_HPAC_HANDLE_IONO {
@@ -506,8 +501,7 @@ typedef struct SAPA_HANDLE {
 GPPLONG gpp_sapa_handle_free_ocbHdl(SAPA_HANDLE *sapaHdl);
 GPPLONG gpp_sapa_handle_malloc_ocbHdl(SAPA_HANDLE *sapaHdl);
 
-GPPLONG gpp_sapa_config_add_ocb_config(SAPA_HANDLE *sapaHdl, GPPUINT1 sys, const SAPA_OCB_HANDLE *pset, FILE *fp);
-GPPLONG gpp_sapa_config_add_ocb_sv_config(SAPA_HANDLE *sapaHdl, GPPUINT1 sys, GPPUINT1 sat, const SAPA_OCB_HANDLE_SV *pset, FILE *fp);
+GPPLONG gpp_sapa_config_add_ocb_config(SAPA_HANDLE *sapaHdl, GPPUINT1 sys, GPPUINT1 sat, GPPUINT1 config, const SAPA_OCB_HANDLE *pset, FILE *fp);
 GPPLONG gpp_sapa_config_add_hpac_config(SAPA_HANDLE *sapaHdl, const SAPA_HPAC_HANDLE *pset, FILE *fp);
 GPPLONG gpp_sapa_config_add_hpac_iono_config(SAPA_HANDLE *sapaHdl, GPPUINT1 area, const SAPA_HPAC_HANDLE_IONO *pset, FILE *fp);
 GPPLONG gpp_sapa_config_add_hpac_tropo_config(SAPA_HANDLE *sapaHdl, GPPUINT1 area, const SAPA_HPAC_HANDLE_TROPO *pset, FILE *fp);
@@ -680,6 +674,11 @@ void gpp_sapa_set_hpac_bits(GPPUINT1 *set_bits, GPPUINT1 value);
   *****************************************************************************/
 GPPUINT1 gpp_sapa_get_hpac_bits(GPPUINT1 *set_bits);
 
+/******************************************************************************
+  * Returns the set bit position in the arguement, -1 if no SetBit
+  *****************************************************************************/
+GPPUINT1 gpp_sapa_get_config_bits(GPPUINT1 set_bits);
+
 /*************************************************************************************************
   * Get an index list(starting with 0) of Set Bits in bitmask(prn_bits). BitMask  contains 66 bits
   ************************************************************************************************/
@@ -689,6 +688,11 @@ void gpp_sapa_get_svlist(GPPUINT8 prn_bits, GPPUINT1 *svlist);
   * Get an index list(starting with 0) of Set Bits in bitmask(prn_bits). BitMask  contains 34 bits
   ************************************************************************************************/
 void gpp_sapa_get_siglist(GPPUINT4 sig_bits, GPPUINT1 *siglist);
+
+/*************************************************************************************************
+  * Get an index list(starting with 0) of Set Bits in bitmask(prn_bits). BitMask  contains 34 bits
+  ************************************************************************************************/
+void gpp_sapa_get_configlist(GPPUINT4 config_bits, GPPUINT1 *configlist);
 
 /*************************************************************************************************
   * Declaration Of Float To Buffer Add Buffer To Float

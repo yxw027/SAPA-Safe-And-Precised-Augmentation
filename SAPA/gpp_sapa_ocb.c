@@ -146,7 +146,6 @@ static GPPLONG gpp_sapa_ocb_header2buffer(const pGPP_SAPA_OCB p_ocb, const SAPA_
 	GPPUINT8 sv_prn_bits=0;
 	GPP_SAPA_OCB_HEADER *header = NULL;
 	header=p_ocb->header_block[sys];
-	printf("message sub type=%d", p_ocb->header_block[sys]->message_sub_type);
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 4, header->message_sub_type);					//SF001
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 1, ocbHdl->time_tag_type);							//SF002
 
@@ -170,10 +169,10 @@ static GPPLONG gpp_sapa_ocb_header2buffer(const pGPP_SAPA_OCB p_ocb, const SAPA_
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 2, header->ephemeris_type);									//SF017
 
 	//select only satellites with valid corrections and according to message
-	if(ocbHdl->ocb_sv_handle[sys]->ocb_bits&GPP_SAPA_OCB_BITS_CLK)	sv_prn_bits|=p_ocb->clk_prn_bits[sys];
-	if(ocbHdl->ocb_sv_handle[sys]->ocb_bits&GPP_SAPA_OCB_BITS_ORB)	sv_prn_bits|=p_ocb->orb_prn_bits[sys];
-	if(ocbHdl->ocb_sv_handle[sys]->ocb_bits&GPP_SAPA_OCB_BITS_PB)	sv_prn_bits|=p_ocb->pb_prn_bits[sys];
-	if(ocbHdl->ocb_sv_handle[sys]->ocb_bits&GPP_SAPA_OCB_BITS_CB)	sv_prn_bits|=p_ocb->cb_prn_bits[sys];
+	if(ocbHdl->prn_bits[sys]&GPP_SAPA_OCB_BITS_CLK)	sv_prn_bits|=p_ocb->clk_prn_bits[sys];
+	if(ocbHdl->prn_bits[sys]&GPP_SAPA_OCB_BITS_ORB)	sv_prn_bits|=p_ocb->orb_prn_bits[sys];
+	if(ocbHdl->prn_bits[sys]&GPP_SAPA_OCB_BITS_PB)	sv_prn_bits|=p_ocb->pb_prn_bits[sys];
+	if(ocbHdl->prn_bits[sys]&GPP_SAPA_OCB_BITS_CB)	sv_prn_bits|=p_ocb->cb_prn_bits[sys];
 
     if (rc = gpp_sapa_sv_bitmask2buffer(sv_prn_bits, sys, svlist, buffer, byte_pos, bit_pos)) return rc;
 
@@ -233,6 +232,7 @@ static GPPLONG gpp_sapa_ocb_buffer2header(pGPP_SAPA_OCB p_ocb, GPPUINT1 *sys, GP
  *****************************************************************************************************************************************************/
 static GPPLONG gpp_sapa_sv_bitmask2buffer(GPPUINT8 sv_prn_bits, GPPUINT1 sys, GPPUINT1 *svlist, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos)
 {
+	printf("hi");
 	GPPUINT1 bit_id = 0;
 
 	if (!svlist) return GPP_SAPA_ERR_INVALID_SVLIST;
@@ -242,7 +242,8 @@ static GPPLONG gpp_sapa_sv_bitmask2buffer(GPPUINT8 sv_prn_bits, GPPUINT1 sys, GP
 	while (svlist[0] - SAPA_SV_BITMASK_LEN[sys][bit_id] > 0 && bit_id <= 3) bit_id++;														//Check (> || <)
 
 
-	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 2, bit_id);																			//SF011
+	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 2, bit_id);	//SF011
+	printf("\nprn_bits=%d", sv_prn_bits);
 	gn_add_longlong_to_buffer(buffer, byte_pos, bit_pos, SAPA_SV_BITMASK_LEN[sys][bit_id], sv_prn_bits);
 
 	return 0;
@@ -271,6 +272,7 @@ static GPPLONG gpp_sapa_buffer2sv_bitmask(GPPUINT8 *sv_prn_bits, GPPUINT1 sys, G
  ******************************************************************************************************************************************************************/
 static GPPLONG gpp_sapa_ocb_sv2buffer(const pGPP_SAPA_OCB p_ocb, const SAPA_OCB_HANDLE *ocbHdl, GPPUINT1 sat, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos)
 {
+
 	GPPLONG rc;
 	GPPUINT1 ocb_bits=0;
 	pGPP_SAPA_OCB_SV sv = NULL;
@@ -279,15 +281,14 @@ static GPPLONG gpp_sapa_ocb_sv2buffer(const pGPP_SAPA_OCB p_ocb, const SAPA_OCB_
 	GPPUINT1 sys=ocbHdl->sys;
 
 	if (!(sv=p_ocb->sv[sys][sat])) return GPP_SAPA_ERR_INVALID_OCB_SV;
-
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 1, sv->do_not_use);
 	//CP: sv->do_not_use is related to all fields of the satellite block
 	if(sv->do_not_use) return 0;
-
-	if(ocbHdl->ocb_sv_handle[sys]->ocb_bits&GPP_SAPA_OCB_BITS_ORB)	ocb_bits|=(sv->ocb_bits&SAPA_OCB_ORB_BITS);
-	if(ocbHdl->ocb_sv_handle[sys]->ocb_bits&GPP_SAPA_OCB_BITS_CLK) 	ocb_bits|=(sv->ocb_bits&SAPA_OCB_CLK_BITS);
-	if(ocbHdl->ocb_sv_handle[sys]->ocb_bits&GPP_SAPA_OCB_BITS_PB) 	ocb_bits|=(sv->ocb_bits&SAPA_OCB_BIAS_BITS);
-	if(ocbHdl->ocb_sv_handle[sys]->ocb_bits&GPP_SAPA_OCB_BITS_CB) 	ocb_bits|=(sv->ocb_bits&SAPA_OCB_BIAS_BITS);
+	
+	if(ocbHdl->ocb_bits[sat]&GPP_SAPA_OCB_BITS_ORB)	ocb_bits|=(sv->ocb_bits&SAPA_OCB_ORB_BITS);
+	if(ocbHdl->ocb_bits[sat]&GPP_SAPA_OCB_BITS_CLK) 	ocb_bits|=(sv->ocb_bits&SAPA_OCB_CLK_BITS);
+	if(ocbHdl->ocb_bits[sat]&GPP_SAPA_OCB_BITS_PB) 	ocb_bits|=(sv->ocb_bits&SAPA_OCB_BIAS_BITS);
+	if(ocbHdl->ocb_bits[sat]&GPP_SAPA_OCB_BITS_CB) 	ocb_bits|=(sv->ocb_bits&SAPA_OCB_BIAS_BITS);
 
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 3, ocb_bits);																			//SF014
 
@@ -296,7 +297,7 @@ static GPPLONG gpp_sapa_ocb_sv2buffer(const pGPP_SAPA_OCB p_ocb, const SAPA_OCB_
 	bit_id -= 1;
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 3, bit_id);																			//SF015
 
-
+	printf("value=%d", ocb_bits&SAPA_OCB_ORB_BITS);
 	if(ocb_bits&SAPA_OCB_ORB_BITS){
 		if (rc=gpp_sapa_ocb_orb2buffer(p_ocb, sys, sat, buffer, byte_pos, bit_pos)) return rc;
 	}
@@ -355,7 +356,7 @@ static GPPLONG gpp_sapa_ocb_orb2buffer(const pGPP_SAPA_OCB p_ocb, GPPUINT1 sys, 
 	if (!(orb = p_ocb->sv[sys][sat]->orb)) return GPP_SAPA_ERR_INVALID_OCB_SV_ORB;
 
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, SAPA_SV_IODE_LEN[sys], orb->iode);	//SF018
-	
+	printf("\nalong tracl=%f", orb->orb_along_track_correction);
 	gpp_sapa_float2buffer(buffer, byte_pos, bit_pos, GPP_SAPA_OCB_SAT_CORRECTION_MIN, GPP_SAPA_OCB_SAT_CORRECTION_MAX, 14, SAPA_RES_SV_CORRECTION, NULL, orb->orb_radial_correction);
 	gpp_sapa_float2buffer(buffer, byte_pos, bit_pos, GPP_SAPA_OCB_SAT_CORRECTION_MIN, GPP_SAPA_OCB_SAT_CORRECTION_MAX, 14, SAPA_RES_SV_CORRECTION, NULL, orb->orb_along_track_correction);
 	gpp_sapa_float2buffer(buffer, byte_pos, bit_pos, GPP_SAPA_OCB_SAT_CORRECTION_MIN, GPP_SAPA_OCB_SAT_CORRECTION_MAX, 14, SAPA_RES_SV_CORRECTION, NULL, orb->orb_cross_track_correction);
@@ -440,7 +441,7 @@ static GPPLONG gpp_sapa_ocb_bias2buffer(const pGPP_SAPA_OCB p_ocb, const SAPA_OC
 	GPP_SAPA_OCB_SV *sv=p_ocb->sv[sys][sat];
 
 	//Phase Bias
-	if(ocbHdl->ocb_sv_handle[sys]->ocb_bits&GPP_SAPA_OCB_BITS_PB){//add phase bias corrections to buffer
+	if(ocbHdl->ocb_bits[sat]&GPP_SAPA_OCB_BITS_PB){//add phase bias corrections to buffer
 		gpp_sapa_bias_bitmask2buffer(sv->bias->pb_sig_bits, sys, siglist, buffer, byte_pos, bit_pos);
 		for (isig=1;isig<= siglist[0]; isig++){
 			sig = siglist[isig];
@@ -453,7 +454,7 @@ static GPPLONG gpp_sapa_ocb_bias2buffer(const pGPP_SAPA_OCB p_ocb, const SAPA_OC
 
 
 	//Code Bias
-	if(ocbHdl->ocb_sv_handle[sys]->ocb_bits&GPP_SAPA_OCB_BITS_CB){//add phase bias corrections to buffer
+	if(ocbHdl->ocb_bits[sat]&GPP_SAPA_OCB_BITS_CB){//add phase bias corrections to buffer
 		gpp_sapa_bias_bitmask2buffer(sv->bias->cb_sig_bits, sys, siglist, buffer, byte_pos, bit_pos);
 		for (isig=1;isig<= siglist[0]; isig++){
 			sig = siglist[isig];
