@@ -29,7 +29,6 @@ void gn_add_long_to_buffer(unsigned char *buffer,long *byte_pos,long *bit_pos,lo
 	/* check for out-of-range condition, AB 2010-08-23 */
 	if(1) {		/* noch nicht nicht getestet */
 		const GN_LONG chk=n<32?-1<<n:0;	/* in chk sind alle n bits gesetzt */
-		printf("check=%ld", chk);
 		if(abs(value)&chk) {		/* value passt nicht in n bits! */
 			value=1<<(n-1);	/* set to min possible negative value, ie. 'data not available' (in RTCM3 defined only for signed ints! Macht aber auch Sinn fuer zu grosse unsigneds) */
 		}

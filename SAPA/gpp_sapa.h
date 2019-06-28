@@ -71,7 +71,7 @@ extern "C" {
   *	GPP SAPA MIN MAX Values
   ******************************************/
 #define GPP_SAPA_OCB_SAT_CORRECTION_MIN -16.382
-#define GPP_SAPA_OCB_SAT_CORRECTION_MAX -16.382
+#define GPP_SAPA_OCB_SAT_CORRECTION_MAX 16.382
 #define GPP_SAPA_OCB_CB_CORRECTION_MIN -20.46
 #define GPP_SAPA_OCB_CB_CORRECTION_MAX 20.46
 #define GPP_SAPA_OCB_SAT_YAW_MIN 0
@@ -208,13 +208,16 @@ extern "C" {
 #define SAPA_LARGE_IONO_RESIDUAL_SLANT_DELAY	10
 #define SAPA_EXTRA_LARGE_IONO_RESIDUAL_SLANT_DELAY 14
 
+#define GPP_SAPA_HPAC_NOT_PRESENT 0
+#define GPP_SAPA_HPAC_POLY_PRESENT 1
+#define GPP_SAPA_HPAC_POLY_AND_GRID_PRESENT 2
 
 #define GPP_SAPA_MAX_OCB_CONFIGS 4
 #define GPP_SAPA_OCB_BITS_ORB	0x01
 #define GPP_SAPA_OCB_BITS_CLK	0x02
 #define GPP_SAPA_OCB_BITS_PB	0x04
 #define GPP_SAPA_OCB_BITS_CB	0x08
-#define GPP_MAX_HPAC_CONFIGS 3
+#define GPP_SAPA_MAX_HPAC_CONFIGS 3
 
 #define GPP_SAPA_AREA_BITS64 4
 
@@ -467,7 +470,7 @@ typedef struct SAPA_OCB_HANDLE {
 } SAPA_OCB_HANDLE, *pSAPA_OCB_HANDLE;
 
 typedef struct SAPA_HPAC_HANDLE_IONO {
-	GPPUINT1 sys;																				//SF001
+	GPPUINT2 sys_bits;																				//SF001
 	GPPUINT1  iono_coeff_size;																	//SF056
 	GPPUINT1  iono_residual_field_size;															//SF063
 } SAPA_HPAC_HANDLE_IONO, *pSAPA_HPAC_HANDLE_IONO;
@@ -593,6 +596,7 @@ GPPLONG gpp_sapa_hpac_add_tropo(pGPP_SAPA_HPAC hpac, GPPUINT1 area, const pGPP_S
 GPPLONG gpp_sapa_hpac_add_tropo_poly_coeff_block(pGPP_SAPA_HPAC hpac, GPPUINT1 area, const pGPP_SAPA_HPAC_TROPO_POLY_COEFFICIENT_BLOCK pset);
 GPPLONG gpp_sapa_hpac_add_tropo_grid_block(pGPP_SAPA_HPAC hpac, GPPUINT1 area, const pGPP_SAPA_HPAC_TROPO_GRID_BLOCK pset);
 GPPLONG gpp_sapa_hpac_add_iono(pGPP_SAPA_HPAC hpac, GPPUINT1 area, const pGPP_SAPA_HPAC_IONO pset);
+GPPLONG gpp_sapa_hpac_add_iono_sat_block(pGPP_SAPA_HPAC hpac, GPPUINT1 sys, GPPUINT1 sat, GPPUINT1 area, const pGPP_SAPA_HPAC_IONO_SAT_BLOCK pset);
 GPPLONG gpp_sapa_hpac_add_iono_sat_poly_block(pGPP_SAPA_HPAC hpac, GPPUINT1 sys, GPPUINT1 sat, GPPUINT1 area, const pGPP_SAPA_HPAC_IONO_SAT_POLY pset);
 GPPLONG gpp_sapa_hpac_add_iono_sat_coeff_block(pGPP_SAPA_HPAC hpac, GPPUINT1 sys, GPPUINT1 sat, GPPUINT1 area, const pGPP_SAPA_HPAC_IONO_SAT_COEFFICIENT pset);
 GPPLONG gpp_sapa_hpac_add_iono_sat_grid_block(pGPP_SAPA_HPAC hpac, GPPUINT1 sys, GPPUINT1 sat, GPPUINT1 area, const pGPP_SAPA_HPAC_IONO_GRID_BLOCK pset);
@@ -672,17 +676,18 @@ void gpp_sapa_set_hpac_bits(GPPUINT1 *set_bits, GPPUINT1 value);
 /******************************************************************************
   * Returns the set bit position in the arguement, -1 if no SetBit
   *****************************************************************************/
-GPPUINT1 gpp_sapa_get_hpac_bits(GPPUINT1 *set_bits);
-
-/******************************************************************************
-  * Returns the set bit position in the arguement, -1 if no SetBit
-  *****************************************************************************/
 GPPUINT1 gpp_sapa_get_config_bits(GPPUINT1 set_bits);
 
 /*************************************************************************************************
   * Get an index list(starting with 0) of Set Bits in bitmask(prn_bits). BitMask  contains 66 bits
   ************************************************************************************************/
 void gpp_sapa_get_svlist(GPPUINT8 prn_bits, GPPUINT1 *svlist);
+
+
+/*************************************************************************************************
+  * Get an index list(starting with 0) of Set Bits in bitmask(prn_bits). BitMask  contains 18 bits
+  ************************************************************************************************/
+void gpp_sapa_get_syslist(GPPUINT8 sys_bits, GPPUINT1 *syslist);
 
 /*************************************************************************************************
   * Get an index list(starting with 0) of Set Bits in bitmask(prn_bits). BitMask  contains 34 bits
@@ -697,14 +702,32 @@ void gpp_sapa_get_configlist(GPPUINT4 config_bits, GPPUINT1 *configlist);
 /*************************************************************************************************
   * Declaration Of Float To Buffer Add Buffer To Float
  ************************************************************************************************/
-extern GPPLONG gpp_sapa_float2buffer(GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos, GPPDOUBLE min, GPPDOUBLE max, GPPUINT1 bits, GPPDOUBLE res, GPPUINT2 *invalid, GPPDOUBLE value);
+extern void gpp_sapa_float2buffer(GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos, GPPDOUBLE min, GPPDOUBLE max, GPPUINT1 bits, GPPDOUBLE res, GPPUINT2 *invalid, GPPDOUBLE value);
 extern GPPFLOAT gpp_sapa_buffer2float(const GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos, GPPDOUBLE min, GPPUINT1 bits, GPPDOUBLE res, GPPUINT2 *invalid);
 
-
+/*************************************************************************************************
+  *Get Delaration between the byte abd bit pos
+ ************************************************************************************************/
 GPPLONG gpp_sapa_get_bit_diff(GPPLONG byte_pos, GPPLONG bit_pos, GPPLONG byte_pos0, GPPLONG bit_pos0);
+
+/************************************************************************************************
+  * Get Bytes from length of bits
+*************************************************************************************************/
 GPPLONG length_bytes_from_bits(GPPLONG b);
+
+/*************************************************************************************************
+  * Get the total bits of location
+  ************************************************************************************************/
 GPPLONG total_bits(GPPLONG *byte, GPPLONG *bits);
+
+/*************************************************************************************************
+  * Set Bits in bitmask(area_bits). BitMask  contains 64 bits
+  ************************************************************************************************/
 void gpp_sapa_set_area_bits(GPPUINT8*area_bits, int value);
+
+/*************************************************************************************************
+  * Get an index list(starting with 0) of Set Bits in bitmask(area_bits). BitMask  contains 64 bits
+  ************************************************************************************************/
 void gpp_sapa_get_area_bits_value(GPPUINT8*area_bits, GPPUINT8*arr);
 
 

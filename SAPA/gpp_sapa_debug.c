@@ -83,7 +83,6 @@ void gpp_sapa_debug_fprintf_ocb(const GPP_SAPA_OCB *p_ocb, FILE *fp)
 					if (o_flag){
 						if(orb=sv->orb){
 							fprintf(fp, " %3d", orb->iode);									//IODE
-							GPPUINT1 ic;
 							
 							fprintf(fp, " %7.5f", orb->orb_radial_correction);					//Correction
 							fprintf(fp, " %7.5f", orb->orb_along_track_correction);					//Correction
@@ -165,7 +164,7 @@ void gpp_sapa_debug_fprintf_area(pGPP_SAPA_AREA p_area, FILE *fp)
 		if (header = p_area->header_block)
 		{
 			fprintf(fp, "\n");
-			fprintf(fp, "AREA \n");
+			fprintf(fp, "\nAREA \n");
 			fprintf(fp, "\n");
 
 			fprintf(fp, "%-25s %2d\n", "Message Sub-Type", header->message_sub_type);
@@ -179,10 +178,8 @@ void gpp_sapa_debug_fprintf_area(pGPP_SAPA_AREA p_area, FILE *fp)
 
 	if (p_area->area_def_block)
 	{
-		printf("hi");
 		GPPUINT1 area_count, iarea;
 		area_count = p_area->header_block->area_count;
-		printf("area count=%d", area_count);
 		for (iarea = 0; iarea < area_count; iarea++) {
 			GPPUINT1 ai = iarea;
 			if (area_def = p_area->area_def_block[ai])
@@ -198,11 +195,12 @@ void gpp_sapa_debug_fprintf_area(pGPP_SAPA_AREA p_area, FILE *fp)
 				fprintf(fp, "\n");
 			}
 		}
+		fprintf(fp, "\n");
 	}//p_area->area_def_block
 		
 }//sapa_fprintf_area()
 
-void gpp_sapa_debug_fprintf_hpac(pGPP_SAPA_HPAC p_hpac, FILE *fp)
+void gpp_sapa_debug_fprintf_hpac(pGPP_SAPA_HPAC p_hpac, SAPA_HPAC_HANDLE *hpacHdl, FILE *fp)
 {
 	GPP_SAPA_HPAC_HEADER *header = NULL;
 	GPP_SAPA_HPAC_ATMO_BLOCK *atmo_block = NULL;
@@ -220,8 +218,7 @@ void gpp_sapa_debug_fprintf_hpac(pGPP_SAPA_HPAC p_hpac, FILE *fp)
 	if (p_hpac->header_block)
 	{
 		fprintf(fp, "\n");
-		fprintf(fp, "HPAC \n");
-		fprintf(fp, "\n");
+		fprintf(fp, "\nHPAC \n");
 		if (header = p_hpac->header_block)
 		{
 			GPPUINT4 sec = header->time_tag;
@@ -258,7 +255,7 @@ void gpp_sapa_debug_fprintf_hpac(pGPP_SAPA_HPAC p_hpac, FILE *fp)
 					fprintf(fp, " %1d", area_def->tropo_block_indicator);					//Tropo Block Indicator
 					fprintf(fp, " %1d", area_def->iono_block_indicator);					//Iono Block Indicator
 				}
-				if(tropo_poly_coeff = atmo_block->tropo)
+				if(atmo_block->tropo)
 				if (tropo_poly_coeff = atmo_block->tropo->tropo_poly_coeff_block){
 						fprintf(fp, "\n");
 					fprintf(fp, "%-25s\n", "ATM_TROPO_DATA:");
@@ -272,27 +269,30 @@ void gpp_sapa_debug_fprintf_hpac(pGPP_SAPA_HPAC p_hpac, FILE *fp)
 					fprintf(fp, " %7.3f", tropo_poly_coeff->tropo_poly_coeff[TROPO_POLY_COEFF_INDX_T10]);//Tropo Poly Coeff
 					fprintf(fp, " %7.3f", tropo_poly_coeff->tropo_poly_coeff[TROPO_POLY_COEFF_INDX_T11]);//Tropo Poly Coeff
 				}
-				if(atmo_block->tropo)
-				if(atmo_block->tropo->tropo_grid)
-				if (tropo_grid = atmo_block->tropo->tropo_grid) {
-					//fprintf(fp, " %1d", p_hpac->atmo[ai]->tropo->tropo_grid->tropo_residual_size);			//Tropo Residual Field Size
-					GPPUINT1 ig, no_of_grid;
-					no_of_grid = p_hpac->atmo[ai]->area_def->number_of_grid_point;
-					for (ig = 0; ig < no_of_grid; ig++)
-					{
-						fprintf(fp, " %7.3f", tropo_grid->tropo_residuals[ig]);			//Tropo Grid Residual
+				if (atmo_block->tropo) {
+					if (atmo_block->tropo->tropo_grid) {
+						if (tropo_grid = atmo_block->tropo->tropo_grid) {
+							//fprintf(fp, " %1d", p_hpac->atmo[ai]->tropo->tropo_grid->tropo_residual_size);			//Tropo Residual Field Size
+							GPPUINT1 ig, no_of_grid;
+							no_of_grid = p_hpac->atmo[ai]->area_def->number_of_grid_point;
+							for (ig = 0; ig < no_of_grid; ig++)
+							{
+								fprintf(fp, " %7.3f", tropo_grid->tropo_residuals[ig]);			//Tropo Grid Residual
+							}
+						}
 					}
 				}
-
+				fprintf(fp, "\n");
 				if(iono_block =atmo_block->iono)
 				fprintf(fp, " %1d", iono_block->iono_equation_type);							//Iono Equaction Type
 				//fprintf(fp, " %7.3f", p_hpac->atmo[iarea]->iono->sat_prn_bits);							//Satellite prn bits
 
-				GPPUINT1 isys;
+				GPPUINT1 isys, syslist[18] = { 0, };
 
-				for (isys = 0; isys < 2; isys++) {	//isys < 2    for testing (GPP_SAPA_MAX_SYS)
+				gpp_sapa_get_syslist(hpacHdl->hpacIonoHdl[ai]->sys_bits, syslist);				//Convert from bits to SYS ID
+				for (isys = 1; isys <= syslist[0]; isys++) {
 					GPPUINT1 sys;
-					sys = isys;
+					sys = syslist[isys];
 
 					gpp_sapa_get_svlist(iono_block->sat_prn_bits[sys], svlist);
 					GPPUINT1 isat;
@@ -326,6 +326,7 @@ void gpp_sapa_debug_fprintf_hpac(pGPP_SAPA_HPAC p_hpac, FILE *fp)
 					}
 				}
 			}
+			fprintf(fp, "\n");
 		}
 	}
 			
