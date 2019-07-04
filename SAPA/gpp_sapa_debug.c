@@ -57,7 +57,6 @@ void gpp_sapa_debug_fprintf_ocb(const GPP_SAPA_OCB *p_ocb, FILE *fp)
 			}
 		}//p_ocb->header_block
 
-//		printf("SV_BITS: %llu  ...", p_ocb->sv_prn_bits[sys]);
 		gpp_sapa_get_svlist(p_ocb->sv_prn_bits[sys], svlist);
 
 		for (isat=1; isat<=svlist[0]; isat++) {
@@ -262,7 +261,6 @@ void gpp_sapa_debug_fprintf_hpac(pGPP_SAPA_HPAC p_hpac, SAPA_HPAC_HANDLE *hpacHd
 					fprintf(fp, " %1d", tropo_poly_coeff->tropo_equation_type);			//Tropo Equation Type
 					fprintf(fp, " %7.3f", tropo_poly_coeff->tropo_quality);				//Tropo Quantity
 					fprintf(fp, " %7.3f", tropo_poly_coeff->tropo_avhd);				//Area Average Ver Hydro
-					//fprintf(fp, " %1d", p_hpac->atmo[ai]->tropo->tropo_block->tropo_coeff_size);			//Tropo Poly coeff size
 
 					fprintf(fp, " %7.3f", tropo_poly_coeff->tropo_poly_coeff[TROPO_POLY_COEFF_INDX_T00]);//Tropo Poly Coeff
 					fprintf(fp, " %7.3f", tropo_poly_coeff->tropo_poly_coeff[TROPO_POLY_COEFF_INDX_T01]);//Tropo Poly Coeff
@@ -272,7 +270,6 @@ void gpp_sapa_debug_fprintf_hpac(pGPP_SAPA_HPAC p_hpac, SAPA_HPAC_HANDLE *hpacHd
 				if (atmo_block->tropo) {
 					if (atmo_block->tropo->tropo_grid) {
 						if (tropo_grid = atmo_block->tropo->tropo_grid) {
-							//fprintf(fp, " %1d", p_hpac->atmo[ai]->tropo->tropo_grid->tropo_residual_size);			//Tropo Residual Field Size
 							GPPUINT1 ig, no_of_grid;
 							no_of_grid = p_hpac->atmo[ai]->area_def->number_of_grid_point;
 							for (ig = 0; ig < no_of_grid; ig++)
@@ -285,7 +282,6 @@ void gpp_sapa_debug_fprintf_hpac(pGPP_SAPA_HPAC p_hpac, SAPA_HPAC_HANDLE *hpacHd
 				fprintf(fp, "\n");
 				if(iono_block =atmo_block->iono)
 				fprintf(fp, " %1d", iono_block->iono_equation_type);							//Iono Equaction Type
-				//fprintf(fp, " %7.3f", p_hpac->atmo[iarea]->iono->sat_prn_bits);							//Satellite prn bits
 
 				GPPUINT1 isys, syslist[18] = { 0, };
 
@@ -306,13 +302,11 @@ void gpp_sapa_debug_fprintf_hpac(pGPP_SAPA_HPAC p_hpac, SAPA_HPAC_HANDLE *hpacHd
 						{
 							fprintf(fp, " %7.3f", iono_poly->iono_quality);	//Iono Quality
 						}
-						//fprintf(fp, " %1d", p_hpac->atmo[iarea]->iono->iono_sat_block[sat]->iono_sat_poly->iono_coeff_size);	//Iono ply coeff
 						if (iono_coeff = iono_block->iono_sat_block[sys][sat]->iono_sat_coeff) {
 							fprintf(fp, " %7.3f", iono_coeff->iono_poly_coeff[IONO_POLY_COEFF_INDX_C00]);	//Iono ply coeff
 							fprintf(fp, " %7.3f", iono_coeff->iono_poly_coeff[IONO_POLY_COEFF_INDX_C01]);
 							fprintf(fp, " %7.3f", iono_coeff->iono_poly_coeff[IONO_POLY_COEFF_INDX_C10]);
 							fprintf(fp, " %7.3f", iono_coeff->iono_poly_coeff[IONO_POLY_COEFF_INDX_C11]);
-							//fprintf(fp, " %1d", p_hpac->atmo[sys][iarea]->iono->iono_sat_block[sat]->iono_grid->iono_residual_field_size);
 						}
 						if(iono_grid=iono_block->iono_sat_block[sys][sat]->iono_grid)
 						{

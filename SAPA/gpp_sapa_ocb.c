@@ -7,8 +7,6 @@
 #include "gpp_sapa.h"
 #include "bit2buff.h"
 
-#define GPP_SAPA_OCB_SAT_YAW_INVALID 0x3F 
-#define GPP_SAPA_SAT_YAW_RES 6	
 static const GPPUINT1 SAPA_BIAS_BITMASK_LEN_GPS[2] = { 6, 11 };
 static const GPPUINT1 SAPA_BIAS_BITMASK_LEN_GLO[2] = { 5, 9 };
 static const GPPUINT1 *SAPA_BIAS_BITMASK_LEN[2] = { SAPA_BIAS_BITMASK_LEN_GPS, SAPA_BIAS_BITMASK_LEN_GLO };
@@ -354,14 +352,12 @@ static GPPLONG gpp_sapa_ocb_orb2buffer(const pGPP_SAPA_OCB p_ocb, GPPUINT1 sys, 
 	if (!(orb = p_ocb->sv[sys][sat]->orb)) return GPP_SAPA_ERR_INVALID_OCB_SV_ORB;
 
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, SAPA_SV_IODE_LEN[sys], orb->iode);	//SF018
-	gpp_sapa_float2buffer(buffer, byte_pos, bit_pos, GPP_SAPA_OCB_SAT_CORRECTION_MIN, GPP_SAPA_OCB_SAT_CORRECTION_MAX, 14, SAPA_RES_SV_CORRECTION, NULL, orb->orb_radial_correction);
-	gpp_sapa_float2buffer(buffer, byte_pos, bit_pos, GPP_SAPA_OCB_SAT_CORRECTION_MIN, GPP_SAPA_OCB_SAT_CORRECTION_MAX, 14, SAPA_RES_SV_CORRECTION, NULL, orb->orb_along_track_correction);
-	gpp_sapa_float2buffer(buffer, byte_pos, bit_pos, GPP_SAPA_OCB_SAT_CORRECTION_MIN, GPP_SAPA_OCB_SAT_CORRECTION_MAX, 14, SAPA_RES_SV_CORRECTION, NULL, orb->orb_cross_track_correction);
+	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos,14,orb->lorb_radial_correction);//SF020
+	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 14, orb->lorb_along_track_correction);
+	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos,14, orb->lorb_cross_track_correction);
 	if (p_ocb->header_block[sys]->yaw_flag == GPP_SAPA_YAW_FLAG_PRESENT)
 	{
-		GPPUINT2 yaw_invalid;
-		yaw_invalid = GPP_SAPA_OCB_SAT_YAW_INVALID;
-		gpp_sapa_float2buffer(buffer, byte_pos, bit_pos, GPP_SAPA_OCB_SAT_YAW_MIN, GPP_SAPA_OCB_SAT_YAW_MAX, 6, GPP_SAPA_SAT_YAW_RES , &yaw_invalid,orb->sat_yaw);//SF021
+		gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos,6,orb->lsat_yaw);//SF021
 	}
 	return 0;
 }//gpp_sapa_ocb_orb2buffer()
@@ -374,15 +370,12 @@ static GPPLONG gpp_sapa_ocb_buffer2orb(pGPP_SAPA_OCB p_ocb, GPPUINT1 sys, GPPUIN
 {
 	GPPLONG rc;
 	GPP_SAPA_OCB_SV_ORB orb = { 0, };
-	GPPUINT2 yaw_invalid;
-	yaw_invalid = GPP_SAPA_OCB_SAT_YAW_INVALID;
-	orb.iode = gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, SAPA_SV_IODE_LEN[sys]);													            //SF018
-
-	orb.orb_radial_correction=gpp_sapa_buffer2float(buffer, byte_pos, bit_pos, GPP_SAPA_OCB_SAT_CORRECTION_MIN, 14, SAPA_RES_SV_CORRECTION, NULL);       //SF020
-	orb.orb_along_track_correction=gpp_sapa_buffer2float(buffer, byte_pos, bit_pos, GPP_SAPA_OCB_SAT_CORRECTION_MIN, 14, SAPA_RES_SV_CORRECTION, NULL);  //SF020
-	orb.orb_cross_track_correction=gpp_sapa_buffer2float(buffer, byte_pos, bit_pos, GPP_SAPA_OCB_SAT_CORRECTION_MIN, 14, SAPA_RES_SV_CORRECTION, NULL);  //SF020
+	orb.iode = gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, SAPA_SV_IODE_LEN[sys]);
+	orb.orb_radial_correction = gpp_sapa_buffer2float(buffer, byte_pos, bit_pos, GPP_SAPA_OCB_SAT_CORRECTION_MIN, 14, SAPA_RES_SV_CORRECTION, NULL);       //SF020
+	orb.orb_along_track_correction = gpp_sapa_buffer2float(buffer, byte_pos, bit_pos, GPP_SAPA_OCB_SAT_CORRECTION_MIN, 14, SAPA_RES_SV_CORRECTION, NULL);  //SF020
+	orb.orb_cross_track_correction = gpp_sapa_buffer2float(buffer, byte_pos, bit_pos, GPP_SAPA_OCB_SAT_CORRECTION_MIN, 14, SAPA_RES_SV_CORRECTION, NULL);  //SF020
 	if (p_ocb->header_block[sys]->yaw_flag == GPP_SAPA_YAW_FLAG_PRESENT)
-		orb.sat_yaw = gpp_sapa_buffer2float(buffer, byte_pos, bit_pos,GPP_SAPA_OCB_SAT_YAW_INVALID, 6, GPP_SAPA_SAT_YAW_RES, &yaw_invalid);//SF021
+		orb.sat_yaw = gpp_sapa_buffer2float(buffer, byte_pos, bit_pos, GPP_SAPA_OCB_SAT_YAW_MIN, 6, GPP_SAPA_SAT_YAW_RES, GPP_SAPA_OCB_SAT_YAW_INVALID);//SF021
 
 	if (rc = gpp_sapa_ocb_add_orb(p_ocb, sys, sat, &orb)) return rc;//CP 2019/05/09 add read orb structure here
 
@@ -404,7 +397,7 @@ static GPPLONG gpp_sapa_ocb_clk2buffer(const pGPP_SAPA_OCB p_ocb, GPPUINT1 sys, 
 	while (bit_id <= 7 && clk->iode_continuity >= SAPA_CONTI_ID[bit_id]) bit_id++;
 	bit_id -= 1;
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 3, bit_id);																						//SF022
-	gpp_sapa_float2buffer(buffer, byte_pos, bit_pos, GPP_SAPA_OCB_SAT_CORRECTION_MIN, GPP_SAPA_OCB_SAT_CORRECTION_MAX, 14, SAPA_RES_SV_CORRECTION, NULL, clk->clk_correction);							//SF020
+	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos,14, clk->lclk_correction);							//SF020
 	while (bit <= 7 && p_ocb->sv[sys][sat]->clk->user_range_error >= SAPA_USER_RANGE_ERROR[bit]) bit++;
 	bit -= 1;																																			//SF024
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 3, bit);
@@ -420,7 +413,7 @@ static GPPLONG gpp_sapa_ocb_buffer2clk(pGPP_SAPA_OCB p_ocb, GPPUINT1 sys, GPPUIN
 	GPPLONG rc;
 	GPP_SAPA_OCB_SV_CLK clk = { 0, };
 	clk.iode_continuity = SAPA_CONTI_ID[gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 3)];														//SF022
-	clk.clk_correction = gpp_sapa_buffer2float(buffer, byte_pos, bit_pos, GPP_SAPA_OCB_SAT_CORRECTION_MIN,14, SAPA_RES_SV_CORRECTION, NULL);			//SF020
+	clk.clk_correction = gpp_sapa_buffer2float(buffer, byte_pos, bit_pos, GPP_SAPA_OCB_SAT_CORRECTION_MIN, 14, SAPA_RES_SV_CORRECTION, NULL);   //SF020
 	clk.user_range_error = SAPA_USER_RANGE_ERROR[gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 3)];												//SF024
 
 	if (rc = gpp_sapa_ocb_add_clk(p_ocb, sys, sat, &clk)) return rc;//CP 2019/05/09 add read clk structure here
@@ -545,7 +538,7 @@ static GPPLONG gpp_sapa_ocb_pb2buffer(const pGPP_SAPA_OCB p_ocb, GPPUINT1 sys, G
 	while (bit_id <= 7 && pb->countinity_indicator>= SAPA_CONTI_ID[bit_id]) bit_id++;
 	bit_id -= 1;																													//SF015
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 3, bit_id);
-	gpp_sapa_float2buffer(buffer, byte_pos, bit_pos, GPP_SAPA_OCB_SAT_CORRECTION_MIN, GPP_SAPA_OCB_SAT_CORRECTION_MAX, 14, SAPA_RES_PB_CORRECTION,NULL, pb->pb_correction);		//SF020
+	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 14, pb->lpb_correction);		//SF020
 
 	return 0;
 }//gpp_sapa_ocb_pb2buffer()
@@ -560,7 +553,7 @@ static GPPLONG gpp_sapa_ocb_buffer2pb(pGPP_SAPA_OCB p_ocb, GPPUINT1 sys, GPPUINT
 
 	pb.fix_flag = gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 1);																				//SF023
 	pb.countinity_indicator = SAPA_CONTI_ID[gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 3)];													//SF015
-	pb.pb_correction = gpp_sapa_buffer2float(buffer, byte_pos, bit_pos, GPP_SAPA_OCB_SAT_CORRECTION_MIN, 14, SAPA_RES_PB_CORRECTION, NULL);			    //SF020
+	pb.pb_correction = gpp_sapa_buffer2float(buffer, byte_pos, bit_pos, GPP_SAPA_OCB_SAT_CORRECTION_MIN, 14, SAPA_RES_PB_CORRECTION, NULL);       //SF020
 
 	if (rc = gpp_sapa_ocb_add_pb(p_ocb, sys, sat, sig, &pb)) return rc;
 
@@ -574,7 +567,7 @@ static GPPLONG gpp_sapa_ocb_cb2buffer(const pGPP_SAPA_OCB p_ocb, GPPUINT1 sys, G
 {
 	GPP_SAPA_OCB_SV_BIAS_CB *cb = NULL;
 	if (!(cb = p_ocb->sv[sys][sat]->bias->cb[sig])) return GPP_SAPA_ERR_INVALID_OCB_SV_CB;
-	gpp_sapa_float2buffer(buffer, byte_pos, bit_pos, GPP_SAPA_OCB_CB_CORRECTION_MIN, GPP_SAPA_OCB_CB_CORRECTION_MAX, 11, SAPA_RES_CB_CORRECTION, NULL, cb->cb_correction);						//SF029
+	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 11, cb->lcb_correction);						//SF029
 
 	return 0;
 }//gpp_sapa_ocb_cb2buffer()
@@ -587,7 +580,7 @@ static GPPLONG gpp_sapa_ocb_buffer2cb(pGPP_SAPA_OCB p_ocb, GPPUINT1 sys, GPPUINT
 	GPPLONG rc;
 	GPP_SAPA_OCB_SV_BIAS_CB cb = { 0, };
 
-	cb.cb_correction = gpp_sapa_buffer2float(buffer, byte_pos, bit_pos, GPP_SAPA_OCB_CB_CORRECTION_MIN,11, SAPA_RES_CB_CORRECTION, NULL);	//SF029
+	cb.cb_correction = gpp_sapa_buffer2float(buffer, byte_pos, bit_pos, GPP_SAPA_OCB_CB_CORRECTION_MIN, 11, SAPA_RES_CB_CORRECTION, NULL); //SF029
 
 	if (rc = gpp_sapa_ocb_add_cb(p_ocb, sys, sat, sig, &cb)) return rc;
 
