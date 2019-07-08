@@ -83,9 +83,9 @@ void gpp_sapa_debug_fprintf_ocb(const GPP_SAPA_OCB *p_ocb, FILE *fp)
 						if(orb=sv->orb){
 							fprintf(fp, " %3d", orb->iode);									//IODE
 							
-							fprintf(fp, " %7.5f", orb->orb_radial_correction);					//Correction
-							fprintf(fp, " %7.5f", orb->orb_along_track_correction);					//Correction
-							fprintf(fp, " %7.5f", orb->orb_cross_track_correction);					//Correction
+							fprintf(fp, " %7.5f", orb->d_orbit[0]);					//Correction
+							fprintf(fp, " %7.5f", orb->d_orbit[1]);					//Correction
+							fprintf(fp, " %7.5f", orb->d_orbit[2]);					//Correction
 							
 							fprintf(fp, " %6.3f", orb->sat_yaw);								//Satellite Yaw
 						}
@@ -271,10 +271,10 @@ void gpp_sapa_debug_fprintf_hpac(pGPP_SAPA_HPAC p_hpac, SAPA_HPAC_HANDLE *hpacHd
 					if (atmo_block->tropo->tropo_grid) {
 						if (tropo_grid = atmo_block->tropo->tropo_grid) {
 							GPPUINT1 ig, no_of_grid;
-							no_of_grid = p_hpac->atmo[ai]->area_def->number_of_grid_point;
+							no_of_grid = p_hpac->atmo[iarea]->tropo->tropo_grid->num_grid;
 							for (ig = 0; ig < no_of_grid; ig++)
 							{
-								fprintf(fp, " %7.3f", tropo_grid->tropo_residuals[ig]);			//Tropo Grid Residual
+								fprintf(fp, " %7.3f", tropo_grid->grid[ig]->val);			//Tropo Grid Residual
 							}
 						}
 					}
@@ -311,10 +311,10 @@ void gpp_sapa_debug_fprintf_hpac(pGPP_SAPA_HPAC p_hpac, SAPA_HPAC_HANDLE *hpacHd
 						if(iono_grid=iono_block->iono_sat_block[sys][sat]->iono_grid)
 						{
 							GPPUINT1 ig, no_of_grid;
-							no_of_grid = p_hpac->atmo[ai]->area_def->number_of_grid_point;
+							no_of_grid = p_hpac->atmo[ai]->iono->iono_sat_block[sys][sat]->iono_grid->num_grid;
 							for (ig = 0; ig < no_of_grid; ig++)
 							{
-								fprintf(fp, " %7.2f", iono_grid->iono_residuals[ig]);
+								fprintf(fp, " %7.2f", iono_grid->grid[ig]->lval);
 							}
 						}
 					}

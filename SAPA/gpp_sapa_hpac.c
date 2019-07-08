@@ -16,17 +16,77 @@
 static const GPPDOUBLE SAPA_IONO_QUALITY[16] = { 0.00, 0.03, 0.05,0.07, 0.14, 0.28, 0.56,1.12,2.24,4.48,8.96,17.92,35.84,71.68,143.36,143.36 };
 static const GPPDOUBLE SAPA_TROPO_QUALITY[8] = { 0.0,0.010,0.020,0.040,0.080,0.160,0.320,0.320 };
 
-static const GPPUINT1 SAPA_TROPO_RESIDUAL_ZENITH_DELAY[2] = { SAPA_SMALL_TROPO_RESIDUAL_ZENITH_DELAY, SAPA_LARGE_TROPO_RESIDUAL_ZENITH_DELAY };
+static const GPPUINT1 SAPA_TROPO_GRD_DELAY[2] = { SAPA_SMALL_TROPO_RESIDUAL_ZENITH_DELAY, SAPA_LARGE_TROPO_RESIDUAL_ZENITH_DELAY };
 static const GPPUINT1 SAPA_IONO_RESIDUAL_SLANT_DELAY[4] = { SAPA_SMALL_IONO_RESIDUAL_SLANT_DELAY,SAPA_MEDIUM_IONO_RESIDUAL_SLANT_DELAY,SAPA_LARGE_IONO_RESIDUAL_SLANT_DELAY ,SAPA_EXTRA_LARGE_IONO_RESIDUAL_SLANT_DELAY };
 static const GPPUINT2 SAPA_IONO_RESIDUAL_SLANT_INVALID[4] = { GPP_SAPA_HPAC_SMALL_SLANT_INVALID ,GPP_SAPA_HPAC_MEDIUM_SLANT_INVALID, GPP_SAPA_HPAC_LARGE_SLANT_INVALID,GPP_SAPA_HPAC_EXTRA_LARGE_SLANT_INVALID };
-static const GPPUINT2 SAPA_TROPO_RESIDUAL_ZENITH_INVALID[2] = { GPP_SAPA_HPAC_SMALL_ZENTH_INVALID ,GPP_SAPA_HPAC_LARGE_ZENTH_INVALID };
-const GPPUINT1 SAPA_TROPO_COEFF_T012[2] = { 7,9 };
-const GPPUINT1 SAPA_TROPO_COEFF_T3[2] = { 9,11};
-const GPPUINT1 *SAPA_TROPO_COEFF[4] = { SAPA_TROPO_COEFF_T012,SAPA_TROPO_COEFF_T012,SAPA_TROPO_COEFF_T012 ,SAPA_TROPO_COEFF_T3 };
 
-const GPPUINT1 SAPA_IONO_COEFF_C012[2] = { 12,14 };
-const GPPUINT1 SAPA_IONO_COEFF_C3[2] = { 13,15 };
-const GPPUINT1 *SAPA_IONO_COEFF[4] = { SAPA_IONO_COEFF_C012,SAPA_IONO_COEFF_C012,SAPA_IONO_COEFF_C012 ,SAPA_IONO_COEFF_C3 };
+
+#define SAPA_T012_NBITS_SML 7
+#define SAPA_T012_NBITS_LRG 9
+
+#define SAPA_T00_NBITS_SML  SAPA_T012_NBITS_SML
+#define SAPA_T00_NBITS_LRG  SAPA_T012_NBITS_LRG
+
+#define SAPA_T01_NBITS_SML  SAPA_T012_NBITS_SML
+#define SAPA_T01_NBITS_LRG  SAPA_T012_NBITS_LRG
+
+#define SAPA_T10_NBITS_SML  SAPA_T012_NBITS_SML
+#define SAPA_T10_NBITS_LRG  SAPA_T012_NBITS_LRG
+
+#define SAPA_T11_NBITS_SML  9
+#define SAPA_T11_NBITS_LRG  11
+
+
+static const GPPUINT1 SAPA_TROPO_POLY_NBITS_SML[SAPA_MAX_TROPO_COEFF] = { SAPA_T00_NBITS_SML, SAPA_T01_NBITS_SML, SAPA_T10_NBITS_SML, SAPA_T11_NBITS_SML };
+static const GPPUINT1 SAPA_TROPO_POLY_NBITS_LRG[SAPA_MAX_TROPO_COEFF] = { SAPA_T00_NBITS_LRG, SAPA_T01_NBITS_LRG, SAPA_T10_NBITS_LRG, SAPA_T11_NBITS_LRG };
+static const GPPUINT1* SAPA_TROPO_POLY_NBITS[2] = { SAPA_TROPO_POLY_NBITS_SML, SAPA_TROPO_POLY_NBITS_LRG };
+
+
+#define SAPA_TROPO_GRD_NBITS_SML 6
+#define SAPA_TROPO_GRD_NBITS_LRG 8
+
+static const GPPUINT1 SAPA_TROPO_GRD_NBITS[2] = { SAPA_TROPO_GRD_NBITS_SML, SAPA_TROPO_GRD_NBITS_LRG };
+
+#define SAPA_TROPO_GRD_INVALID_SML 0x3F
+#define SAPA_TROPO_GRD_INVALID_LRG 0xFF
+
+static const GPPUINT1 SAPA_TROPO_GRD_INVALID[2] = { SAPA_TROPO_GRD_INVALID_SML, SAPA_TROPO_GRD_INVALID_LRG };
+
+
+#define SAPA_C012_NBITS_SML 12
+#define SAPA_C012_NBITS_LRG 14
+
+#define SAPA_C00_NBITS_SML SAPA_C012_NBITS_SML
+#define SAPA_C00_NBITS_LRG SAPA_C012_NBITS_LRG
+
+#define SAPA_C01_NBITS_SML SAPA_C012_NBITS_SML
+#define SAPA_C01_NBITS_LRG SAPA_C012_NBITS_LRG
+
+#define SAPA_C10_NBITS_LRG SAPA_C012_NBITS_LRG
+#define SAPA_C10_NBITS_SML SAPA_C012_NBITS_SML
+
+#define SAPA_C11_NBITS_LRG 15
+#define SAPA_C11_NBITS_SML 13
+
+static const GPPUINT1 SAPA_IONO_POLY_NBITS_SML[SAPA_MAX_IONO_COEFF] = { SAPA_C00_NBITS_SML, SAPA_C01_NBITS_SML, SAPA_C10_NBITS_SML, SAPA_C11_NBITS_SML };
+static const GPPUINT1 SAPA_IONO_POLY_NBITS_LRG[SAPA_MAX_IONO_COEFF] = { SAPA_C00_NBITS_LRG, SAPA_C01_NBITS_LRG, SAPA_C10_NBITS_LRG, SAPA_C11_NBITS_LRG };
+static const GPPUINT1* SAPA_IONO_POLY_NBITS[2] = { SAPA_IONO_POLY_NBITS_SML, SAPA_IONO_POLY_NBITS_LRG };
+
+#define SAPA_IONO_GRD_NBITS_SML 4
+#define SAPA_IONO_GRD_NBITS_MED 7
+#define SAPA_IONO_GRD_NBITS_LRG 10
+#define SAPA_IONO_GRD_NBITS_EXTRALRG 14
+
+
+static const GPPUINT1 SAPA_IONO_GRD_NBITS[4] = { SAPA_IONO_GRD_NBITS_SML, SAPA_IONO_GRD_NBITS_MED,SAPA_IONO_GRD_NBITS_LRG,SAPA_IONO_GRD_NBITS_EXTRALRG };
+
+#define SAPA_IONO_GRD_INVALID_SML 0xF
+#define SAPA_IONO_GRD_INVALID_MED 0x7F
+#define SAPA_IONO_GRD_INVALID_LRG 0x3FF
+#define SAPA_IONO_GRD_INVALID_EXTRALRG 0x3FFF
+
+
+static const GPPUINT1 SAPA_IONO_GRD_INVALID[4] = { SAPA_IONO_GRD_INVALID_SML, SAPA_IONO_GRD_INVALID_MED ,SAPA_IONO_GRD_INVALID_LRG ,SAPA_IONO_GRD_INVALID_EXTRALRG };
 
 /********************************************************************************************************************************************************************
  *	Declaration of functions to store data in Buffer for HPAC
@@ -36,6 +96,7 @@ static GPPLONG gpp_sapa_hpac_atmo2buffer(const pGPP_SAPA_HPAC p_hpac, const SAPA
 static GPPLONG gpp_sapa_hpac_area2buffer(const pGPP_SAPA_HPAC p_hpac, const SAPA_HPAC_HANDLE *hpacHdl, GPPUINT1 area, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
 static GPPLONG gpp_sapa_hpac_tropo2buffer(const pGPP_SAPA_HPAC p_hpac, const SAPA_HPAC_HANDLE *hpacHdl, GPPUINT1 area, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
 static GPPLONG gpp_sapa_hpac_tropo_poly_coefficient_block2buffer(const pGPP_SAPA_HPAC p_hpac, const SAPA_HPAC_HANDLE *hpacHdl,GPPUINT1 area, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
+static GPPLONG gpp_sapa_hpac_grd_tropo2buffer(const pGPP_SAPA_HPAC hpac, const SAPA_HPAC_HANDLE *hpacHdl, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
 static GPPLONG gpp_sapa_hpac_tropo_grid_block2buffer(const pGPP_SAPA_HPAC p_hpac, const SAPA_HPAC_HANDLE *hpacHdl,GPPUINT1 area, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
 static GPPLONG gpp_sapa_hpac_iono2buffer(const pGPP_SAPA_HPAC p_hpac, const SAPA_HPAC_HANDLE *hpacHdl,GPPUINT1 area, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
 static GPPLONG gpp_sapa_hpac_iono_sv_bitmask2buffer(GPPUINT8 sv_prn_bits, GPPUINT1 sys, GPPUINT1 *svlist, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
@@ -77,7 +138,7 @@ GPPLONG gpp_sapa_hpac2buffer(const pGPP_SAPA_HPAC hpac, const SAPA_HPAC_HANDLE *
 {
 	GPPLONG rc;
 	GPPUINT1 ia;
-	GPPUINT1 arealist[257] = { 0, };
+	GPPUINT1 arealist[258] = { 0, };
 	GPPLONG byte_pos0, bit_pos0;
 	GPPLONG mybyte = 0, mybit = 0;
 
@@ -92,7 +153,7 @@ GPPLONG gpp_sapa_hpac2buffer(const pGPP_SAPA_HPAC hpac, const SAPA_HPAC_HANDLE *
 	if (!hpacHdl) return GPP_SAPA_ERR_INVALID_HPAC_HANDLE;
 	if (rc = gpp_sapa_hpac_header2buffer(hpac, hpacHdl,buffer, byte_pos, bit_pos)) return rc;
 
-	gpp_sapa_get_area_bits_value(hpacHdl->area_bits, arealist);
+	gpp_sapa_get_arealist(hpacHdl->area_bits, arealist);
 	for (ia = 0; ia < arealist[0]; ia++) {
 		if (rc = gpp_sapa_hpac_atmo2buffer(hpac, hpacHdl,ia, buffer, byte_pos, bit_pos)) return rc;
 	}
@@ -149,9 +210,10 @@ GPPLONG gpp_sapa_buffer2hpac(pGPP_SAPA_HPAC hpac, const GPPUCHAR *buffer, GPPLON
 static GPPLONG gpp_sapa_hpac_header2buffer(const pGPP_SAPA_HPAC p_hpac, const SAPA_HPAC_HANDLE *hpacHdl,GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos)
 {
 	GPP_SAPA_HPAC_HEADER *header = NULL;
+	GPPUINT1 time_tag_nbits;
+
 	if (!(header=p_hpac->header_block)) return GPP_SAPA_ERR_INVALID_HPAC_HEADER;
 
-	GPPUINT1 time_tag_nbits;
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 4, header->message_sub_type);										//SF001
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 1, hpacHdl->time_tag_type);														//SF002
 	switch (hpacHdl->time_tag_type) {
@@ -307,29 +369,41 @@ static GPPLONG gpp_sapa_hpac_buffer2tropo(pGPP_SAPA_HPAC p_hpac,GPPUINT1 area,co
  ******************************************************************************************************************************************************************/
 static GPPLONG gpp_sapa_hpac_tropo_poly_coefficient_block2buffer(const pGPP_SAPA_HPAC p_hpac, const SAPA_HPAC_HANDLE *hpacHdl, GPPUINT1 area, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos)
 {
-	GPPUINT1 coeff_size, equ_type;
+	GPPUINT1 it, sz, equ_type;
 	GPPUINT1 bit_id = 1;
 	GPP_SAPA_HPAC_TROPO_POLY_COEFFICIENT_BLOCK *tpcb = NULL;
-	tpcb=p_hpac->atmo[area]->tropo->tropo_poly_coeff_block;
+
+	tpcb = p_hpac->atmo[area]->tropo->tropo_poly_coeff_block;
+
 	equ_type = tpcb->tropo_equation_type;
-	
-	coeff_size = hpacHdl->hpacTropoHdl[area]->tropo_coeff_size;
-	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 3, equ_type);											//SF041
+	sz = tpcb->tropo_coeff_size;
 
-	while (bit_id <= 7 && p_hpac->atmo[area]->tropo->tropo_poly_coeff_block->tropo_quality >= SAPA_TROPO_QUALITY[bit_id]) bit_id++;
+	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 3, equ_type);           //SF041
+
+	while (bit_id <= 7 && tpcb->tropo_quality >= SAPA_TROPO_QUALITY[bit_id]) bit_id++;
 	bit_id -= 1;
+	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 3, bit_id);                         //SF042
 
-	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 3, bit_id);																									//SF042
-	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 8,p_hpac->atmo[area]->tropo->tropo_poly_coeff_block->ltropo_avhd);			//SF043
-	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 1, tpcb->tropo_coeff_size);	
-	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos,SAPA_TROPO_COEFF[TROPO_POLY_COEFF_INDX_T00][coeff_size],tpcb->ltropo_poly_coeff[TROPO_POLY_COEFF_INDX_T00]);	//SF045orSF048
+	gpp_sapa_float2buffer(buffer, byte_pos, bit_pos, SAPA_AVHD_MIN, SAPA_AVHD_MAX, 8, SAPA_RES_AREA_AVG_VER_HEDRO_DELAY, NULL, p_hpac->atmo[area]->tropo->tropo_poly_coeff_block->tropo_avhd);   //SF043
 
-	if (equ_type!=0){
-		gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, SAPA_TROPO_COEFF[TROPO_POLY_COEFF_INDX_T01][coeff_size], tpcb->ltropo_poly_coeff[TROPO_POLY_COEFF_INDX_T01]);	//SF046orSF049
-		gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, SAPA_TROPO_COEFF[TROPO_POLY_COEFF_INDX_T10][coeff_size], tpcb->ltropo_poly_coeff[TROPO_POLY_COEFF_INDX_T10]);	//SF046orSF049
+	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 1, sz);
+
+	if (equ_type >= 3) return GPP_SAPA_ERR_INVALID_TROPO_EQ_TYPE;
+
+	it = SAPA_T00_IDX;
+	gpp_sapa_float2buffer(buffer, byte_pos, bit_pos, SAPA_TROPO_POLY_MIN[sz][it], SAPA_TROPO_POLY_MAX[sz][it], SAPA_TROPO_POLY_NBITS[sz][it], SAPA_TROPO_POLY_RES[it], NULL, tpcb->tropo_poly_coeff[it]);
+
+	if (equ_type > 0) {
+		it = SAPA_T01_IDX;
+		gpp_sapa_float2buffer(buffer, byte_pos, bit_pos, SAPA_TROPO_POLY_MIN[sz][it], SAPA_TROPO_POLY_MAX[sz][it], SAPA_TROPO_POLY_NBITS[sz][it], SAPA_TROPO_POLY_RES[it], NULL, tpcb->tropo_poly_coeff[it]);
+
+		it = SAPA_T10_IDX;
+		gpp_sapa_float2buffer(buffer, byte_pos, bit_pos, SAPA_TROPO_POLY_MIN[sz][it], SAPA_TROPO_POLY_MAX[sz][it], SAPA_TROPO_POLY_NBITS[sz][it], SAPA_TROPO_POLY_RES[it], NULL, tpcb->tropo_poly_coeff[it]);
 	}
-	if (equ_type == 2){
-		gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, SAPA_TROPO_COEFF[TROPO_POLY_COEFF_INDX_T11][coeff_size],tpcb->ltropo_poly_coeff[TROPO_POLY_COEFF_INDX_T11]);	//SF047orSF050
+
+	if (equ_type == 2) {
+		it = SAPA_T11_IDX;
+		gpp_sapa_float2buffer(buffer, byte_pos, bit_pos, SAPA_TROPO_POLY_MIN[sz][it], SAPA_TROPO_POLY_MAX[sz][it], SAPA_TROPO_POLY_NBITS[sz][it], SAPA_TROPO_POLY_RES[it], NULL, tpcb->tropo_poly_coeff[it]);
 	}
 	return 0;
 }//gpp_sapa_hpac_tropo_poly_coefficient_block2buffer()
@@ -340,62 +414,121 @@ static GPPLONG gpp_sapa_hpac_tropo_poly_coefficient_block2buffer(const pGPP_SAPA
 static GPPLONG gpp_sapa_hpac_buffer2tropo_poly_coefficient_block(pGPP_SAPA_HPAC p_hpac, GPPUINT1 area, const GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos)
 {
 	GPPLONG rc;
-	GPPUINT1 coeff_size;
-	GPP_SAPA_HPAC_TROPO_POLY_COEFFICIENT_BLOCK tropo_poly_coeff_block = { 0, };
+	GPPUINT1 sz, it, equ_type;
+	GPP_SAPA_HPAC_TROPO_POLY_COEFFICIENT_BLOCK tpcb = { 0, };
 
-	tropo_poly_coeff_block.tropo_equation_type = gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 3);          //SF041
-	tropo_poly_coeff_block.tropo_quality = SAPA_TROPO_QUALITY[gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 3)];                       //SF042
-	tropo_poly_coeff_block.tropo_avhd = gpp_sapa_buffer2float(buffer, byte_pos, bit_pos, GPP_SAPA_HPAC_AVHD_MIN, 8, SAPA_RES_AREA_AVG_VER_HEDRO_DELAY, NULL);   //SF043
-	tropo_poly_coeff_block.tropo_coeff_size = gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 1);           //SF044
+	if ((tpcb.tropo_equation_type = gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 3)) >= 3) return GPP_SAPA_ERR_INVALID_TROPO_EQ_TYPE;          //SF041
+	equ_type = tpcb.tropo_equation_type;
 
-	coeff_size = tropo_poly_coeff_block.tropo_coeff_size;
+	tpcb.tropo_quality = SAPA_TROPO_QUALITY[gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 3)];                       //SF042
 
-	tropo_poly_coeff_block.tropo_poly_coeff[TROPO_POLY_COEFF_INDX_T00] = gpp_sapa_buffer2float(buffer, byte_pos, bit_pos, SAPA_TROPO_COEFF_T00_MIN[coeff_size], SAPA_TROPO_COEFF[TROPO_POLY_COEFF_INDX_T00][coeff_size], SAPA_RES_TROPO_POLY_COEFF_T00, NULL); //SF045orSF048
+	gpp_sapa_buffer2float(buffer, byte_pos, bit_pos, SAPA_AVHD_MIN, 8, SAPA_RES_AREA_AVG_VER_HEDRO_DELAY, NULL, &tpcb.tropo_avhd);   //SF043
 
-	if (tropo_poly_coeff_block.tropo_equation_type != 0) {
-		tropo_poly_coeff_block.tropo_poly_coeff[TROPO_POLY_COEFF_INDX_T01] = gpp_sapa_buffer2float(buffer, byte_pos, bit_pos, SAPA_TROPO_COEFF_T01_MIN[coeff_size], SAPA_TROPO_COEFF[TROPO_POLY_COEFF_INDX_T01][coeff_size], SAPA_RES_TROPO_POLY_COEFF_T01, NULL); //SF046orSF049
-		tropo_poly_coeff_block.tropo_poly_coeff[TROPO_POLY_COEFF_INDX_T10] = gpp_sapa_buffer2float(buffer, byte_pos, bit_pos, SAPA_TROPO_COEFF_T01_MIN[coeff_size], SAPA_TROPO_COEFF[TROPO_POLY_COEFF_INDX_T10][coeff_size], SAPA_RES_TROPO_POLY_COEFF_T01, NULL); //SF046orSF049
+	tpcb.tropo_coeff_size = gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 1);           //SF044
+	sz = tpcb.tropo_coeff_size;
+
+
+	it = SAPA_T00_IDX;
+	gpp_sapa_buffer2float(buffer, byte_pos, bit_pos, SAPA_TROPO_POLY_MIN[sz][it], SAPA_TROPO_POLY_NBITS[sz][it], SAPA_TROPO_POLY_RES[it], NULL, &tpcb.tropo_poly_coeff[it]);
+
+	if (equ_type > 0) {
+		it = SAPA_T01_IDX;
+		gpp_sapa_buffer2float(buffer, byte_pos, bit_pos, SAPA_TROPO_POLY_MIN[sz][it], SAPA_TROPO_POLY_NBITS[sz][it], SAPA_TROPO_POLY_RES[it], NULL, &tpcb.tropo_poly_coeff[it]);
+
+		it = SAPA_T10_IDX;
+		gpp_sapa_buffer2float(buffer, byte_pos, bit_pos, SAPA_TROPO_POLY_MIN[sz][it], SAPA_TROPO_POLY_NBITS[sz][it], SAPA_TROPO_POLY_RES[it], NULL, &tpcb.tropo_poly_coeff[it]);
 	}
-	if (tropo_poly_coeff_block.tropo_equation_type == 2) {
-		tropo_poly_coeff_block.tropo_poly_coeff[TROPO_POLY_COEFF_INDX_T11] = gpp_sapa_buffer2float(buffer, byte_pos, bit_pos, SAPA_TROPO_COEFF_T11_MIN[coeff_size], SAPA_TROPO_COEFF[TROPO_POLY_COEFF_INDX_T11][coeff_size], SAPA_RES_TROPO_POLY_COEFF_T11, NULL); //SF047orSF050
+
+	if (equ_type == 2) {
+		it = SAPA_T11_IDX;
+		gpp_sapa_buffer2float(buffer, byte_pos, bit_pos, SAPA_TROPO_POLY_MIN[sz][it], SAPA_TROPO_POLY_NBITS[sz][it], SAPA_TROPO_POLY_RES[it], NULL, &tpcb.tropo_poly_coeff[it]);
 	}
-	if (rc = gpp_sapa_hpac_add_tropo_poly_coeff_block(p_hpac, area, &tropo_poly_coeff_block)) return rc;
+
+	if (rc = gpp_sapa_hpac_add_tropo_poly_coeff_block(p_hpac, area, &tpcb)) return rc;
 	return 0;
 }//gpp_sapa_hpac_buffer2tropo_poly_coefficient_block()
 /******************************************************************************************************************************************************************
+ *	\brief Store  Grid data into buffer
+ ******************************************************************************************************************************************************************/
+static GPPLONG gpp_sapa_hpac_grd_tropo2buffer(const pGPP_SAPA_HPAC hpac, const SAPA_HPAC_HANDLE *hpacHdl, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos)
+{
+	GPPUINT1 ia, areaId, arealist[258];
+
+	if (!hpacHdl) return GPP_SAPA_ERR_INVALID_HPAC_HANDLE;
+
+	if (!(hpacHdl->blk_indicator & 2)) return 0; // needs to be optimized with definition
+
+	gpp_sapa_get_arealist(hpacHdl->area_bits, arealist); //identify all areas that shall be sent in this message if filled with valid values
+
+	for (ia = 1; ia <= arealist[0]; ia++) {
+		areaId = arealist[ia];
+
+		if (GNSS_HAS_IDX_IN_BITS_64(hpac->atmo_bits[areaId / 64], areaId % 64)) {// have valid atmo data in hpac
+
+			pGPP_SAPA_HPAC_ATMO_BLOCK atmo = NULL;
+			pGPP_SAPA_HPAC_TROPO_GRID_BLOCK grd_tropo = NULL;
+			GPPUINT1 igrd, sz;
+
+
+			if (!(atmo = hpac->atmo[areaId])) return GPP_SAPA_ERROR_BASE;//double check; use error code here as this indicates an error in the add_tropo or add_iono data
+
+			if (!atmo->tropo) continue; //okay, no tropo data in hpac
+			if (!(grd_tropo = atmo->tropo->tropo_grid)) continue; //okay, no tropo data in hpac
+
+			sz = grd_tropo->sz;
+			gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 1, grd_tropo->sz);
+
+			for (igrd = 0; igrd < grd_tropo->num_grid; igrd++) {
+				if (GNSS_HAS_IDX_IN_BITS_64(grd_tropo->grid_bits, igrd)) {// have valid data
+					gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, SAPA_TROPO_GRD_NBITS[sz], grd_tropo->grid[igrd]->lval);
+				}
+				else {
+					gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, SAPA_TROPO_GRD_NBITS[sz], SAPA_TROPO_GRD_INVALID[sz]);
+				}
+			}
+		}
+	}//for loop ia
+
+	return 0;
+}//gpp_sapa_hpac_grd_tropo2buffer()
+ /******************************************************************************************************************************************************************
  *	\brief Store Troposphere Grid block data into buffer
  ******************************************************************************************************************************************************************/
-static GPPLONG gpp_sapa_hpac_tropo_grid_block2buffer(const pGPP_SAPA_HPAC p_hpac, const SAPA_HPAC_HANDLE *hpacHdl,GPPUINT1 area, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos)
+static GPPLONG gpp_sapa_hpac_tropo_grid_block2buffer(const pGPP_SAPA_HPAC p_hpac, const SAPA_HPAC_HANDLE *hpacHdl, GPPUINT1 area, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos)
 {
-	GPP_SAPA_HPAC_TROPO_GRID_BLOCK *grid_block = p_hpac->atmo[area]->tropo->tropo_grid;
-	GPPUINT1 no_of_grid, ig;
-	GPPUINT1 res_size = hpacHdl->hpacTropoHdl[area]->tropo_residual_size;
-	
-	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 1, res_size); //SF051
+#if 0
+	GPPUINT1 sz, no_of_grid, ig;
+	GPP_SAPA_HPAC_TROPO_GRID_BLOCK *tgb = p_hpac->atmo[area]->tropo->tropo_grid;
+
+	sz = tgb->tropo_residual_size;
+
+	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 1, sz); //SF051
 	no_of_grid = hpacHdl->no_of_grids;
 	for (ig = 0; ig < no_of_grid; ig++)
 	{
-		gpp_sapa_float2buffer(buffer, byte_pos, bit_pos, SAPA_TROPO_RESIDUAL_ZENITH_MIN[res_size], SAPA_TROPO_RESIDUAL_ZENITH_MAX[res_size], SAPA_TROPO_RESIDUAL_ZENITH_DELAY[res_size], SAPA_RES_TROPO_RESIDUAL_DELAY, &SAPA_TROPO_RESIDUAL_ZENITH_INVALID[res_size], grid_block->tropo_residuals[ig]);//SF052
+		gpp_sapa_float2buffer(buffer, byte_pos, bit_pos, SAPT_TROPO_GRD_MIN[res_size], SAPT_TROPO_GRD_MAX[res_size], SAPT_TROPO_GRD_DELAY[res_size], SAPA_RES_TROPO_RESIDUAL_DELAY, &SAPT_TROPO_GRD_INVALID[res_size], grid_block->tropo_residuals[ig]);//SF052
 	}
+#endif
 	return 0;
 }//gpp_sapa_hpac_tropo_grid_block2buffer()
-
 /******************************************************************************************************************************************************************
  *	\brief Read Troposphere Grid block data from buffer
  ******************************************************************************************************************************************************************/
-static GPPLONG gpp_sapa_hpac_buffer2tropo_grid_block(pGPP_SAPA_HPAC p_hpac, GPPUINT1 area,const GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos)
+static GPPLONG gpp_sapa_hpac_buffer2tropo_grid_block(pGPP_SAPA_HPAC p_hpac, GPPUINT1 area, const GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos)
 {
+#if 0
 	GPPLONG rc;
 	GPP_SAPA_HPAC_TROPO_GRID_BLOCK tropo_grid = { 0, };
 	GPPUINT1 no_of_grid, ig;
-	tropo_grid.tropo_residual_size=gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 1); //SF051
+	tropo_grid.tropo_residual_size = gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 1); //SF051
 	no_of_grid = p_hpac->atmo[area]->area_def->number_of_grid_point;
 	for (ig = 0; ig < no_of_grid; ig++)
 	{
-		tropo_grid.tropo_residuals[ig]= gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, SAPA_TROPO_RESIDUAL_ZENITH_DELAY[tropo_grid.tropo_residual_size]);//SF052
+		tropo_grid.tropo_residuals[ig] = gpp_sapa_buffer2float(buffer, byte_pos, bit_pos, SAPT_TROPO_GRD_MIN[tropo_grid.tropo_residual_size], SAPT_TROPO_GRD_DELAY[tropo_grid.tropo_residual_size], SAPA_RES_TROPO_RESIDUAL_DELAY, &SAPT_TROPO_GRD_INVALID[tropo_grid.tropo_residual_size]);//SF052
 	}
-	
-	if(rc=gpp_sapa_hpac_add_tropo_grid_block(p_hpac,area, &tropo_grid)) return rc;
+
+	if (rc = gpp_sapa_hpac_add_tropo_grid_block(p_hpac, area, &tropo_grid)) return rc;
+#endif
 	return 0;
 }//gpp_sapa_hpac_buffer2tropo_grid_block()
 
@@ -404,13 +537,14 @@ static GPPLONG gpp_sapa_hpac_buffer2tropo_grid_block(pGPP_SAPA_HPAC p_hpac, GPPU
  ******************************************************************************************************************************************************************/
 static GPPLONG gpp_sapa_hpac_iono2buffer(const pGPP_SAPA_HPAC p_hpac, const SAPA_HPAC_HANDLE *hpacHdl, GPPUINT1 area, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos)
 {
+#if 0
 	GPPUINT1 syslist[18] = { 0, };
 	GPPUINT1 svlist[66] = { 0, };
 	GPP_SAPA_HPAC_IONO *iono_block = iono_block = p_hpac->atmo[area]->iono;
 	if (p_hpac->atmo[area]->area_def->iono_block_indicator != 0)
 	{
-		GPPUINT1 isat,isys;
-		gpp_sapa_get_syslist(hpacHdl->hpacIonoHdl[area]->sys_bits, syslist);				//Convert from bits to SYS ID
+		GPPUINT1 isat, isys;
+		gpp_sapa_get_syslist(hpacHdl->hpacIonoHdl[area]->sys_bits, syslist);    //Convert from bits to SYS ID
 
 		gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 3, iono_block->iono_equation_type);     //SF054
 
@@ -427,9 +561,9 @@ static GPPLONG gpp_sapa_hpac_iono2buffer(const pGPP_SAPA_HPAC p_hpac, const SAPA
 			}
 		}
 	}
+#endif
 	return 0;
 }//gpp_sapa_hpac_iono2buffer()
-
 /******************************************************************************************************************************************************************
  *	\brief Read Ionospher block data from buffer
  ******************************************************************************************************************************************************************/
@@ -538,9 +672,9 @@ static GPPLONG gpp_sapa_hpac_buffer2iono_sat(pGPP_SAPA_HPAC p_hpac, GPPUINT1 sys
 
 static GPPLONG gpp_sapa_hpac_iono_sat_poly2buffer(const pGPP_SAPA_HPAC p_hpac, GPPUINT1 sys,GPPUINT1 sat, GPPUINT1 area, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos)
 {
+	GPPUINT1 bit_id = 1;
 	GPP_SAPA_HPAC_IONO_SAT_POLY *iono_poly = NULL;
 	if (!(iono_poly = p_hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_sat_poly)) return GPP_SAPA_ERR_INVALID_HPAC_AREA;
-	GPPUINT1 bit_id=1;
 	while (bit_id <= 15 && iono_poly->iono_quality >= SAPA_IONO_QUALITY[bit_id]) bit_id++;
 	bit_id -= 1;
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 4, bit_id);			//SF055
@@ -566,29 +700,38 @@ static GPPLONG gpp_sapa_hpac_buffer2iono_sat_poly(pGPP_SAPA_HPAC p_hpac, GPPUINT
  ******************************************************************************************************************************************************************/
 static GPPLONG gpp_sapa_hpac_iono_sat_coeff2buffer(const pGPP_SAPA_HPAC p_hpac, const SAPA_HPAC_HANDLE *hpacHdl, GPPUINT1 sys, GPPUINT1 sat, GPPUINT1 area, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos)
 {
-	GPPUINT1 coeff_size, equ_type;
+	GPPUINT1 coeff_size, equ_type,sz,it;
 	GPP_SAPA_HPAC_IONO_SAT_COEFFICIENT *tpcb = NULL;
-	tpcb=p_hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_sat_coeff;
+	tpcb = p_hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_sat_coeff;
 	equ_type = p_hpac->atmo[area]->iono->iono_equation_type;
-
 	coeff_size = hpacHdl->hpacIonoHdl[area]->iono_coeff_size;
-	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, SAPA_IONO_COEFF[IONO_POLY_COEFF_INDX_C00][coeff_size], tpcb->liono_poly_coeff[IONO_POLY_COEFF_INDX_C00]);	//SF057orSF060
-	if (equ_type!=0){
-		gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, SAPA_IONO_COEFF[IONO_POLY_COEFF_INDX_C01][coeff_size],tpcb->liono_poly_coeff[IONO_POLY_COEFF_INDX_C01]);	//SF058orSF061
-		gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos,  SAPA_IONO_COEFF[IONO_POLY_COEFF_INDX_C10][coeff_size],tpcb->liono_poly_coeff[IONO_POLY_COEFF_INDX_C10]);	//SF058orSF061
+	sz = coeff_size;
+	if (equ_type >= 3) return GPP_SAPA_ERR_INVALID_IONO_EQ_TYPE;
+
+	it = SAPA_T00_IDX;
+	gpp_sapa_float2buffer(buffer, byte_pos, bit_pos, SAPA_IONO_POLY_MIN[sz][it], SAPA_IONO_POLY_MAX[sz][it], SAPA_IONO_POLY_NBITS[sz][it], SAPA_IONO_POLY_RES[it], NULL, tpcb->iono_poly_coeff[it]);
+
+	if (equ_type > 0) {
+		it = SAPA_T01_IDX;
+		gpp_sapa_float2buffer(buffer, byte_pos, bit_pos, SAPA_TROPO_POLY_MIN[sz][it], SAPA_TROPO_POLY_MAX[sz][it], SAPA_IONO_POLY_NBITS[sz][it], SAPA_TROPO_POLY_RES[it], NULL, tpcb->iono_poly_coeff[it]);
+
+		it = SAPA_T10_IDX;
+		gpp_sapa_float2buffer(buffer, byte_pos, bit_pos, SAPA_TROPO_POLY_MIN[sz][it], SAPA_TROPO_POLY_MAX[sz][it], SAPA_IONO_POLY_NBITS[sz][it], SAPA_TROPO_POLY_RES[it], NULL, tpcb->iono_poly_coeff[it]);
 	}
 
-	if (equ_type == 2){
-		gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, SAPA_IONO_COEFF[IONO_POLY_COEFF_INDX_C11][coeff_size],tpcb->liono_poly_coeff[IONO_POLY_COEFF_INDX_C11]);	//SF059orSF062
+	if (equ_type == 2) {
+		it = SAPA_T11_IDX;
+		gpp_sapa_float2buffer(buffer, byte_pos, bit_pos, SAPA_TROPO_POLY_MIN[sz][it], SAPA_TROPO_POLY_MAX[sz][it], SAPA_IONO_POLY_NBITS[sz][it], SAPA_TROPO_POLY_RES[it], NULL, tpcb->iono_poly_coeff[it]);
 	}
 	return 0;
 }//gpp_sapa_hpac_iono_sat_coeff2buffer()
 
 /******************************************************************************************************************************************************************
- *	\brief Read Ionospher Satellite Coefficient  block data from buffer
+ * \brief Read Ionospher Satellite Coefficient  block data from buffer
  ******************************************************************************************************************************************************************/
 static GPPLONG gpp_sapa_hpac_buffer2iono_sat_coeff(pGPP_SAPA_HPAC p_hpac, GPPUINT1 sys, GPPUINT1 sat, GPPUINT1 area, const GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos)
 {
+#if 0
 	GPPLONG rc;
 	GPPUINT1 coeff_size, equ_type;
 	GPP_SAPA_HPAC_IONO_SAT_COEFFICIENT iono_sat_coeff = { 0, };
@@ -596,52 +739,57 @@ static GPPLONG gpp_sapa_hpac_buffer2iono_sat_coeff(pGPP_SAPA_HPAC p_hpac, GPPUIN
 	coeff_size = p_hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_sat_poly->iono_coeff_size;
 	equ_type = p_hpac->atmo[area]->iono->iono_equation_type;
 
-	iono_sat_coeff.iono_poly_coeff[IONO_POLY_COEFF_INDX_C00] = gpp_sapa_buffer2float(buffer, byte_pos, bit_pos, SAPA_IONO_COEFF_C00_RANGE[GPP_SAPA_MIN_VALUE][coeff_size], SAPA_IONO_COEFF[IONO_POLY_COEFF_INDX_C00][coeff_size], SAPA_RES_IONO_POLY_COEFF_C00, NULL); //SF057orSF060
+	iono_sat_coeff.iono_poly_coeff[IONO_POLY_COEFF_INDX_C00] = gpp_sapa_buffer2float(buffer, byte_pos, bit_pos, SAPA_TROPO_COEFF_C00_MIN[coeff_size], SAPA_IONO_COEFF[IONO_POLY_COEFF_INDX_C00][coeff_size], SAPA_RES_IONO_POLY_COEFF_C00, NULL); //SF057orSF060
 
 	if (equ_type != 0) {
-		iono_sat_coeff.iono_poly_coeff[IONO_POLY_COEFF_INDX_C01] = gpp_sapa_buffer2float(buffer, byte_pos, bit_pos, SAPA_IONO_COEFF_C01_RANGE[GPP_SAPA_MIN_VALUE][coeff_size], SAPA_IONO_COEFF[IONO_POLY_COEFF_INDX_C01][coeff_size], SAPA_RES_IONO_POLY_COEFF_C01, NULL); //SF058orSF061
-		iono_sat_coeff.iono_poly_coeff[IONO_POLY_COEFF_INDX_C10] = gpp_sapa_buffer2float(buffer, byte_pos, bit_pos, SAPA_IONO_COEFF_C01_RANGE[GPP_SAPA_MIN_VALUE][coeff_size], SAPA_IONO_COEFF[IONO_POLY_COEFF_INDX_C10][coeff_size], SAPA_RES_IONO_POLY_COEFF_C01, NULL); //SF058orSF061
+		iono_sat_coeff.iono_poly_coeff[IONO_POLY_COEFF_INDX_C01] = gpp_sapa_buffer2float(buffer, byte_pos, bit_pos, SAPA_TROPO_COEFF_C01_MIN[coeff_size], SAPA_IONO_COEFF[IONO_POLY_COEFF_INDX_C01][coeff_size], SAPA_RES_IONO_POLY_COEFF_C01, NULL); //SF058orSF061
+		iono_sat_coeff.iono_poly_coeff[IONO_POLY_COEFF_INDX_C10] = gpp_sapa_buffer2float(buffer, byte_pos, bit_pos, SAPA_TROPO_COEFF_C01_MIN[coeff_size], SAPA_IONO_COEFF[IONO_POLY_COEFF_INDX_C10][coeff_size], SAPA_RES_IONO_POLY_COEFF_C01, NULL); //SF058orSF061
 	}
 
 	if (equ_type == 2) {
-		iono_sat_coeff.iono_poly_coeff[IONO_POLY_COEFF_INDX_C11] = gpp_sapa_buffer2float(buffer, byte_pos, bit_pos, SAPA_IONO_COEFF_C11_RANGE[GPP_SAPA_MIN_VALUE][coeff_size], SAPA_IONO_COEFF[IONO_POLY_COEFF_INDX_C11][coeff_size], SAPA_RES_IONO_POLY_COEFF_C11, NULL); //SF059orSF062
+		iono_sat_coeff.iono_poly_coeff[IONO_POLY_COEFF_INDX_C11] = gpp_sapa_buffer2float(buffer, byte_pos, bit_pos, SAPA_TROPO_COEFF_C11_MIN[coeff_size], SAPA_IONO_COEFF[IONO_POLY_COEFF_INDX_C11][coeff_size], SAPA_RES_IONO_POLY_COEFF_C11, NULL); //SF059orSF062
 	}
 
 	if (rc = gpp_sapa_hpac_add_iono_sat_coeff_block(p_hpac, sys, sat, area, &iono_sat_coeff)) return rc;
-
+#endif // 0
 	return 0;
 }//gpp_sapa_hpac_buffer2iono_sat_coeff()
+
 /******************************************************************************************************************************************************************
- *	\brief Store Ionospher Satellite Grid block data into buffer
+ * \brief Store Ionospher Satellite Grid block data into buffer
  ******************************************************************************************************************************************************************/
-static GPPLONG gpp_sapa_hpac_iono_sat_grid2buffer(const pGPP_SAPA_HPAC p_hpac, const SAPA_HPAC_HANDLE *hpacHdl,GPPUINT1 sys, GPPUINT1 sat, GPPUINT1 area, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos)
+static GPPLONG gpp_sapa_hpac_iono_sat_grid2buffer(const pGPP_SAPA_HPAC p_hpac, const SAPA_HPAC_HANDLE *hpacHdl, GPPUINT1 sys, GPPUINT1 sat, GPPUINT1 area, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos)
 {
+#if 0
 	GPP_SAPA_HPAC_IONO_GRID_BLOCK *iono_grid = p_hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_grid;
-	GPPUINT1 no_of_grid,ig,res_field_size;
+	GPPUINT1 no_of_grid, ig, res_field_size;
 	res_field_size = hpacHdl->hpacIonoHdl[area]->iono_residual_field_size;
-	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos,2, res_field_size);	//SF063
+	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 2, res_field_size); //SF063
 	no_of_grid = hpacHdl->no_of_grids;
 	for (ig = 0; ig < no_of_grid; ig++)
 	{
-		gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, SAPA_IONO_RESIDUAL_SLANT_DELAY[res_field_size],iono_grid->liono_residuals[ig]);//SF064
+		gpp_sapa_float2buffer(buffer, byte_pos, bit_pos, SAPA_IONO_RESIDUAL_SLANT_MIN[res_field_size], SAPA_IONO_RESIDUAL_SLANT_MAX[res_field_size], SAPA_IONO_RESIDUAL_SLANT_DELAY[res_field_size], SAPA_RES_IONO_RESIDUAL_DELAY, &SAPA_IONO_RESIDUAL_SLANT_INVALID[res_field_size], iono_grid->iono_residuals[ig]);//SF064
 	}
+#endif // 0
 	return 0;
 }//gpp_sapa_hpac_iono_sat_grid2buffer()
 
 /******************************************************************************************************************************************************************
- *	\brief Read Ionospher Satellite Grid block data from buffer
+ * \brief Read Ionospher Satellite Grid block data from buffer
  ******************************************************************************************************************************************************************/
-static GPPLONG gpp_sapa_hpac_buffer2iono_sat_grid(pGPP_SAPA_HPAC p_hpac,GPPUINT1 sys, GPPUINT1 sat, GPPUINT1 area,const GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos)
+static GPPLONG gpp_sapa_hpac_buffer2iono_sat_grid(pGPP_SAPA_HPAC p_hpac, GPPUINT1 sys, GPPUINT1 sat, GPPUINT1 area, const GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos)
 {
+#if 0
 	GPPLONG rc;
 	GPP_SAPA_HPAC_IONO_GRID_BLOCK iono_grid = { 0, };
 	GPPUINT1 no_of_grid, ig;
-	iono_grid.iono_residual_field_size=gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 2);	//SF063
+	iono_grid.iono_residual_field_size = gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 2); //SF063
 	no_of_grid = p_hpac->atmo[area]->area_def->number_of_grid_point;
 	for (ig = 0; ig < no_of_grid; ig++)
 	{
 		iono_grid.iono_residuals[ig] = gpp_sapa_buffer2float(buffer, byte_pos, bit_pos, SAPA_IONO_RESIDUAL_SLANT_MIN[iono_grid.iono_residual_field_size], SAPA_IONO_RESIDUAL_SLANT_DELAY[iono_grid.iono_residual_field_size], SAPA_RES_IONO_RESIDUAL_DELAY, &SAPA_IONO_RESIDUAL_SLANT_INVALID[iono_grid.iono_residual_field_size]);//SF064
 	}
 	if (rc = gpp_sapa_hpac_add_iono_sat_grid_block(p_hpac, sys, sat, area, &iono_grid)) return rc;
+#endif
 	return 0;
 }//gpp_sapa_hpac_buffer2iono_sat_grid()

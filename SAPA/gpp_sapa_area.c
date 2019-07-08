@@ -8,7 +8,10 @@
 #include "bit2buff.h"
 
 
-
+#define SAPA_RES_AREA_REF_LATITUDE 0.1
+#define SAPA_RES_AREA_REF_LONGITUDE 0.1
+#define SAPA_RES_AREA_GRID_LATITUDE_SPACING  0.1
+#define SAPA_RES_AREA_GRID_LONGITUDE_SPACING 0.1
 
 //------------------------------------------- Declaration of functions to store data in Buffer for Area----------------------------------------
 static GPPLONG gpp_sapa_area_header2buffer(const pGPP_SAPA_AREA p_area, const SAPA_GAD_HANDLE *gadHdl, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
@@ -35,11 +38,10 @@ GPPLONG gpp_sapa_area2buffer(const pGPP_SAPA_AREA p_area, const SAPA_GAD_HANDLE 
 {
 	GPPLONG rc;
 
-	GPPUINT1 ia;
+	GPPUINT1 ia, arealist[258] = { 0, }; //256+2
 
 	GPPLONG byte_pos0, bit_pos0;
 	GPPLONG mybyte = 0, mybit = 0;
-	GPPUINT1 arealist[257] = { 0, };
 	if (!byte_pos) byte_pos = &mybyte;
 	if (!bit_pos) bit_pos = &mybit;
 
@@ -49,8 +51,7 @@ GPPLONG gpp_sapa_area2buffer(const pGPP_SAPA_AREA p_area, const SAPA_GAD_HANDLE 
 	if (!p_area) return GPP_SAPA_ERR_INVALID_AREA;
 	if (!gadHdl) return GPP_SAPA_ERR_INVALID_GAD_HANDLE;
 
-	if (rc = gpp_sapa_area_header2buffer(p_area, gadHdl, buffer, byte_pos, bit_pos)) return rc;
-	gpp_sapa_get_area_bits_value(gadHdl->area_bits, arealist);
+	if (rc = gpp_sapa_area_header2buffer(p_area, gadHdl, &arealist, buffer, byte_pos, bit_pos)) return rc;
 	for (ia = 0; ia < arealist[0]; ia++) {
 		if(rc=gpp_sapa_area_area2buffer(p_area,ia, buffer, byte_pos, bit_pos)) return rc;
 	}
@@ -104,16 +105,19 @@ GPPLONG gpp_sapa_buffer2area(pGPP_SAPA_AREA p_area, const GPPUCHAR *buffer, GPPL
  *	\retval 0 Ok
  *	\retval Error Code
  ******************************************************************************/
-static GPPLONG gpp_sapa_area_header2buffer(const pGPP_SAPA_AREA p_area, const SAPA_GAD_HANDLE *gadHdl, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos)
+static GPPLONG gpp_sapa_area_header2buffer(const pGPP_SAPA_AREA p_area, const SAPA_GAD_HANDLE *gadHdl, GPPUINT1 *arealist, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos)
 {
 	GPP_SAPA_AREA_DEF_HEADER *header = p_area->header_block;
-	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 4, header->message_sub_type);								//SF001
-	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 7, header->sol_id);											//SF006
-	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 4, header->sol_processor_id);								//SF007
-	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 9, header->sol_issue_of_update);						    //SF005
+	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 4, header->message_sub_type);    //SF001
+	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 7, header->sol_id);      //SF006
+	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 4, header->sol_processor_id);    //SF007
+	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 9, header->sol_issue_of_update);   //SF005
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 4, header->area_issue_of_update);
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 1, header->reserved);
-	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 5, header->area_count);										//SF030
+
+	gpp_sapa_get_arealist(gadHdl->area_bits, arealist);
+
+	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 5, arealist[0]);     //SF030
 	return 0;
 }//gpp_sapa_area_header2buffer()
 
@@ -152,16 +156,15 @@ static GPPLONG gpp_sapa_area_area2buffer(const pGPP_SAPA_AREA p_area, GPPUINT1 a
 {
 	GPP_SAPA_AREA_DEF_BLOCK *area_def;
 	if (!(area_def = p_area->area_def_block[area])) return GPP_SAPA_ERR_INVALID_AREA;
-	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 8, area_def->area_id);																//SF031
-	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 11, area_def->larea_ref_lat);							//SF032
-	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 12, area_def->larea_ref_long);						//SF033
-	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 3, p_area->area_def_block[area]->area_lat_grid_node_count);												//SF034
-	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 3, p_area->area_def_block[area]->area_long_grid_node_count);												//SF035
-	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 5,area_def->larea_lat_grid_node_spacing);	//SF036
-	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos,5, area_def->larea_long_grid_node_spacing);//SF037
+	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 8, area_def->area_id);                //SF031
+	gpp_sapa_float2buffer(buffer, byte_pos, bit_pos, SAPA_AREA_LAT_MIN, SAPA_AREA_LAT_MAX, 11, SAPA_RES_AREA_REF_LATITUDE, NULL, area_def->area_ref_lat);       //SF032
+	gpp_sapa_float2buffer(buffer, byte_pos, bit_pos, SAPA_AREA_LONG_MIN, SAPA_AREA_LONG_MAX, 12, SAPA_RES_AREA_REF_LONGITUDE, NULL, area_def->area_ref_long);      //SF033
+	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 3, p_area->area_def_block[area]->area_lat_grid_node_count);            //SF034
+	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 3, p_area->area_def_block[area]->area_long_grid_node_count);            //SF035
+	gpp_sapa_float2buffer(buffer, byte_pos, bit_pos, SAPA_AREA_GRD_LAT_MIN, SAPA_AREA_GRD_LAT_MAX, 5, SAPA_RES_AREA_GRID_LATITUDE_SPACING, NULL, area_def->area_lat_grid_node_spacing); //SF036
+	gpp_sapa_float2buffer(buffer, byte_pos, bit_pos, SAPA_AREA_GRD_LONG_MIN, SAPA_AREA_GRD_LONG_MAX, 5, SAPA_RES_AREA_GRID_LONGITUDE_SPACING, NULL, area_def->area_long_grid_node_spacing);//SF037
 	return 0;
 }
-
 /******************************************************************************
  *	Read area defination block data into buffer
  ******************************************************************************/
@@ -169,13 +172,16 @@ static GPPLONG gpp_sapa_area_buffer2area(const pGPP_SAPA_AREA p_area, GPPUINT1 a
 {
 	GPPLONG rc;
 	GPP_SAPA_AREA_DEF_BLOCK area_def = { 0, };
-	area_def.area_id = gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 8);                    //SF031
-	area_def.area_ref_lat = gpp_sapa_buffer2float(buffer, byte_pos, bit_pos, GPP_SAPA_AREA_REF_LAT_MIN, 11, SAPA_RES_AREA_REF_LATITUDE, NULL);           //SF032
-	area_def.area_ref_long = gpp_sapa_buffer2float(buffer, byte_pos, bit_pos, GPP_SAPA_AREA_REF_LONG_MIN, 12, SAPA_RES_AREA_REF_LONGITUDE, NULL);          //SF033
+
+	area_def.area_id = gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 8);                   //SF031
+	gpp_sapa_buffer2float(buffer, byte_pos, bit_pos, SAPA_AREA_LAT_MIN, 11, SAPA_RES_AREA_REF_LATITUDE, NULL, &area_def.area_ref_lat);           //SF032
+	gpp_sapa_buffer2float(buffer, byte_pos, bit_pos, SAPA_AREA_LONG_MIN, 12, SAPA_RES_AREA_REF_LONGITUDE, NULL, &area_def.area_ref_long);          //SF033
 	area_def.area_lat_grid_node_count = gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 3);                //SF034
-	area_def.area_long_grid_node_count = gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 3);                //SF035
-	area_def.area_lat_grid_node_spacing = gpp_sapa_buffer2float(buffer, byte_pos, bit_pos, GPP_SAPA_AREA_GRID_LAT_SPACING_MIN, 5, SAPA_RES_AREA_GRID_LATITUDE_SPACING, NULL);     //SF036
-	area_def.area_long_grid_node_spacing = gpp_sapa_buffer2float(buffer, byte_pos, bit_pos, GPP_SAPA_AREA_GRID_LONG_SPACING_MIN, 5, SAPA_RES_AREA_GRID_LONGITUDE_SPACING, NULL);        //SF037
+	area_def.area_long_grid_node_count = gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 3);
+	gpp_sapa_buffer2float(buffer, byte_pos, bit_pos, SAPA_AREA_GRD_LAT_MIN, 5, SAPA_RES_AREA_GRID_LATITUDE_SPACING, NULL, &area_def.area_lat_grid_node_spacing);     //SF036
+	gpp_sapa_buffer2float(buffer, byte_pos, bit_pos, SAPA_AREA_GRD_LONG_MIN, 5, SAPA_RES_AREA_GRID_LONGITUDE_SPACING, NULL, &area_def.area_long_grid_node_spacing);        //SF037
+
 	if (rc = gpp_sapa_area_add_area_def(p_area, area, &area_def)) return rc;
+
 	return 0;
 }

@@ -227,9 +227,6 @@ GPPLONG gpp_sapa_ocb_asciifile2buffer()
 										return rc;
 
 									orb.iode = atoi(tokens[7]);
-									orb.orb_radial_correction = atof(tokens[9]);
-									orb.orb_along_track_correction = atof(tokens[10]);
-									orb.orb_cross_track_correction = atof(tokens[11]);
 
 									orb.d_orbit[0] = atof(tokens[9]);
 									orb.d_orbit[1] = atof(tokens[10]);
@@ -754,7 +751,7 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 						header.reserved = 0;
 						header.area_issue_of_update = 0;
 						header.area_count = area_count;
-						hpac_handle.no_of_grids = grid_points;
+						//hpac_handle.no_of_grids = grid_points;
 						gpp_sapa_config_add_hpac_config(psapa_handle, &hpac_handle, fp);
 
 						if (rc = gpp_sapa_hpac_add_header(phpac, &header))
@@ -839,13 +836,13 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 												h_tropo_coeff.tropo_poly_coeff[TROPO_POLY_COEFF_INDX_T10] = atof(tokens[5]);
 												h_tropo_coeff.tropo_poly_coeff[TROPO_POLY_COEFF_INDX_T11] = atof(tokens[6]);
 
-												h_grid_block.tropo_residual_size = 1;								//Placed manually
+												h_grid_block.sz = 1;								//Placed manually
 												tropo_handle.tropo_residual_size = 1;
 
 												int k = 7, res_index = 0;
 												while (k < grid_points + 7)
 												{
-													h_grid_block.tropo_residuals[res_index] = atof(tokens[k]);
+													h_grid_block.grid[res_index]->val = atof(tokens[k]);
 													k++;
 													res_index++;
 												}
@@ -923,13 +920,13 @@ GPPLONG gpp_sapa_hpac_asciifile2buffer()
 															if (rc = gpp_sapa_hpac_add_iono_sat_coeff_block(phpac, sys, sat, ai, &iono_sat_coeff))
 																return rc;
 
-															iono_grid.iono_residual_field_size = 1;								//Placed manually
+															iono_grid.sz = 1;								//Placed manually
 															iono_handle.iono_residual_field_size = 1;
 															res_index = 0;
 															k = 7;
 															while (k < grid_points + 7)
 															{
-																iono_grid.iono_residuals[res_index] = atof(tokens[k]);
+																iono_grid.grid[res_index]->val= atof(tokens[k]);
 																k++;
 																res_index++;
 															}

@@ -21,9 +21,6 @@
     <ClCompile Include="bit2buff.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="gpp_sapa.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="gpp_sapa_ocb.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -37,6 +34,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="sapa_converter.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gpp_sapa.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
