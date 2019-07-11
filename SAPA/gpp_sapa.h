@@ -76,6 +76,10 @@ extern "C" {
   * GPP SAPA MIN MAX Values
   ******************************************/
 
+#define GPP_SAPA_OCB_SAT_YAW_INVALID 0x3F
+#define GPP_SAPA_SAT_YAW_RES 6
+
+
 #define SAPA_SAT_MIN_MAX 16.382
 
 #define SAPA_SAT_MIN -SAPA_SAT_MIN_MAX
@@ -97,8 +101,8 @@ extern "C" {
 #define SAPA_CB_MIN -SAPA_CB_MIN_MAX
 #define SAPA_CB_MAX SAPA_CB_MIN_MAX
 
-#define SAPA_CB_MIN 0
-#define SAPA_CB_MAX 2046
+#define LSAPA_CB_MIN 0
+#define LSAPA_CB_MAX 2046
 
 #define SAPA_YAW_MIN 0
 #define SAPA_YAW_MAX 354
@@ -264,14 +268,31 @@ extern "C" {
 #define SAPA_AREA_LAT_MIN -SAPA_AREA_LAT_MIN_MAX
 #define SAPA_AREA_LAT_MAX SAPA_AREA_LAT_MIN_MAX
 
+#define LSAPA_AREA_LAT_MIN_MAX 90
+#define LSAPA_AREA_LONG_MIN_MAX 180
+
+#define LSAPA_AREA_LAT_MIN -LSAPA_AREA_LAT_MIN_MAX
+#define LSAPA_AREA_LAT_MAX LSAPA_AREA_LAT_MIN_MAX
+
 #define SAPA_AREA_LONG_MIN -SAPA_AREA_LONG_MIN_MAX
 #define SAPA_AREA_LONG_MAX SAPA_AREA_LONG_MIN_MAX
+
+#define LSAPA_AREA_LONG_MIN -LSAPA_AREA_LONG_MIN_MAX
+#define LSAPA_AREA_LONG_MAX LSAPA_AREA_LONG_MIN_MAX
 
 #define SAPA_AREA_GRD_LAT_MIN 0.1
 #define SAPA_AREA_GRD_LAT_MAX 3.2
 
+
 #define SAPA_AREA_GRD_LONG_MIN SAPA_AREA_GRD_LAT_MIN
 #define SAPA_AREA_GRD_LONG_MAX SAPA_AREA_GRD_LAT_MAX
+
+#define LSAPA_AREA_GRD_LAT_MIN 0
+#define LSAPA_AREA_GRD_LAT_MAX 31
+
+#define LSAPA_AREA_GRD_LONG_MIN LSAPA_AREA_GRD_LAT_MIN
+#define LSAPA_AREA_GRD_LONG_MAX LSAPA_AREA_GRD_LAT_MAX
+
 
 
 
@@ -294,13 +315,17 @@ extern "C" {
 #define SAPA_RES_PB_CORRECTION  0.002
 #define SAPA_RES_CB_CORRECTION  0.02
 
-#define SAPA_RES_AREA_AVG_VER_HEDRO_DELAY 0.004
-#define SAPA_RES_TROPO_RESIDUAL_DELAY 0.004
-#define SAPA_RES_IONO_RESIDUAL_DELAY 0.04
+#define SAPA_RES_AREA_REF_LATITUDE 0.1
+#define SAPA_RES_AREA_REF_LONGITUDE 0.1
+#define SAPA_RES_AREA_GRID_LATITUDE_SPACING  0.1
+#define SAPA_RES_AREA_GRID_LONGITUDE_SPACING 0.1
+
+
+#define SAPA_AVHD_RES 0.004
 
 
 #define SAPA_TROPO_GRD_RES 0.004
-
+#define SAPA_IONO_GRD_RES 0.04
 
 #define SAPA_RES_TROPO_POLY_COEFF_T00 0.004
 #define SAPA_RES_TROPO_POLY_COEFF_T01 0.001
@@ -317,10 +342,6 @@ extern "C" {
 #define SAPA_C10_RES 0.008
 #define SAPA_C11_RES 0.002
 
-#define TROPO_POLY_COEFF_INDX_T00 0
-#define TROPO_POLY_COEFF_INDX_T01 1
-#define TROPO_POLY_COEFF_INDX_T10 2
-#define TROPO_POLY_COEFF_INDX_T11 3
 
 #define SAPA_T00_IDX 0
 #define SAPA_T01_IDX 1
@@ -328,10 +349,10 @@ extern "C" {
 #define SAPA_T11_IDX 3
 
 
-#define IONO_POLY_COEFF_INDX_C00 0
-#define IONO_POLY_COEFF_INDX_C01 1
-#define IONO_POLY_COEFF_INDX_C10 2
-#define IONO_POLY_COEFF_INDX_C11 3
+#define SAPA_C00_IDX 0
+#define SAPA_C01_IDX 1
+#define SAPA_C10_IDX 2
+#define SAPA_C11_IDX 3
 
 #define SAPA_SMALL_TROPO_RESIDUAL_ZENITH_DELAY 6
 #define SAPA_LARGE_TROPO_RESIDUAL_ZENITH_DELAY 8
@@ -359,8 +380,8 @@ extern "C" {
 #define GPP_SAPA_MAX_AREA_BITS 4
 
 
-extern const GPPDOUBLE SAPT_TROPO_GRD_MIN[2];
-extern const GPPDOUBLE SAPT_TROPO_GRD_MAX[2];
+extern const GPPDOUBLE SAPA_TROPO_GRD_MIN[2];
+extern const GPPDOUBLE SAPA_TROPO_GRD_MAX[2];
 extern const GPPDOUBLE SAPA_IONO_RESIDUAL_SLANT_MIN[4];
 extern const GPPDOUBLE SAPA_IONO_RESIDUAL_SLANT_MAX[4];
 
@@ -385,12 +406,31 @@ const GPPDOUBLE SAPA_IONO_POLY_MIN_SML[SAPA_MAX_IONO_COEFF];
 const GPPDOUBLE SAPA_IONO_POLY_MAX_SML[SAPA_MAX_IONO_COEFF];
 const GPPDOUBLE SAPA_IONO_POLY_MIN_LRG[SAPA_MAX_IONO_COEFF];
 const GPPDOUBLE SAPA_IONO_POLY_MAX_LRG[SAPA_MAX_IONO_COEFF];
-const GPPDOUBLE* SAPA_IONO_POLY_MIN[2];
-const GPPDOUBLE* SAPA_IONO_POLY_MAX[2];
+const GPPDOUBLE*SAPA_IONO_POLY_MIN[2];
+const GPPDOUBLE *SAPA_IONO_POLY_MAX[2];
 const GPPDOUBLE SAPA_IONO_POLY_RES[SAPA_MAX_TROPO_COEFF];
 const GPPDOUBLE SAPA_IONO_GRD_MIN[4];
 const GPPDOUBLE SAPA_IONO_GRD_MAX[4];
 
+const GPPLONG LSAPA_TROPO_POLY_MIN_SML[SAPA_MAX_TROPO_COEFF];
+const GPPLONG LSAPA_TROPO_POLY_MAX_SML[SAPA_MAX_TROPO_COEFF];
+const GPPLONG LSAPA_TROPO_POLY_MIN_LRG[SAPA_MAX_TROPO_COEFF];
+const GPPLONG LSAPA_TROPO_POLY_MAX_LRG[SAPA_MAX_TROPO_COEFF];
+const GPPLONG* LSAPA_TROPO_POLY_MIN[2];
+const GPPLONG* LSAPA_TROPO_POLY_MAX[2];
+const GPPLONG LSAPA_TROPO_POLY_RES[SAPA_MAX_TROPO_COEFF];
+const GPPLONG LSAPA_TROPO_GRD_MIN[2];
+const GPPLONG LSAPA_TROPO_GRD_MAX[2];
+
+const GPPLONG LSAPA_IONO_POLY_MIN_SML[SAPA_MAX_IONO_COEFF];
+const GPPLONG LSAPA_IONO_POLY_MAX_SML[SAPA_MAX_IONO_COEFF];
+const GPPLONG LSAPA_IONO_POLY_MIN_LRG[SAPA_MAX_IONO_COEFF];
+const GPPLONG LSAPA_IONO_POLY_MAX_LRG[SAPA_MAX_IONO_COEFF];
+const GPPLONG*LSAPA_IONO_POLY_MIN[2];
+const GPPLONG *LSAPA_IONO_POLY_MAX[2];
+const GPPLONG LSAPA_IONO_POLY_RES[SAPA_MAX_TROPO_COEFF];
+const GPPLONG LSAPA_IONO_GRD_MIN[4];
+const GPPLONG LSAPA_IONO_GRD_MAX[4];
 
 /******************************************
 * GPP SAPA ERROR Codes
@@ -424,7 +464,7 @@ const GPPDOUBLE SAPA_IONO_GRD_MAX[4];
 #define GPP_SAPA_ERR_INVALID_HPAC   (GPP_SAPA_ERROR_BASE-25) /* -54025 */
 #define GPP_SAPA_ERR_INVALID_GRD_IDX  (GPP_SAPA_ERROR_BASE-26) /* -54026 */
 
-
+#define GPP_SAPA_ERR_INVALID_HANDLE  (GPP_SAPA_ERROR_BASE-27) /* -54027 */
 
 #define GPP_SAPA_ERR_PREAMBLE    (GPP_SAPA_ERROR_BASE-100) /* -54100 */
 #define GPP_SAPA_ERR_TYPE     (GPP_SAPA_ERROR_BASE-101) /* -54101 */
@@ -657,14 +697,14 @@ typedef struct GPP_SAPA_AREA_DEF_BLOCK
 	GPPUINT4		area_id;																//SF031		   -- <ascii_in>.atm's ATM_AREA_DEF[1]
 	GPPDOUBLE       area_ref_lat;															//SF032		   -- <ascii_in>.atm's ATM_AREA_DEF[2]
 	GPPDOUBLE       area_ref_long;															//SF033		   -- <ascii_in>.atm's ATM_AREA_DEF[3]
-	GPPULONG        larea_ref_lat;															//SF032		   -- <ascii_in>.atm's ATM_AREA_DEF[2]
-	GPPULONG        larea_ref_long;															//SF033		   -- <ascii_in>.atm's ATM_AREA_DEF[3]
+	GPPLONG        larea_ref_lat;															//SF032		   -- <ascii_in>.atm's ATM_AREA_DEF[2]
+	GPPLONG        larea_ref_long;															//SF033		   -- <ascii_in>.atm's ATM_AREA_DEF[3]
 	GPPUINT1        area_lat_grid_node_count;												//SF034		   -- <ascii_in>.atm's ATM_AREA_DEF[4]
 	GPPUINT1		area_long_grid_node_count;												//SF035		   -- <ascii_in>.atm's ATM_AREA_DEF[5]
 	GPPDOUBLE		area_lat_grid_node_spacing;												//SF036		   -- <ascii_in>.atm's ATM_AREA_DEF[6]
 	GPPDOUBLE       area_long_grid_node_spacing;											//SF037		   -- <ascii_in>.atm's ATM_AREA_DEF[7]
-	GPPULONG		larea_lat_grid_node_spacing;											//SF036		   -- <ascii_in>.atm's ATM_AREA_DEF[6]
-	GPPULONG        larea_long_grid_node_spacing;											//SF037		   -- <ascii_in>.atm's ATM_AREA_DEF[7]
+	GPPLONG		larea_lat_grid_node_spacing;											//SF036		   -- <ascii_in>.atm's ATM_AREA_DEF[6]
+	GPPLONG        larea_long_grid_node_spacing;											//SF037		   -- <ascii_in>.atm's ATM_AREA_DEF[7]
 
 	GPPUINT1		num_grid_points;//SF034 x SF035
 }GPP_SAPA_AREA_DEF_BLOCK,*pGPP_SAPA_AREA_DEF_BLOCK;
@@ -699,7 +739,6 @@ typedef struct SAPA_OCB_HANDLE {
 } SAPA_OCB_HANDLE, *pSAPA_OCB_HANDLE;
 
 typedef struct SAPA_HPAC_HANDLE_IONO {
-	GPPUINT2 sys_bits;																				//SF001
 	GPPUINT1  iono_coeff_size;																	//SF056
 	GPPUINT1  iono_residual_field_size;															//SF063
 } SAPA_HPAC_HANDLE_IONO, *pSAPA_HPAC_HANDLE_IONO;
@@ -710,15 +749,12 @@ typedef struct SAPA_HPAC_HANDLE_TROPO {
 } SAPA_HPAC_HANDLE_TROPO, *pSAPA_HPAC_HANDLE_TROPO;
 
 typedef struct SAPA_HPAC_HANDLE {
+	GPPUINT2 sys;																				//SF001
 	GPPUINT1  time_tag_type;
 	GPPUINT8  prn_bits[SAPA_MAX_SYS];
 	GPPUINT8  area_bits[GPP_SAPA_AREA_BITS64];													//indicating which area is part of the message
-	GPPUINT1  blk_indicator;																	 //SF040; it controls which data shall be transmitted
-
-	pSAPA_HPAC_HANDLE_IONO  *hpacIonoHdl;
-	GPPUINT8   hpacIonoHdl_bits[GPP_SAPA_MAX_AREA_COUNT];
-	pSAPA_HPAC_HANDLE_TROPO *hpacTropoHdl;
-	GPPUINT8   hpacTropoHdl_bits[GPP_SAPA_MAX_AREA_COUNT];
+	GPPUINT1  tropo_blk_indicator;													//SF040; it controls which data shall be transmitted
+	GPPUINT1  iono_blk_indicator;
 } SAPA_HPAC_HANDLE, *pSAPA_HPAC_HANDLE;
 
 typedef struct SAPA_GAD_HANDLE {
@@ -728,30 +764,29 @@ typedef struct SAPA_GAD_HANDLE {
 typedef struct SAPA_HANDLE {
 	pSAPA_OCB_HANDLE  **ocbHdl;																	//one pointer for each GNSS
 	GPPUINT8   ocbHdl_bits[GPP_SAPA_MAX_SYS];
-	pSAPA_HPAC_HANDLE  *hpacTropoHdl;  //hpacTropoHdl[iconf]->
+	pSAPA_HPAC_HANDLE_TROPO  *hpacTropoHdl;  //hpacTropoHdl[iconf]->
 	GPPUINT8    hpacTropoHdl_bits;
 
-	pSAPA_HPAC_HANDLE  **hpacIonoHdl; //hpacIonoHdl[sys][iconf]->
+	pSAPA_HPAC_HANDLE_IONO  **hpacIonoHdl; //hpacIonoHdl[sys][iconf]->
 	GPPUINT8    hpacIonoHdl_bits[SAPA_MAX_SYS];
 
 	pSAPA_GAD_HANDLE  *gadHdl;  //gadHdl[iconf]->
 	GPPUINT8   gadHdl_bits;
 
-	pSAPA_HPAC_HANDLE  *hpacHdl;
+	pSAPA_HPAC_HANDLE  hpacHdl;
 } SAPA_HANDLE, *pSAPA_HANDLE;
 
 GPPLONG gpp_sapa_handle_free_ocbHdl(SAPA_HANDLE *sapaHdl);
 GPPLONG gpp_sapa_handle_malloc_ocbHdl(SAPA_HANDLE *sapaHdl);
 
-GPPLONG gpp_sapa_config_add_ocb_config(SAPA_HANDLE *sapaHdl, GPPUINT1 sys, GPPUINT1 sat, GPPUINT1 config, const SAPA_OCB_HANDLE *pset, FILE *fp);
-GPPLONG gpp_sapa_config_add_hpac_config(SAPA_HANDLE *sapaHdl, const SAPA_HPAC_HANDLE *pset, FILE *fp);
-GPPLONG gpp_sapa_config_add_hpac_iono_config(SAPA_HANDLE *sapaHdl, GPPUINT1 area, const SAPA_HPAC_HANDLE_IONO *pset, FILE *fp);
-GPPLONG gpp_sapa_config_add_hpac_tropo_config(SAPA_HANDLE *sapaHdl, GPPUINT1 area, const SAPA_HPAC_HANDLE_TROPO *pset, FILE *fp);
+GPPLONG gpp_sapa_config_add_ocb_config(SAPA_HANDLE *sapaHdl, GPPUINT1 sys, const SAPA_OCB_HANDLE *pset, FILE *fp);
 GPPLONG gpp_sapa_config_add_gad_config(SAPA_HANDLE *sapaHdl, const SAPA_GAD_HANDLE *pset, FILE *fp);
 GPPLONG gpp_sapa_handle_free_handle(SAPA_HANDLE **ppSapaHdl);
 GPPLONG gpp_sapa_handle_malloc_handle(SAPA_HANDLE **ppSapaHdl);
-GPPLONG gpp_sapa_handle_free_hpacHdl(SAPA_HANDLE *sapaHdl);
 GPPLONG gpp_sapa_handle_free_gadHdl(SAPA_HANDLE *sapaHdl);
+GPPLONG gpp_sapa_hpac_add_config_hpacHdl(pSAPA_HANDLE sapaHdl, const pSAPA_HPAC_HANDLE pset, FILE *fp);
+GPPLONG gpp_sapa_hpac_add_ionoHdl(pSAPA_HANDLE sapaHdl, GPPUINT1 sys, const pSAPA_HPAC_HANDLE_IONO pset, FILE *fp);
+GPPLONG gpp_sapa_hpac_add_config_tropoHdl(pSAPA_HANDLE sapaHdl, const SAPA_HPAC_HANDLE_TROPO *pset, FILE *fp);
 
 /******************************************************************************
  *  \brief Write SAPA OCB content to buffer
@@ -780,7 +815,7 @@ GPPLONG gpp_sapa_buffer2ocb(pGPP_SAPA_OCB ocb, const GPPUCHAR *buffer, GPPLONG *
  *  \retval  needed bits (>0) or error code (<0)
 
  *****************************************************************************/
-GPPLONG gpp_sapa_hpac2buffer(const pGPP_SAPA_HPAC hpac, const SAPA_HPAC_HANDLE *hpacHdl, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
+GPPLONG gpp_sapa_hpac2buffer(const pGPP_SAPA_HPAC hpac, const SAPA_HANDLE *sapaHdl, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
 GPPLONG gpp_sapa_buffer2hpac(pGPP_SAPA_HPAC hpac, const GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
 
 /******************************************************************************
@@ -824,7 +859,7 @@ GPPLONG gpp_sapa_ocb_add_clk(pGPP_SAPA_OCB ocb, GPPUINT1 sys, GPPUINT1 sat, cons
 GPPLONG gpp_sapa_ocb_add_pb(pGPP_SAPA_OCB ocb, GPPUINT1 sys, GPPUINT1 sat, GPPUINT1 sig, const pGPP_SAPA_OCB_SV_BIAS_PB pset);
 GPPLONG gpp_sapa_ocb_add_header(pGPP_SAPA_OCB ocb, GPPUINT1 sys, const pGPP_SAPA_OCB_HEADER pset);
 GPPLONG gpp_sapa_ocb_add_cb(pGPP_SAPA_OCB ocb, GPPUINT1 sys, GPPUINT1 sat, GPPUINT1 sig, const pGPP_SAPA_OCB_SV_BIAS_CB pset);
-
+GPPLONG gpp_sapa_hpac_add_grd_tropo_correction(pGPP_SAPA_USE_STATES states, GPPUINT1 iarea, GPPUINT1 igrd, GPP_SAPA_HPAC_TROPO_GRD_CORRECTION *pset);
 /********************************************************************************************************************************************
  * Declaration Of Add Data To Structure For HPAC
  *********************************************************************************************************************************************/
@@ -839,7 +874,7 @@ GPPLONG gpp_sapa_hpac_add_iono_sat_block(pGPP_SAPA_HPAC hpac, GPPUINT1 sys, GPPU
 GPPLONG gpp_sapa_hpac_add_iono_sat_poly_block(pGPP_SAPA_HPAC hpac, GPPUINT1 sys, GPPUINT1 sat, GPPUINT1 area, const pGPP_SAPA_HPAC_IONO_SAT_POLY pset);
 GPPLONG gpp_sapa_hpac_add_iono_sat_coeff_block(pGPP_SAPA_HPAC hpac, GPPUINT1 sys, GPPUINT1 sat, GPPUINT1 area, const pGPP_SAPA_HPAC_IONO_SAT_COEFFICIENT pset);
 GPPLONG gpp_sapa_hpac_add_iono_sat_grid_block(pGPP_SAPA_HPAC hpac, GPPUINT1 sys, GPPUINT1 sat, GPPUINT1 area, const pGPP_SAPA_HPAC_IONO_GRID_BLOCK pset);
-
+GPPLONG gpp_sapa_hpac_add_grd_iono_correction(pGPP_SAPA_USE_STATES states, GPPUINT1 iarea, GPPUINT1 igrd, GPPUINT1 sat, GPPUINT1 sys, GPP_SAPA_HPAC_IONO_GRD_CORRECTION *pset);
 /********************************************************************************************************************************************
  * Declaration Of Add Data To Structure For Area
  *********************************************************************************************************************************************/
@@ -946,7 +981,7 @@ void gpp_sapa_get_configlist(GPPUINT8 config_bits, GPPUINT1 *configlist);
 /*************************************************************************************************
   * Declaration Of Float To Buffer Add Buffer To Float
  ************************************************************************************************/
-extern void gpp_sapa_float2buffer(GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos, GPPDOUBLE min, GPPDOUBLE max, GPPUINT1 bits, GPPDOUBLE res, GPPUINT2 *invalid, GPPDOUBLE value);
+//extern void gpp_sapa_float2buffer(GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos, GPPDOUBLE min, GPPDOUBLE max, GPPUINT1 bits, GPPDOUBLE res, GPPUINT2 *invalid, GPPDOUBLE value);
 GPPUINT1 gpp_sapa_buffer2float(const GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos, GPPDOUBLE min, GPPUINT1 bits, GPPDOUBLE res, const GPPUINT2 *invalid, GPPDOUBLE *value);
 
 /*************************************************************************************************
@@ -978,7 +1013,10 @@ void gpp_sapa_get_area_bits_value(GPPUINT8*area_bits, GPPUINT8*arr);
  *	\brief Double To Long Conversion
  ************************************************************************************************************/
 GPPULONG double2long(GPPDOUBLE val, GPPDOUBLE Res, GPPDOUBLE Rmin);
-GPPLONG float2long(GPPDOUBLE val, GPPDOUBLE Res, GPPDOUBLE Rmin, GPPLONG Lmax, GPPLONG Lmin, GPPUINT2 *invalid);
+//GPPLONG float2long(GPPDOUBLE val, GPPDOUBLE Res, GPPDOUBLE Rmin, GPPLONG Lmax, GPPLONG Lmin, GPPUINT2 *invalid);
+GPPUINT1 float2long(GPPDOUBLE val, GPPLONG *lval, GPPDOUBLE Res, GPPDOUBLE Rmin, GPPLONG Lmax, GPPLONG Lmin, const GPPUINT2 *invalid);
+
+void gpp_sapa_get_arealist(const GPPUINT8 *area_bits, GPPUINT1 *arealist);
 
 #ifdef __WATCOMC__
 #pragma on (unreferenced)

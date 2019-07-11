@@ -8,19 +8,14 @@
 #include "bit2buff.h"
 
 
-#define SAPA_RES_AREA_REF_LATITUDE 0.1
-#define SAPA_RES_AREA_REF_LONGITUDE 0.1
-#define SAPA_RES_AREA_GRID_LATITUDE_SPACING  0.1
-#define SAPA_RES_AREA_GRID_LONGITUDE_SPACING 0.1
 
 //------------------------------------------- Declaration of functions to store data in Buffer for Area----------------------------------------
-static GPPLONG gpp_sapa_area_header2buffer(const pGPP_SAPA_AREA p_area, const SAPA_GAD_HANDLE *gadHdl, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
+static GPPLONG gpp_sapa_area_header2buffer(const pGPP_SAPA_AREA p_area, const SAPA_GAD_HANDLE *gadHdl, GPPUINT1 *arealist,GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
 static GPPLONG gpp_sapa_area_area2buffer(const pGPP_SAPA_AREA p_area, GPPUINT1 area, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
 
 //-----------------------------------------Declaration of functions to read data from buffer for Area-----------------------------------------
-static GPPLONG gpp_sapa_area_buffer2header(pGPP_SAPA_AREA p_area, GPPUINT1 *no_of_areas, const GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
-static GPPLONG gpp_sapa_area_buffer2area(pGPP_SAPA_AREA p_area, GPPUINT1 area, const GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
-
+static GPPLONG gpp_sapa_area_buffer2header(pGPP_SAPA_AREA p_area, GPPUINT1 *arealist, const GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
+static GPPLONG gpp_sapa_area_buffer2area(const pGPP_SAPA_AREA p_area, const GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
 
 /**************************************************************************
  *	\brief Write SAPA Area Dedination message to buffer
@@ -52,8 +47,11 @@ GPPLONG gpp_sapa_area2buffer(const pGPP_SAPA_AREA p_area, const SAPA_GAD_HANDLE 
 	if (!gadHdl) return GPP_SAPA_ERR_INVALID_GAD_HANDLE;
 
 	if (rc = gpp_sapa_area_header2buffer(p_area, gadHdl, &arealist, buffer, byte_pos, bit_pos)) return rc;
-	for (ia = 0; ia < arealist[0]; ia++) {
-		if(rc=gpp_sapa_area_area2buffer(p_area,ia, buffer, byte_pos, bit_pos)) return rc;
+	for (ia = 1; ia <= arealist[0]; ia++) {
+		GPPUINT1 area;
+		area = arealist[ia];
+		//printf("\n area=%d",arealist[0]);
+		if(rc=gpp_sapa_area_area2buffer(p_area, area, buffer, byte_pos, bit_pos)) return rc;
 	}
 
 	return  gpp_sapa_get_bit_diff(*byte_pos, *bit_pos, byte_pos0, bit_pos0);
@@ -74,9 +72,10 @@ GPPLONG gpp_sapa_area2buffer(const pGPP_SAPA_AREA p_area, const SAPA_GAD_HANDLE 
 GPPLONG gpp_sapa_buffer2area(pGPP_SAPA_AREA p_area, const GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos)
 {
 	GPPLONG rc;
-	GPPUINT1 ia, no_of_areas;
+	GPPUINT1 ia, arealist[258] = { 0, }; //256+2
 	GPPLONG byte_pos0, bit_pos0;
 	GPPLONG mybyte = 0, mybit = 0;
+	GPPUINT1 area_count;
 
 	if (!byte_pos) byte_pos = &mybyte;
 	if (!bit_pos) bit_pos = &mybit;
@@ -84,10 +83,10 @@ GPPLONG gpp_sapa_buffer2area(pGPP_SAPA_AREA p_area, const GPPUCHAR *buffer, GPPL
 	byte_pos0 = *byte_pos;
 	bit_pos0 = *bit_pos;
 
-	if (rc = gpp_sapa_area_buffer2header(p_area, &no_of_areas, buffer, byte_pos, bit_pos)) return rc;
+	if (rc = gpp_sapa_area_buffer2header(p_area, &area_count, buffer, byte_pos, bit_pos)) return rc;
 
-	for (ia = 0; ia < no_of_areas; ia++) {
-			if (rc = gpp_sapa_area_buffer2area(p_area,ia, buffer, byte_pos, bit_pos)) return rc;
+	for (ia = 1; ia <= area_count; ia++) {
+			if (rc = gpp_sapa_area_buffer2area(p_area, buffer, byte_pos, bit_pos)) return rc;
 	}
 
 	return  gpp_sapa_get_bit_diff(*byte_pos, *bit_pos, byte_pos0, bit_pos0);
@@ -108,6 +107,12 @@ GPPLONG gpp_sapa_buffer2area(pGPP_SAPA_AREA p_area, const GPPUCHAR *buffer, GPPL
 static GPPLONG gpp_sapa_area_header2buffer(const pGPP_SAPA_AREA p_area, const SAPA_GAD_HANDLE *gadHdl, GPPUINT1 *arealist, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos)
 {
 	GPP_SAPA_AREA_DEF_HEADER *header = p_area->header_block;
+	printf("\nmessage sub type=%d", header->message_sub_type);
+	printf("\nsol_id=%d", header->sol_id);
+	printf("\nsol_processor_id=%d", header->sol_processor_id);
+	printf("\nsol_issue_of_update=%d", header->sol_issue_of_update);
+	printf("\narea_issue_of_update=%d", header->area_issue_of_update);
+	printf("\nreserved=%d", header->reserved);
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 4, header->message_sub_type);    //SF001
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 7, header->sol_id);      //SF006
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 4, header->sol_processor_id);    //SF007
@@ -133,7 +138,7 @@ static GPPLONG gpp_sapa_area_header2buffer(const pGPP_SAPA_AREA p_area, const SA
  *	\retval 0 Ok
  *	\retval Error Code
  ******************************************************************************/
-static GPPLONG gpp_sapa_area_buffer2header(pGPP_SAPA_AREA p_area, GPPUINT1 *no_of_areas, const GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos)
+static GPPLONG gpp_sapa_area_buffer2header(pGPP_SAPA_AREA p_area, GPPUINT1 *area_count, const GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos)
 {
 	GPPLONG rc;
 	GPP_SAPA_AREA_DEF_HEADER header = { 0, };
@@ -144,7 +149,14 @@ static GPPLONG gpp_sapa_area_buffer2header(pGPP_SAPA_AREA p_area, GPPUINT1 *no_o
 	header.area_issue_of_update = gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 4);											//SF068
 	header.reserved = gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 1);														//SF069
 	header.area_count=gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 5);														//SF030
-	*no_of_areas = header.area_count;
+	*area_count = header.area_count;
+	printf("\n--------message sub type=%d", header.message_sub_type);
+	printf("\n--------sol_id=%d", header.sol_id);
+	printf("\n--------sol_processor_id=%d", header.sol_processor_id);
+	printf("\n---------sol_issue_of_update=%d", header.sol_issue_of_update);
+	printf("\n---------area_issue_of_update=%d", header.area_issue_of_update);
+	printf("\n----------reserved=%d", header.reserved);
+
 	if (rc = gpp_sapa_area_add_header(p_area, &header)) return rc;
 	return 0;
 }//gpp_sapa_area_buffer2header
@@ -156,31 +168,48 @@ static GPPLONG gpp_sapa_area_area2buffer(const pGPP_SAPA_AREA p_area, GPPUINT1 a
 {
 	GPP_SAPA_AREA_DEF_BLOCK *area_def;
 	if (!(area_def = p_area->area_def_block[area])) return GPP_SAPA_ERR_INVALID_AREA;
+	printf("\narea_id=%d", area_def->area_id);
+	printf("\nlarea_ref_lat=%d", area_def->larea_ref_lat);
+	printf("\nlarea_ref_long=%d", area_def->larea_ref_long);
+	printf("\narea_lat_grid_node_count=%d", area_def->area_lat_grid_node_count);
+	printf("\narea_long_grid_node_count=%d", area_def->area_long_grid_node_count);
+	printf("\nlarea_lat_grid_node_spacing=%d", area_def->larea_lat_grid_node_spacing);
+	printf("\nlarea_long_grid_node_spacing=%d", area_def->larea_long_grid_node_spacing);
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 8, area_def->area_id);                //SF031
-	gpp_sapa_float2buffer(buffer, byte_pos, bit_pos, SAPA_AREA_LAT_MIN, SAPA_AREA_LAT_MAX, 11, SAPA_RES_AREA_REF_LATITUDE, NULL, area_def->area_ref_lat);       //SF032
-	gpp_sapa_float2buffer(buffer, byte_pos, bit_pos, SAPA_AREA_LONG_MIN, SAPA_AREA_LONG_MAX, 12, SAPA_RES_AREA_REF_LONGITUDE, NULL, area_def->area_ref_long);      //SF033
-	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 3, p_area->area_def_block[area]->area_lat_grid_node_count);            //SF034
-	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 3, p_area->area_def_block[area]->area_long_grid_node_count);            //SF035
-	gpp_sapa_float2buffer(buffer, byte_pos, bit_pos, SAPA_AREA_GRD_LAT_MIN, SAPA_AREA_GRD_LAT_MAX, 5, SAPA_RES_AREA_GRID_LATITUDE_SPACING, NULL, area_def->area_lat_grid_node_spacing); //SF036
-	gpp_sapa_float2buffer(buffer, byte_pos, bit_pos, SAPA_AREA_GRD_LONG_MIN, SAPA_AREA_GRD_LONG_MAX, 5, SAPA_RES_AREA_GRID_LONGITUDE_SPACING, NULL, area_def->area_long_grid_node_spacing);//SF037
+	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 11, area_def->larea_ref_lat);                //SF032
+	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 12, area_def->larea_ref_long);                //SF033
+	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 3, area_def->area_lat_grid_node_count);            //SF034
+	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 3, area_def->area_long_grid_node_count);            //SF035
+	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 5, area_def->larea_lat_grid_node_spacing);                //SF036
+	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 5, area_def->larea_long_grid_node_spacing);                //SF037
+
+	
 	return 0;
 }
 /******************************************************************************
  *	Read area defination block data into buffer
  ******************************************************************************/
-static GPPLONG gpp_sapa_area_buffer2area(const pGPP_SAPA_AREA p_area, GPPUINT1 area, const GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos)
+static GPPLONG gpp_sapa_area_buffer2area(const pGPP_SAPA_AREA p_area, const GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos)
 {
 	GPPLONG rc;
 	GPP_SAPA_AREA_DEF_BLOCK area_def = { 0, };
+	GPPUINT1 area;
 
 	area_def.area_id = gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 8);                   //SF031
+	area = area_def.area_id;
 	gpp_sapa_buffer2float(buffer, byte_pos, bit_pos, SAPA_AREA_LAT_MIN, 11, SAPA_RES_AREA_REF_LATITUDE, NULL, &area_def.area_ref_lat);           //SF032
 	gpp_sapa_buffer2float(buffer, byte_pos, bit_pos, SAPA_AREA_LONG_MIN, 12, SAPA_RES_AREA_REF_LONGITUDE, NULL, &area_def.area_ref_long);          //SF033
 	area_def.area_lat_grid_node_count = gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 3);                //SF034
 	area_def.area_long_grid_node_count = gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 3);
 	gpp_sapa_buffer2float(buffer, byte_pos, bit_pos, SAPA_AREA_GRD_LAT_MIN, 5, SAPA_RES_AREA_GRID_LATITUDE_SPACING, NULL, &area_def.area_lat_grid_node_spacing);     //SF036
 	gpp_sapa_buffer2float(buffer, byte_pos, bit_pos, SAPA_AREA_GRD_LONG_MIN, 5, SAPA_RES_AREA_GRID_LONGITUDE_SPACING, NULL, &area_def.area_long_grid_node_spacing);        //SF037
-
+	printf("\n-----------area_id=%d", area_def.area_id);
+	printf("\n---------area_ref_lat=%f", area_def.area_ref_lat);
+	printf("\n---------area_ref_long=%f", area_def.area_ref_long);
+	printf("\n----------area_lat_grid_node_count=%d", area_def.area_lat_grid_node_count);
+	printf("\n-----------area_long_grid_node_count=%d", area_def.area_long_grid_node_count);
+	printf("\n-------------area_lat_grid_node_spacing=%f", area_def.area_lat_grid_node_spacing);
+	printf("\n------------area_long_grid_node_spacing=%f", area_def.area_long_grid_node_spacing);
 	if (rc = gpp_sapa_area_add_area_def(p_area, area, &area_def)) return rc;
 
 	return 0;

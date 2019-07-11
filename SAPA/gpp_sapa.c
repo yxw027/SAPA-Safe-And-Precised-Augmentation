@@ -28,12 +28,51 @@ const GPPDOUBLE SAPA_TROPO_POLY_RES[SAPA_MAX_TROPO_COEFF]={SAPA_T00_RES, SAPA_T0
 
 
 
-const GPPDOUBLE SAPA_TROPO_GRD_MIN[2]={SAPA_TROPO_GRD_MIN_SML, SAPA_TROPO_GRD_MIN_LRG};
-const GPPDOUBLE SAPA_TROPO_GRD_MAX[2]={SAPA_TROPO_GRD_MAX_SML, SAPA_TROPO_GRD_MAX_LRG};
+const GPPLONG LSAPA_TROPO_GRD_MIN[2]={LSAPA_TROPO_GRD_MIN_SML, LSAPA_TROPO_GRD_MIN_LRG};
+const GPPLONG LSAPA_TROPO_GRD_MAX[2]={LSAPA_TROPO_GRD_MAX_SML, LSAPA_TROPO_GRD_MAX_LRG};
+
+const GPPLONG LSAPA_TROPO_POLY_MIN_SML[SAPA_MAX_TROPO_COEFF] = { LSAPA_T00_MIN_SML, LSAPA_T01_MIN_SML, LSAPA_T10_MIN_SML, LSAPA_T11_MIN_SML };
+const GPPLONG LSAPA_TROPO_POLY_MAX_SML[SAPA_MAX_TROPO_COEFF] = { LSAPA_T00_MAX_SML, LSAPA_T01_MAX_SML, LSAPA_T10_MAX_SML, LSAPA_T11_MAX_SML };
+
+const GPPLONG LSAPA_TROPO_POLY_MIN_LRG[SAPA_MAX_TROPO_COEFF] = { LSAPA_T00_MIN_LRG, LSAPA_T01_MIN_LRG, LSAPA_T10_MIN_LRG, LSAPA_T11_MIN_LRG };
+const GPPLONG LSAPA_TROPO_POLY_MAX_LRG[SAPA_MAX_TROPO_COEFF] = { LSAPA_T00_MAX_LRG, LSAPA_T01_MAX_LRG, LSAPA_T10_MAX_LRG, LSAPA_T11_MAX_LRG };
+
+const GPPLONG* LSAPA_TROPO_POLY_MIN[2] = { LSAPA_TROPO_POLY_MIN_SML, LSAPA_TROPO_POLY_MIN_LRG };
+const GPPLONG* LSAPA_TROPO_POLY_MAX[2] = { LSAPA_TROPO_POLY_MAX_SML, LSAPA_TROPO_POLY_MAX_LRG };
 
 
 
 
+const GPPDOUBLE SAPA_TROPO_GRD_MIN[2] = { SAPA_TROPO_GRD_MIN_SML, SAPA_TROPO_GRD_MIN_LRG };
+const GPPDOUBLE SAPA_TROPO_GRD_MAX[2] = { SAPA_TROPO_GRD_MAX_SML, SAPA_TROPO_GRD_MAX_LRG };
+
+
+const GPPDOUBLE SAPA_IONO_POLY_MIN_SML[SAPA_MAX_IONO_COEFF] = { SAPA_C00_MIN_SML, SAPA_C01_MIN_SML, SAPA_C10_MIN_SML, SAPA_C11_MIN_SML };
+const GPPDOUBLE SAPA_IONO_POLY_MAX_SML[SAPA_MAX_IONO_COEFF] = { SAPA_C00_MAX_SML, SAPA_C01_MAX_SML, SAPA_C10_MAX_SML, SAPA_C11_MAX_SML };
+
+const GPPDOUBLE SAPA_IONO_POLY_MIN_LRG[SAPA_MAX_IONO_COEFF] = { SAPA_C00_MIN_LRG, SAPA_C01_MIN_LRG, SAPA_C10_MIN_LRG, SAPA_C11_MIN_LRG };
+const GPPDOUBLE SAPA_IONO_POLY_MAX_LRG[SAPA_MAX_IONO_COEFF] = { SAPA_C00_MAX_LRG, SAPA_C01_MAX_LRG, SAPA_C10_MAX_LRG, SAPA_C11_MAX_LRG };
+
+const GPPDOUBLE* SAPA_IONO_POLY_MIN[2] = { SAPA_IONO_POLY_MIN_SML, SAPA_IONO_POLY_MIN_LRG };
+const GPPDOUBLE* SAPA_IONO_POLY_MAX[2] = { SAPA_IONO_POLY_MAX_SML, SAPA_IONO_POLY_MAX_LRG };
+
+
+const GPPLONG LSAPA_IONO_POLY_MIN_SML[SAPA_MAX_IONO_COEFF] = { LSAPA_C00_MIN_SML, LSAPA_C01_MIN_SML, LSAPA_C10_MIN_SML, LSAPA_C11_MIN_SML };
+const GPPLONG LSAPA_IONO_POLY_MAX_SML[SAPA_MAX_IONO_COEFF] = { LSAPA_C00_MAX_SML, LSAPA_C01_MAX_SML, LSAPA_C10_MAX_SML, LSAPA_C11_MAX_SML };
+
+const GPPLONG LSAPA_IONO_POLY_MIN_LRG[SAPA_MAX_IONO_COEFF] = { LSAPA_C00_MIN_LRG, LSAPA_C01_MIN_LRG, LSAPA_C10_MIN_LRG, LSAPA_C11_MIN_LRG };
+const GPPLONG LSAPA_IONO_POLY_MAX_LRG[SAPA_MAX_IONO_COEFF] = { LSAPA_C00_MAX_LRG, LSAPA_C01_MAX_LRG, LSAPA_C10_MAX_LRG, LSAPA_C11_MAX_LRG };
+
+const GPPLONG* LSAPA_IONO_POLY_MIN[2] = { LSAPA_IONO_POLY_MIN_SML, LSAPA_IONO_POLY_MIN_LRG };
+const GPPLONG* LSAPA_IONO_POLY_MAX[2] = { LSAPA_IONO_POLY_MAX_SML, LSAPA_IONO_POLY_MAX_LRG };
+
+
+const GPPDOUBLE SAPA_IONO_GRD_MIN[4] = { SAPA_IONO_GRD_MIN_SML, SAPA_IONO_GRD_MIN_MDM, SAPA_IONO_GRD_MIN_LRG, SAPA_IONO_GRD_MIN_ELRG };
+const GPPDOUBLE SAPA_IONO_GRD_MAX[4] = { SAPA_IONO_GRD_MAX_SML, SAPA_IONO_GRD_MIN_MDM, SAPA_IONO_GRD_MAX_LRG, SAPA_IONO_GRD_MIN_ELRG };
+
+
+const GPPLONG LSAPA_IONO_GRD_MIN[4] = { LSAPA_IONO_GRD_MIN_SML, LSAPA_IONO_GRD_MIN_MDM, LSAPA_IONO_GRD_MIN_LRG, LSAPA_IONO_GRD_MIN_ELRG };
+const GPPLONG LSAPA_IONO_GRD_MAX[4] = { LSAPA_IONO_GRD_MAX_SML, LSAPA_IONO_GRD_MIN_MDM, LSAPA_IONO_GRD_MAX_LRG, LSAPA_IONO_GRD_MIN_ELRG };
 
 
 /***************************************************************************
@@ -102,7 +141,9 @@ void gpp_sapa_get_arealist(const GPPUINT8 *area_bits, GPPUINT1 *arealist)
 	GPPUINT2 idx=0, num=0;
 
 	if(!arealist) return;
-	memset(arealist, 0, 258*sizeof(GPPUINT1));
+	memset(arealist, 0, 258 * sizeof(GPPUINT1));
+	
+	
 
 	for(idx=0; idx<256; idx++){
 		if(area_bits[idx/64]&GNSS_PRN_BIT_MASK_64[idx%64]){
@@ -111,6 +152,7 @@ void gpp_sapa_get_arealist(const GPPUINT8 *area_bits, GPPUINT1 *arealist)
 		}
 	}
 	arealist[0]=num;
+	printf("\n----------------------------------------%d", arealist[0]);
 }//gpp_sapa_get_arealist()
 
 
@@ -281,7 +323,6 @@ GPPLONG gpp_sapa_ocb_free_ocb(pGPP_SAPA_OCB ocb)
 
 }//gpp_sapa_ocb_free_ocb()
 
-
 GPPLONG gpp_sapa_ocb_add_sv(pGPP_SAPA_OCB ocb, GPPUINT1 sys, GPPUINT1 sat, const pGPP_SAPA_OCB_SV pset)
 {
 	pGPP_SAPA_OCB_SV sv = NULL;   // Pointer to OCB_SV
@@ -307,6 +348,9 @@ GPPLONG gpp_sapa_ocb_add_sv(pGPP_SAPA_OCB ocb, GPPUINT1 sys, GPPUINT1 sat, const
  ***********************************************************************************************************/
 GPPLONG gpp_sapa_ocb_add_orb(pGPP_SAPA_OCB ocb, GPPUINT1 sys, GPPUINT1 sat, const pGPP_SAPA_OCB_SV_ORB pset)
 {
+	GPPUINT1 isValid = 1;
+	GPPUINT2 invalid;
+	GPPUINT1 lvalue;
 	pGPP_SAPA_OCB_SV sv = NULL;   // Pointer to OCB_SV
 	GPPLONG rc;       //control variable
 	if (rc = gpp_sapa_ocb_malloc_sv(ocb)) return rc;
@@ -321,14 +365,27 @@ GPPLONG gpp_sapa_ocb_add_orb(pGPP_SAPA_OCB ocb, GPPUINT1 sys, GPPUINT1 sat, cons
 		if (!sv->orb) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 	}
 
-	/*if (pset->orb_radial_correction<GPP_SAPA_OCB_SAT_CORRECTION_MIN || pset->orb_radial_correction>GPP_SAPA_OCB_SAT_CORRECTION_MAX) return 0;
-	if (pset->orb_along_track_correction<GPP_SAPA_OCB_SAT_CORRECTION_MIN || pset->orb_along_track_correction>GPP_SAPA_OCB_SAT_CORRECTION_MAX) return 0;
-	if (pset->orb_cross_track_correction<GPP_SAPA_OCB_SAT_CORRECTION_MIN || pset->orb_cross_track_correction>GPP_SAPA_OCB_SAT_CORRECTION_MAX) return 0;
-	if (pset->sat_yaw< GPP_SAPA_OCB_SAT_YAW_MIN || pset->sat_yaw>GPP_SAPA_OCB_SAT_YAW_MAX) return 0;*/
-	memcpy(sv->orb, pset, sizeof(GPP_SAPA_OCB_SV_ORB));	//copy orbit data
-	GNSS_SET_IDX_IN_BITS_64(ocb->sv_prn_bits[sys], sat);							//set sat ID in sv_prn_bits bit mask
-	GNSS_SET_IDX_IN_BITS_64(ocb->orb_prn_bits[sys], sat);							//set sat ID in sv_prn_bits bit mask
-	sv->ocb_bits|=SAPA_OCB_ORB_BITS;
+	lvalue = float2long(pset->d_orbit[0], &pset->ld_orbit[0], SAPA_RES_SV_CORRECTION, SAPA_SV_MIN, LSAPA_SV_MIN, LSAPA_SV_MAX, NULL);
+	isValid = &lvalue;
+
+	lvalue = float2long(pset->d_orbit[1], &pset->ld_orbit[1], SAPA_RES_SV_CORRECTION, SAPA_SV_MIN, LSAPA_SV_MIN, LSAPA_SV_MAX, NULL);
+	isValid = &lvalue;
+
+	lvalue = float2long(pset->d_orbit[2], &pset->ld_orbit[2], SAPA_RES_SV_CORRECTION, SAPA_SV_MIN, LSAPA_SV_MIN, LSAPA_SV_MAX, NULL);
+	isValid = &lvalue;
+
+	if (!isValid) {
+		printf("SAPA Warning orbit of %1c%02d is out of range (invalid).\n", sys == 0 ? 'G' : 'R', sat);
+		return 0;
+	}
+
+	invalid = GPP_SAPA_OCB_SAT_YAW_INVALID;
+	pset->yaw_bits = float2long(pset->sat_yaw, &pset->lsat_yaw, GPP_SAPA_SAT_YAW_RES, SAPA_YAW_MIN, LSAPA_YAW_MIN, LSAPA_YAW_MAX, &invalid);
+
+	memcpy(sv->orb, pset, sizeof(GPP_SAPA_OCB_SV_ORB)); //copy orbit data
+	GNSS_SET_IDX_IN_BITS_64(ocb->sv_prn_bits[sys], sat);       //set sat ID in sv_prn_bits bit mask
+	GNSS_SET_IDX_IN_BITS_64(ocb->orb_prn_bits[sys], sat);       //set sat ID in sv_prn_bits bit mask
+	sv->ocb_bits |= SAPA_OCB_ORB_BITS;
 	return 0;
 }//gpp_sapa_ocb_add_orb()
 
@@ -336,6 +393,8 @@ GPPLONG gpp_sapa_ocb_add_orb(pGPP_SAPA_OCB ocb, GPPUINT1 sys, GPPUINT1 sat, cons
 
 GPPLONG gpp_sapa_ocb_add_clk(pGPP_SAPA_OCB ocb, GPPUINT1 sys, GPPUINT1 sat, const pGPP_SAPA_OCB_SV_CLK pset)
 {
+	GPPUINT1 isValid = 1;
+	GPPUINT1 lvalue;
 	pGPP_SAPA_OCB_SV sv = NULL;   // Pointer to OCB_SV
 	GPPLONG rc;       //control variable
 	if (rc = gpp_sapa_ocb_malloc_sv(ocb)) return rc;
@@ -350,11 +409,18 @@ GPPLONG gpp_sapa_ocb_add_clk(pGPP_SAPA_OCB ocb, GPPUINT1 sys, GPPUINT1 sat, cons
 		if (!sv->clk) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 	}
 
-	//if (pset->clk_correction< GPP_SAPA_OCB_SAT_CORRECTION_MIN || pset->clk_correction>GPP_SAPA_OCB_SAT_CORRECTION_MAX) return 0;
-	memcpy(sv->clk, pset, sizeof(GPP_SAPA_OCB_SV_CLK));	//copy clock data
-	GNSS_SET_IDX_IN_BITS_64(ocb->sv_prn_bits[sys], sat);						//set sat ID in sv_prn_bits bit mask
-	GNSS_SET_IDX_IN_BITS_64(ocb->clk_prn_bits[sys], sat);						//set sat ID in sv_prn_bits bit mask
-	sv->ocb_bits |= (1 << GPP_SAPA_OCB_FLAG_IDX_CLK);							//set ocb_bits as it is assumed that only valid data are stored in the structure
+	lvalue = float2long(pset->clk_correction, &pset->lclk_correction, SAPA_RES_SV_CORRECTION, SAPA_SV_MIN, LSAPA_SV_MIN, LSAPA_SV_MAX, NULL);
+	isValid = &lvalue;
+
+	if (!isValid) {
+		printf("SAPA Warning clock of %1c%02d is out of range (invalid).\n", sys == 0 ? 'G' : 'R', sat);
+		return 0;
+	}
+
+	memcpy(sv->clk, pset, sizeof(GPP_SAPA_OCB_SV_CLK)); //copy clock data
+	GNSS_SET_IDX_IN_BITS_64(ocb->sv_prn_bits[sys], sat);      //set sat ID in sv_prn_bits bit mask
+	GNSS_SET_IDX_IN_BITS_64(ocb->clk_prn_bits[sys], sat);      //set sat ID in sv_prn_bits bit mask
+	sv->ocb_bits |= SAPA_OCB_CLK_BITS;       //set ocb_bits as it is assumed that only valid data are stored in the structure
 
 	return 0;
 }//gpp_sapa_ocb_add_clk()
@@ -363,11 +429,13 @@ GPPLONG gpp_sapa_ocb_add_clk(pGPP_SAPA_OCB ocb, GPPUINT1 sys, GPPUINT1 sat, cons
 
 GPPLONG gpp_sapa_ocb_add_pb(pGPP_SAPA_OCB ocb, GPPUINT1 sys, GPPUINT1 sat, GPPUINT1 sig, const pGPP_SAPA_OCB_SV_BIAS_PB pset)
 {
-	pGPP_SAPA_OCB_SV sv = NULL;					// Pointer to OCB_SV
-	pGPP_SAPA_OCB_SV_BIAS bias = NULL;			// Pointer to OCB_SV_BIAS
-	pGPP_SAPA_OCB_SV_BIAS_PB	pb = NULL;	// Pointer to OCB_SV_SATPHASEBIAS
+	GPPUINT1 isValid = 1;
+	GPPUINT1 lvalue;
+	pGPP_SAPA_OCB_SV sv = NULL;     // Pointer to OCB_SV
+	pGPP_SAPA_OCB_SV_BIAS bias = NULL;   // Pointer to OCB_SV_BIAS
+	pGPP_SAPA_OCB_SV_BIAS_PB pb = NULL; // Pointer to OCB_SV_SATPHASEBIAS
 
-	GPPLONG rc;			//control variable
+	GPPLONG rc;   //control variable
 	if (rc = gpp_sapa_ocb_malloc_sv(ocb)) return rc;
 
 	if (!(sv = ocb->sv[sys][sat])) { // check if sv[sys][sat] is allocated
@@ -392,12 +460,20 @@ GPPLONG gpp_sapa_ocb_add_pb(pGPP_SAPA_OCB ocb, GPPUINT1 sys, GPPUINT1 sat, GPPUI
 		if (!bias->pb[sig]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 	}
 	pb = bias->pb[sig];
-	//if (pset->pb_correction< GPP_SAPA_OCB_SAT_CORRECTION_MIN || pset->pb_correction>GPP_SAPA_OCB_SAT_CORRECTION_MAX) return 0;
-	memcpy(pb, pset, sizeof(GPP_SAPA_OCB_SV_BIAS_PB)); 	//Copy Phase bias content
-	GNSS_SET_IDX_IN_BITS_32(bias->pb_sig_bits, sig);		//set signal in signal bit mask for this satellite
-	GNSS_SET_IDX_IN_BITS_64(ocb->sv_prn_bits[sys], sat);					//set sat ID in sv_prn_bits bit mask
-	GNSS_SET_IDX_IN_BITS_64(ocb->pb_prn_bits[sys], sat);					//set sat ID in sv_prn_bits bit mask
-	sv->ocb_bits |= (1 << GPP_SAPA_OCB_FLAG_IDX_BIAS);
+
+	lvalue = float2long(pset->pb_correction, &pset->lpb_correction, SAPA_RES_PB_CORRECTION, SAPA_SV_MIN, LSAPA_SV_MIN, LSAPA_SV_MAX, NULL);
+	isValid = &lvalue;
+
+	if (!isValid) {
+		printf("SAPA Warning phase bias of %1c%02d is out of range (invalid).\n", sys == 0 ? 'G' : 'R', sat);
+		return 0;
+	}
+
+	memcpy(pb, pset, sizeof(GPP_SAPA_OCB_SV_BIAS_PB));  //Copy Phase bias content
+	GNSS_SET_IDX_IN_BITS_32(bias->pb_sig_bits, sig);  //set signal in signal bit mask for this satellite
+	GNSS_SET_IDX_IN_BITS_64(ocb->sv_prn_bits[sys], sat);     //set sat ID in sv_prn_bits bit mask
+	GNSS_SET_IDX_IN_BITS_64(ocb->pb_prn_bits[sys], sat);     //set sat ID in sv_prn_bits bit mask
+	sv->ocb_bits |= SAPA_OCB_BIAS_BITS;
 
 	return 0; //GPP_SAPA_OK
 }//gpp_sapa_ocb_add_pb()
@@ -417,7 +493,7 @@ GPPLONG gpp_sapa_ocb_add_header(pGPP_SAPA_OCB ocb, GPPUINT1 sys, const pGPP_SAPA
 		if (!ocb->header_block[sys]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 	}
 
-	memcpy(ocb->header_block[sys], pset, sizeof(GPP_SAPA_OCB_HEADER));	//copy clock data
+	memcpy(ocb->header_block[sys], pset, sizeof(GPP_SAPA_OCB_HEADER)); //copy clock data
 	return 0;
 }//gpp_sapa_ocb_add_header()
 
@@ -425,6 +501,8 @@ GPPLONG gpp_sapa_ocb_add_header(pGPP_SAPA_OCB ocb, GPPUINT1 sys, const pGPP_SAPA
 
 GPPLONG gpp_sapa_ocb_add_cb(pGPP_SAPA_OCB ocb, GPPUINT1 sys, GPPUINT1 sat, GPPUINT1 sig, const pGPP_SAPA_OCB_SV_BIAS_CB pset)
 {
+	GPPUINT1 isValid = 1;
+	GPPUINT1 lvalue;
 	GPPLONG rc;         //control variable
 	pGPP_SAPA_OCB_SV sv = NULL;     // Pointer to OCB_SV
 	pGPP_SAPA_OCB_SV_BIAS bias = NULL;   // Pointer to OCB_SV_BIAS
@@ -457,16 +535,22 @@ GPPLONG gpp_sapa_ocb_add_cb(pGPP_SAPA_OCB ocb, GPPUINT1 sys, GPPUINT1 sat, GPPUI
 		if (!bias->cb[sig]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 	}
 	cb = bias->cb[sig];
-	//if (pset->cb_correction< GPP_SAPA_OCB_CB_CORRECTION_MIN || pset->cb_correction>GPP_SAPA_OCB_CB_CORRECTION_MAX) return 0;
-	//printf("\nsys: %d  sat: %d",sys,sat);
+
+	lvalue = float2long(pset->cb_correction, &pset->lcb_correction, SAPA_RES_CB_CORRECTION, SAPA_CB_MIN, LSAPA_CB_MIN, LSAPA_CB_MAX, NULL);
+	isValid = &lvalue;
+
+	if (!isValid) {
+		printf("SAPA Warning code bias of %1c%02d is out of range (invalid).\n", sys == 0 ? 'G' : 'R', sat);
+		return 0;
+	}
+
 	memcpy(cb, pset, sizeof(GPP_SAPA_OCB_SV_BIAS_CB));  //Copy Phase bias content
 	GNSS_SET_IDX_IN_BITS_32(bias->cb_sig_bits, sig);       //set signal in signal bit mask for this satellite
 	GNSS_SET_IDX_IN_BITS_64(ocb->sv_prn_bits[sys], sat);       //set sat ID in sv_prn_bits bit mask
 	GNSS_SET_IDX_IN_BITS_64(ocb->cb_prn_bits[sys], sat);       //set sat ID in sv_prn_bits bit mask
-	sv->ocb_bits |= (1 << GPP_SAPA_OCB_FLAG_IDX_BIAS);
+	sv->ocb_bits |= SAPA_OCB_BIAS_BITS;
 	return 0; //GPP_SAPA_OK
 }//gpp_sapa_ocb_add_cb()
-
 
 
 //==============================================functions to add data to structure For HPAC================================================================
@@ -549,15 +633,14 @@ GPPLONG gpp_sapa_hpac_add_tropo_poly_coeff_block(pGPP_SAPA_HPAC hpac, GPPUINT1 a
 		hpac->atmo[area]->tropo->tropo_poly_coeff_block = (pGPP_SAPA_HPAC_TROPO_POLY_COEFFICIENT_BLOCK)calloc(1, sizeof(GPP_SAPA_HPAC_TROPO_POLY_COEFFICIENT_BLOCK));
 		if (!hpac->atmo[area]->tropo->tropo_poly_coeff_block) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 	}
-	/*if (pset->tropo_avhd< GPP_SAPA_HPAC_AVHD_MIN || pset->tropo_avhd>GPP_SAPA_HPAC_AVHD_MAX) return 0;
-	if (pset->tropo_poly_coeff[] <SAPA_TROPO_T00_MIN[coeff_size] || pset->tropo_poly_coeff[]>SAPA_TROPO_T00_MAX[coeff_size])
-		return 0;
-	if (pset->tropo_poly_coeff[TROPO_POLY_COEFF_INDX_T01] <SAPA_TROPO_T01_MIN[coeff_size] || pset->tropo_poly_coeff[TROPO_POLY_COEFF_INDX_T01]>SAPA_TROPO_T01_MAX[coeff_size])
-		return 0;
-	if (pset->tropo_poly_coeff[TROPO_POLY_COEFF_INDX_T10] <SAPA_TROPO_T01_MIN[coeff_size] || pset->tropo_poly_coeff[TROPO_POLY_COEFF_INDX_T10]>SAPA_TROPO_T01_MAX[coeff_size])
-		return 0;
-	if (pset->tropo_poly_coeff[TROPO_POLY_COEFF_INDX_T11] <SAPA_TROPO_T11_MIN[coeff_size] || pset->tropo_poly_coeff[TROPO_POLY_COEFF_INDX_T11]>SAPA_TROPO_T11_MAX[coeff_size])
-		return 0;*/
+	
+	float2long(pset->tropo_avhd, &pset->ltropo_avhd, SAPA_AVHD_RES, SAPA_AVHD_MIN, LSAPA_AVHD_MIN, LSAPA_AVHD_MAX, NULL);
+	float2long(pset->tropo_poly_coeff[SAPA_T00_IDX], &pset->ltropo_poly_coeff[SAPA_T00_IDX], SAPA_RES_TROPO_POLY_COEFF_T00, SAPA_TROPO_POLY_MIN[coeff_size][SAPA_T00_IDX], LSAPA_TROPO_POLY_MIN[coeff_size][SAPA_T00_IDX], LSAPA_TROPO_POLY_MAX[coeff_size][SAPA_T00_IDX],NULL);
+	float2long(pset->tropo_poly_coeff[SAPA_T01_IDX], &pset->ltropo_poly_coeff[SAPA_T01_IDX], SAPA_RES_TROPO_POLY_COEFF_T01, SAPA_TROPO_POLY_MIN[coeff_size][SAPA_T01_IDX], LSAPA_TROPO_POLY_MIN[coeff_size][SAPA_T01_IDX], LSAPA_TROPO_POLY_MAX[coeff_size][SAPA_T01_IDX], NULL);
+	float2long(pset->tropo_poly_coeff[SAPA_T10_IDX], &pset->ltropo_poly_coeff[SAPA_T10_IDX], SAPA_RES_TROPO_POLY_COEFF_T01, SAPA_TROPO_POLY_MIN[coeff_size][SAPA_T10_IDX], LSAPA_TROPO_POLY_MIN[coeff_size][SAPA_T10_IDX], LSAPA_TROPO_POLY_MAX[coeff_size][SAPA_T10_IDX], NULL);
+	float2long(pset->tropo_poly_coeff[SAPA_T11_IDX], &pset->ltropo_poly_coeff[SAPA_T11_IDX], SAPA_RES_TROPO_POLY_COEFF_T11, SAPA_TROPO_POLY_MIN[coeff_size][SAPA_T11_IDX], LSAPA_TROPO_POLY_MIN[coeff_size][SAPA_T11_IDX], LSAPA_TROPO_POLY_MAX[coeff_size][SAPA_T11_IDX], NULL);
+
+
 	memcpy(hpac->atmo[area]->tropo->tropo_poly_coeff_block, pset, sizeof(GPP_SAPA_HPAC_TROPO_POLY_COEFFICIENT_BLOCK));	//copy clock data
 	return 0; //GPP_SAPA_OK
 }//gpp_sapa_hpac_add_tropo_poly_coeff_block()
@@ -567,12 +650,9 @@ GPPLONG gpp_sapa_hpac_add_tropo_poly_coeff_block(pGPP_SAPA_HPAC hpac, GPPUINT1 a
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 GPPLONG gpp_sapa_hpac_add_tropo_grid_block(pGPP_SAPA_HPAC hpac, GPPUINT1 area, const pGPP_SAPA_HPAC_TROPO_GRID_BLOCK pset)
 {
-	GPPUINT1 no_of_grids,ig, res_size;
 
 	if (!hpac) return GPP_SAPA_ERR_INVALID_HPAC_AREA;
 
-	res_size = pset->sz;
-	no_of_grids = hpac->atmo[area]->area_def->number_of_grid_point;
 	if(pset->grid)
 	if (!hpac->atmo) {//check if atmo structure is allocated
 		hpac->atmo = (pGPP_SAPA_HPAC_ATMO_BLOCK*)calloc(GPP_SAPA_MAX_AREA_COUNT, sizeof(GPP_SAPA_HPAC_ATMO_BLOCK*));
@@ -588,11 +668,7 @@ GPPLONG gpp_sapa_hpac_add_tropo_grid_block(pGPP_SAPA_HPAC hpac, GPPUINT1 area, c
 		hpac->atmo[area]->tropo->tropo_grid = (pGPP_SAPA_HPAC_TROPO_GRID_BLOCK)calloc(1, sizeof(GPP_SAPA_HPAC_TROPO_GRID_BLOCK));
 		if (!hpac->atmo[area]->tropo->tropo_grid) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 	}
-	/*for (ig = 0; ig < no_of_grids; ig++)
-	{
-		if (pset->[ig]< SAPT_TROPO_GRD_MIN[res_size] || pset->tropo_residuals[ig]>SAPT_TROPO_GRD_MAX[res_size])
-			return 0;
-	}*/
+	
 	memcpy(hpac->atmo[area]->tropo->tropo_grid, pset, sizeof(GPP_SAPA_HPAC_TROPO_GRID_BLOCK));	//copy clock data
 	return 0; //GPP_SAPA_OK
 }//gpp_sapa_hpac_add_tropo_grid_block()
@@ -603,7 +679,7 @@ GPPLONG gpp_sapa_hpac_add_tropo_grid_block(pGPP_SAPA_HPAC hpac, GPPUINT1 area, c
  *
  *	GPP_SAPA_USE_STATES is used to connect hpac and area definiton data
  ************************************************************************************************************/
-GPPLONG gpp_sapa_hpac_add_grd_tropo_correction( pGPP_SAPA_USE_STATES states, GPPUINT1 iarea, GPPUINT1 igrd, const *pset)
+GPPLONG gpp_sapa_hpac_add_grd_tropo_correction( pGPP_SAPA_USE_STATES states, GPPUINT1 iarea, GPPUINT1 igrd, GPP_SAPA_HPAC_TROPO_GRD_CORRECTION *pset)
 {
 	pGPP_SAPA_HPAC hpac=states->hpac;
 	pGPP_SAPA_AREA area=states->area;
@@ -670,6 +746,8 @@ GPPLONG gpp_sapa_hpac_add_grd_tropo_correction( pGPP_SAPA_USE_STATES states, GPP
 	//SF051 check required!
 	grd_tropo->sz=0;
 
+	float2long(pset->val, &pset->lval, SAPA_TROPO_GRD_RES, SAPA_TROPO_GRD_MIN[grd_tropo->sz], LSAPA_TROPO_GRD_MAX[grd_tropo->sz], LSAPA_TROPO_GRD_MIN[grd_tropo->sz], NULL);
+
 	memcpy(&grd_tropo->grid[igrd], pset, sizeof(GPP_SAPA_HPAC_TROPO_GRD_CORRECTION));
 	GNSS_SET_IDX_IN_BITS_64(grd_tropo->grid_bits, igrd);
 	GNSS_SET_IDX_IN_BITS_64((hpac->atmo_bits[iarea/64]), (iarea%64));
@@ -686,8 +764,6 @@ GPPLONG gpp_sapa_hpac_add_grd_tropo_correction( pGPP_SAPA_USE_STATES states, GPP
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------
 GPPLONG gpp_sapa_hpac_add_iono(pGPP_SAPA_HPAC hpac,GPPUINT1 area, const pGPP_SAPA_HPAC_IONO pset)
 {
-	//pGPP_SAPA_HPAC_ATMO_BLOCK atmo = NULL;		// Pointer to ATMO
-
 	if (!hpac) return GPP_SAPA_ERR_INVALID_HPAC_AREA;
 
 	if (!hpac->atmo) {//check if atmo structure is allocated
@@ -748,11 +824,6 @@ GPPLONG gpp_sapa_hpac_add_iono_sat_block(pGPP_SAPA_HPAC hpac, GPPUINT1 sys, GPPU
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------
 GPPLONG gpp_sapa_hpac_add_iono_sat_poly_block(pGPP_SAPA_HPAC hpac, GPPUINT1 sys, GPPUINT1 sat, GPPUINT1 area, const pGPP_SAPA_HPAC_IONO_SAT_POLY pset)
 {
-	//pGPP_SAPA_HPAC_ATMO_BLOCK atmo = NULL;		// Pointer to ATMO
-	//pGPP_SAPA_HPAC_IONO iono = NULL;			// Pointer to OCB_SV_BIAS
-	//pGPP_SAPA_HPAC_IONO_SAT_BLOCK iono_sat_block = NULL;
-
-
 	if (!hpac) return GPP_SAPA_ERR_INVALID_HPAC_AREA;
 
 	if (!hpac->atmo) {//check if atmo structure is allocated
@@ -832,16 +903,11 @@ GPPLONG gpp_sapa_hpac_add_iono_sat_coeff_block(pGPP_SAPA_HPAC hpac, GPPUINT1 sys
 		hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_sat_coeff = (pGPP_SAPA_HPAC_IONO_SAT_COEFFICIENT)calloc(1, sizeof(GPP_SAPA_HPAC_IONO_SAT_COEFFICIENT));
 		if (!hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_sat_coeff) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 	}
-	/*GPPUINT1 coeff_size = hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_sat_poly->iono_coeff_size;
-	if (pset->iono_poly_coeff[IONO_POLY_COEFF_INDX_C00]< SAPA_TROPO_COEFF_C00_MIN[coeff_size] || pset->iono_poly_coeff[IONO_POLY_COEFF_INDX_C00]>SAPA_TROPO_COEFF_C00_MAX[coeff_size])
-		return 0;
-	if (pset->iono_poly_coeff[IONO_POLY_COEFF_INDX_C01]< SAPA_TROPO_COEFF_C01_MIN[coeff_size] || pset->iono_poly_coeff[IONO_POLY_COEFF_INDX_C01]>SAPA_TROPO_COEFF_C01_MAX[coeff_size])
-		return 0;
-	if (pset->iono_poly_coeff[IONO_POLY_COEFF_INDX_C10]< SAPA_TROPO_COEFF_C01_MIN[coeff_size] || pset->iono_poly_coeff[IONO_POLY_COEFF_INDX_C10]>SAPA_TROPO_COEFF_C01_MAX[coeff_size])
-		return 0;
-	if (pset->iono_poly_coeff[IONO_POLY_COEFF_INDX_C11]< SAPA_TROPO_COEFF_C11_MIN[coeff_size] || pset->iono_poly_coeff[IONO_POLY_COEFF_INDX_C11]>SAPA_TROPO_COEFF_C11_MAX[coeff_size])
-		return 0;*/
-
+	GPPUINT1 coeff_size = hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_sat_poly->iono_coeff_size;
+	float2long(pset->iono_poly_coeff[SAPA_T00_IDX], &pset->liono_poly_coeff[SAPA_T00_IDX], SAPA_RES_TROPO_POLY_COEFF_T00, SAPA_TROPO_POLY_MIN[coeff_size][SAPA_T00_IDX], LSAPA_TROPO_POLY_MIN[coeff_size][SAPA_T00_IDX], LSAPA_TROPO_POLY_MAX[coeff_size][SAPA_T00_IDX], NULL);
+	float2long(pset->iono_poly_coeff[SAPA_T01_IDX], &pset->liono_poly_coeff[SAPA_T01_IDX], SAPA_RES_TROPO_POLY_COEFF_T01, SAPA_TROPO_POLY_MIN[coeff_size][SAPA_T01_IDX], LSAPA_TROPO_POLY_MIN[coeff_size][SAPA_T01_IDX], LSAPA_TROPO_POLY_MAX[coeff_size][SAPA_T01_IDX], NULL);
+	float2long(pset->iono_poly_coeff[SAPA_T10_IDX], &pset->liono_poly_coeff[SAPA_T10_IDX], SAPA_RES_TROPO_POLY_COEFF_T01, SAPA_TROPO_POLY_MIN[coeff_size][SAPA_T10_IDX], LSAPA_TROPO_POLY_MIN[coeff_size][SAPA_T10_IDX], LSAPA_TROPO_POLY_MAX[coeff_size][SAPA_T10_IDX], NULL);
+	float2long(pset->iono_poly_coeff[SAPA_T11_IDX], &pset->liono_poly_coeff[SAPA_T11_IDX], SAPA_RES_TROPO_POLY_COEFF_T11, SAPA_TROPO_POLY_MIN[coeff_size][SAPA_T11_IDX], LSAPA_TROPO_POLY_MIN[coeff_size][SAPA_T11_IDX], LSAPA_TROPO_POLY_MAX[coeff_size][SAPA_T11_IDX], NULL);
 
 	memcpy(hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_sat_coeff, pset, sizeof(GPP_SAPA_HPAC_IONO_SAT_COEFFICIENT));
 	GNSS_SET_IDX_IN_BITS_64(hpac->atmo[area]->iono->sat_prn_bits[sys], sat);		//set sat ID in sv_prn_bits bit mask
@@ -850,19 +916,7 @@ GPPLONG gpp_sapa_hpac_add_iono_sat_coeff_block(pGPP_SAPA_HPAC hpac, GPPUINT1 sys
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------
 GPPLONG gpp_sapa_hpac_add_iono_sat_grid_block(pGPP_SAPA_HPAC hpac, GPPUINT1 sys, GPPUINT1 sat, GPPUINT1 area, const pGPP_SAPA_HPAC_IONO_GRID_BLOCK pset)
 {
-	//pGPP_SAPA_HPAC_ATMO_BLOCK atmo = NULL;		// Pointer to ATMO
-	//pGPP_SAPA_HPAC_IONO iono = NULL;			// Pointer to OCB_SV_BIAS
-	//pGPP_SAPA_HPAC_IONO_SAT_BLOCK iono_sat_block = NULL;
 	if (!hpac) return GPP_SAPA_ERR_INVALID_HPAC_AREA;
-
-	/*GPPUINT1 no_of_grids, ig, res_size;
-	res_size = pset->iono_residual_field_size;
-	no_of_grids = hpac->atmo[area]->area_def->number_of_grid_point;
-	for (ig = 0; ig < no_of_grids; ig++)
-	{
-		if (pset->iono_residuals[ig]< SAPT_TROPO_GRD_MIN[res_size] || pset->iono_residuals[ig]>SAPT_TROPO_GRD_MAX[res_size])
-			return 0;
-	}*/
 
 	if (!hpac->atmo) {//check if atmo structure is allocated
 		hpac->atmo = (pGPP_SAPA_HPAC_ATMO_BLOCK*)calloc(GPP_SAPA_MAX_AREA_COUNT, sizeof(GPP_SAPA_HPAC_ATMO_BLOCK*));
@@ -901,62 +955,93 @@ GPPLONG gpp_sapa_hpac_add_iono_sat_grid_block(pGPP_SAPA_HPAC hpac, GPPUINT1 sys,
 
 	return 0;
 }//gpp_sapa_hpac_add_iono_sat_grid_block()
-//------------------------------------------------------------------Handle------------------------------------
 
-GPPLONG gpp_sapa_hpac_handle_add_hpac_iono_handle(pSAPA_HANDLE sapaHdl, GPPUINT1 config, GPPUINT1 area, const pSAPA_HPAC_HANDLE_IONO pset)
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+GPPLONG gpp_sapa_hpac_add_grd_iono_correction(pGPP_SAPA_USE_STATES states, GPPUINT1 iarea, GPPUINT1 igrd, GPPUINT1 sat, GPPUINT1 sys, GPP_SAPA_HPAC_IONO_GRD_CORRECTION *pset)
 {
+	pGPP_SAPA_HPAC hpac = states->hpac;
+	pGPP_SAPA_AREA area = states->area;
 
-	if (!sapaHdl) return GPP_SAPA_ERR_INVALID_HPAC_HANDLE;
+	pGPP_SAPA_HPAC_ATMO_BLOCK atmo = NULL;
+	pGPP_SAPA_AREA_DEF_BLOCK area_def = NULL;
 
-	if (!sapaHdl->hpacHdl) {//check if atmo structure is allocated
-		sapaHdl->hpacHdl = (pSAPA_HPAC_HANDLE*)calloc(GPP_SAPA_MAX_HPAC_CONFIGS, sizeof(SAPA_HPAC_HANDLE*));
-		if (!sapaHdl->hpacHdl) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+	pGPP_SAPA_HPAC_IONO iono = NULL;
+	pGPP_SAPA_HPAC_IONO_GRID_BLOCK grd_iono = NULL;
+
+	if (!hpac) return GPP_SAPA_ERR_INVALID_HPAC;
+
+	if (!hpac->atmo) {
+		hpac->atmo = (pGPP_SAPA_HPAC_ATMO_BLOCK*)calloc(SAPA_MAX_AREA, sizeof(pGPP_SAPA_HPAC_ATMO_BLOCK));
+		if (!hpac->atmo) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 	}
 
-	if (!sapaHdl->hpacHdl[config]) {//check if atmo[area] structure is allocated
-		sapaHdl->hpacHdl[config] = (pSAPA_HPAC_HANDLE)calloc(1, sizeof(SAPA_HPAC_HANDLE));
-		if (!sapaHdl->hpacHdl[config]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+	if (!(atmo = hpac->atmo[iarea])) {
+		hpac->atmo[iarea] = (pGPP_SAPA_HPAC_ATMO_BLOCK)calloc(1, sizeof(GPP_SAPA_HPAC_ATMO_BLOCK));
+		if (!(atmo = hpac->atmo[iarea])) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 	}
 
-	if (sapaHdl->hpacHdl[config]->hpacIonoHdl) {//check if atmo[area] structure is allocated
-		sapaHdl->hpacHdl[config]->hpacIonoHdl = (pSAPA_HPAC_HANDLE_IONO*)calloc(GPP_SAPA_MAX_AREA_COUNT, sizeof(SAPA_HPAC_HANDLE_IONO*));
-		if (!sapaHdl->hpacHdl[config]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-	}
-	if (sapaHdl->hpacHdl[config]->hpacIonoHdl[area]) {//check if atmo[area] structure is allocated
-		sapaHdl->hpacHdl[config]->hpacIonoHdl[area] = (pSAPA_HPAC_HANDLE_IONO)calloc(1, sizeof(SAPA_HPAC_HANDLE_IONO));
-		if (!sapaHdl->hpacHdl[config]->hpacIonoHdl[area]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-	}
-	memcpy(sapaHdl->hpacHdl[config]->hpacIonoHdl[area], pset, sizeof(SAPA_HPAC_HANDLE_IONO)); //copy clock data
-	return 0; //GPP_SAPA_OK
-}//gpp_sapa_hpac_handle_add_hpac_iono_handle()
-
-//-----------------------------------------------------------------------------------------------------------------------------------------
-GPPLONG gpp_sapa_hpac_handle_add_hpac_tropo_handle(pSAPA_HANDLE sapaHdl, GPPUINT1 config, GPPUINT1 area, const pSAPA_HPAC_HANDLE_TROPO pset)
-{
-
-	if (!sapaHdl) return GPP_SAPA_ERR_INVALID_HPAC_HANDLE;
-
-	if (!sapaHdl->hpacHdl) {
-		sapaHdl->hpacHdl = (pSAPA_HPAC_HANDLE*)calloc(GPP_SAPA_MAX_HPAC_CONFIGS, sizeof(SAPA_HPAC_HANDLE*));
-		if (!sapaHdl->hpacHdl) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+	if (!area) {
+		printf("ERROR: Area with AreaID(%d) has to be defined first", iarea);
+		return GPP_SAPA_ERR_INVALID_AREA;
 	}
 
-	if (!sapaHdl->hpacHdl[config]) {
-		sapaHdl->hpacHdl[config] = (pSAPA_HPAC_HANDLE)calloc(1, sizeof(SAPA_HPAC_HANDLE));
-		if (!sapaHdl->hpacHdl[config]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+	if (!area->area_bits[iarea / 64] & iarea % 64) {
+		printf("ERROR: Area with AreaID(%d) has to be defined first", iarea);
+		return GPP_SAPA_ERR_INVALID_AREA;
 	}
 
-	if (sapaHdl->hpacHdl[config]->hpacTropoHdl) {
-		sapaHdl->hpacHdl[config]->hpacTropoHdl = (pSAPA_HPAC_HANDLE_TROPO*)calloc(GPP_SAPA_MAX_AREA_COUNT, sizeof(SAPA_HPAC_HANDLE_TROPO*));
-		if (!sapaHdl->hpacHdl[config]->hpacTropoHdl) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+	if (!(iono = atmo->iono)) {
+		atmo->iono = (pGPP_SAPA_HPAC_IONO)calloc(1, sizeof(GPP_SAPA_HPAC_IONO));
+		if (!(iono = atmo->iono)) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 	}
-	if (sapaHdl->hpacHdl[config]->hpacTropoHdl[area]) {
-		sapaHdl->hpacHdl[config]->hpacTropoHdl[area] = (pSAPA_HPAC_HANDLE_TROPO)calloc(1, sizeof(SAPA_HPAC_HANDLE_TROPO));
-		if (!sapaHdl->hpacHdl[config]->hpacTropoHdl[area]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+
+	if (!(iono->iono_sat_block)) {
+		iono->iono_sat_block = (pGPP_SAPA_HPAC_IONO_SAT_BLOCK**)calloc(GPP_SAPA_MAX_SYS, sizeof(GPP_SAPA_HPAC_IONO_SAT_BLOCK**));
+		if (!(iono->iono_sat_block)) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 	}
-	memcpy(sapaHdl->hpacHdl[config]->hpacTropoHdl[area], pset, sizeof(SAPA_HPAC_HANDLE_TROPO)); //copy clock data
-	return 0; //GPP_SAPA_OK
-}//gpp_sapa_hpac_handle_add_hpac_area_handle()
+	if (!(iono->iono_sat_block[sys])) {
+		iono->iono_sat_block[sys] = (pGPP_SAPA_HPAC_IONO_SAT_BLOCK*)calloc(GPP_SAPA_MAX_SAT, sizeof(pGPP_SAPA_HPAC_IONO_SAT_BLOCK));
+	}
+	if (!(iono->iono_sat_block[sys][sat])) {
+		iono->iono_sat_block[sys][sat] = (pGPP_SAPA_HPAC_IONO_SAT_BLOCK)calloc(1, sizeof(GPP_SAPA_HPAC_IONO_SAT_BLOCK));
+		if (!iono->iono_sat_block[sys][sat]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+	}
+
+	if (!(grd_iono = iono->iono_sat_block[sys][sat]->iono_grid)) {
+		iono->iono_sat_block[sys][sat]->iono_grid = (pGPP_SAPA_HPAC_IONO_GRID_BLOCK)calloc(1, sizeof(GPP_SAPA_HPAC_IONO_GRID_BLOCK));
+		if (!(grd_iono = iono->iono_sat_block[sys][sat]->iono_grid)) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+	}
+
+	if (grd_iono->num_grid) {
+		if (grd_iono->num_grid != area_def->num_grid_points) {
+			grd_iono->num_grid = area_def->num_grid_points;
+			grd_iono->grid = (GPP_SAPA_HPAC_IONO_GRD_CORRECTION*)realloc(grd_iono->grid, grd_iono->num_grid * sizeof(GPP_SAPA_HPAC_IONO_GRD_CORRECTION));
+			if (!grd_iono->grid) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+		}
+	}
+	else {
+		grd_iono->num_grid = area_def->num_grid_points;
+		if (!grd_iono->grid) {
+			grd_iono->grid = (GPP_SAPA_HPAC_IONO_GRD_CORRECTION*)calloc(grd_iono->num_grid, sizeof(GPP_SAPA_HPAC_IONO_GRD_CORRECTION));
+			if (!grd_iono->grid) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+		}
+	}
+
+	if (igrd >= grd_iono->num_grid) {
+		printf("ERROR: grid point index (%d) out of range (number of grid points is %d)\n", igrd, grd_iono->num_grid);
+		return GPP_SAPA_ERR_INVALID_GRD_IDX;
+	}
+
+	grd_iono->sz = 0;
+
+	float2long(pset->val, &pset->lval, SAPA_IONO_GRD_RES, SAPA_IONO_GRD_MIN[grd_iono->sz], LSAPA_IONO_GRD_MAX[grd_iono->sz], LSAPA_IONO_GRD_MIN[grd_iono->sz], NULL);
+
+	memcpy(&grd_iono->grid[igrd], pset, sizeof(GPP_SAPA_HPAC_IONO_GRD_CORRECTION));
+	GNSS_SET_IDX_IN_BITS_64(grd_iono->grid_bits, igrd);
+	GNSS_SET_IDX_IN_BITS_64((hpac->atmo_bits[iarea / 64]), (iarea % 64));
+
+	return 0;
+}
 
 //---------------------------------------------------------------------------------------------------------------------------------
 GPPLONG gpp_sapa_hpac_free_hpac(pGPP_SAPA_HPAC hpac)
@@ -965,79 +1050,84 @@ GPPLONG gpp_sapa_hpac_free_hpac(pGPP_SAPA_HPAC hpac)
 	if (hpac) {
 		if (hpac->header_block)
 		{
-			//memset(hpac->header_block, 0, sizeof(GPP_SAPA_HPAC_HEADER));
+
 			free(hpac->header_block);
 			hpac->header_block = NULL;
 		}
 		if (hpac->atmo)
 		{
-			GPPUINT1 area;
+			GPPUINT1 area, igrid;
 			for (area = 0; area < GPP_SAPA_MAX_AREA_COUNT; area++)
 			{
 				if (hpac->atmo[area])
 				{
 					if (hpac->atmo[area]->area_def)
-					{
-						//memset(hpac->atmo[area]->area_def, 0, sizeof(GPP_SAPA_HPAC_AREA));
 						free(hpac->atmo[area]->area_def);
-					}
+
 					if (hpac->atmo[area]->tropo)
 					{
 						if (hpac->atmo[area]->tropo->tropo_poly_coeff_block)
-						{
-							//memset(hpac->atmo[area]->tropo->tropo_poly_coeff_block, 0, sizeof(GPP_SAPA_HPAC_TROPO_POLY_COEFFICIENT_BLOCK));
 							free(hpac->atmo[area]->tropo->tropo_poly_coeff_block);
-						}
+
 						if (hpac->atmo[area]->tropo->tropo_grid)
 						{
-							//memset(hpac->atmo[area]->tropo->tropo_grid, 0, sizeof(GPP_SAPA_HPAC_TROPO_GRID_BLOCK));
+							if (hpac->atmo[area]->tropo->tropo_grid->grid)
+							{
+								for (igrid = 0; igrid < GPP_SAPA_MAX_GRID_POINT_PRESENT; igrid++)
+									if (hpac->atmo[area]->tropo->tropo_grid->grid[igrid])
+										free(hpac->atmo[area]->tropo->tropo_grid->grid[igrid]);
+
+
+								free(hpac->atmo[area]->tropo->tropo_grid->grid);
+							}
 							free(hpac->atmo[area]->tropo->tropo_grid);
 						}
-						//memset(hpac->atmo[area]->tropo, 0, sizeof(GPP_SAPA_HPAC_TROPO));
 						free(hpac->atmo[area]->tropo);
 					}
-					if (hpac->atmo[area]->iono->iono_sat_block)
+					if (hpac->atmo[area]->iono)
 					{
-						GPPUINT1 sys;
-						for (sys = 0; sys < GPP_SAPA_MAX_SYS; sys++)
+						if (hpac->atmo[area]->iono->iono_sat_block)
 						{
-							if (hpac->atmo[area]->iono->iono_sat_block[sys]) {
-								GPPUINT1 sat;
-								for (sat = 0; sat < GPP_SAPA_MAX_SAT; sat++)
-								{
-									if (hpac->atmo[area]->iono->iono_sat_block[sys][sat]) {
-										if (hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_sat_poly)
+							GPPUINT1 sys;
+							for (sys = 0; sys < GPP_SAPA_MAX_SYS; sys++)
+							{
+								if (hpac->atmo[area]->iono->iono_sat_block[sys]) {
+									GPPUINT1 sat;
+									for (sat = 0; sat < GPP_SAPA_MAX_SAT; sat++)
+									{
+										if (hpac->atmo[area]->iono->iono_sat_block[sys][sat])
 										{
-											//memset(hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_sat_poly, 0, sizeof(GPP_SAPA_HPAC_IONO_SAT_POLY));
-											free(hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_sat_poly);
+											if (hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_sat_poly)
+												free(hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_sat_poly);
+
+											if (hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_sat_coeff)
+												free(hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_sat_coeff);
+
+											if (hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_grid)
+											{
+												if (hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_grid->grid)
+												{
+													for (igrid = 0; igrid < GPP_SAPA_MAX_GRID_POINT_PRESENT; igrid++)
+														free(hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_grid->grid[igrid]);
+
+													free(hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_grid->grid);
+												}
+												free(hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_grid);
+											}
+											free(hpac->atmo[area]->iono->iono_sat_block[sys][sat]);
 										}
-										if (hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_sat_coeff)
-										{
-											//memset(hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_sat_coeff, 0, sizeof(GPP_SAPA_HPAC_IONO_SAT_COEFFICIENT));
-											free(hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_sat_coeff);
-										}
-										if (hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_grid)
-										{
-											//memset(hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_grid, 0, sizeof(GPP_SAPA_HPAC_IONO_GRID_BLOCK));
-											free(hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_grid);
-										}
-										//memset(hpac->atmo[area]->iono->iono_sat_block[sys][sat], 0, sizeof(GPP_SAPA_HPAC_IONO_SAT_BLOCK));
-										free(hpac->atmo[area]->iono->iono_sat_block[sys][sat]);
 									}
+									free(hpac->atmo[area]->iono->iono_sat_block[sys]);
 								}
-								//memset(hpac->atmo[area]->iono->iono_sat_block[sys], 0, sizeof(GPP_SAPA_HPAC_IONO_SAT_BLOCK));
-								free(hpac->atmo[area]->iono->iono_sat_block[sys]);
 							}
+							free(hpac->atmo[area]->iono->iono_sat_block);
 						}
-						//memset(hpac->atmo[area]->iono->iono_sat_block, 0, sizeof(GPP_SAPA_HPAC_IONO_SAT_BLOCK));
-						free(hpac->atmo[area]->iono->iono_sat_block);
+						free(hpac->atmo[area]->iono);
 					}
-					//memset(hpac->atmo[area], 0, sizeof(GPP_SAPA_HPAC_AREA));
 					free(hpac->atmo[area]);
 				}
 
 			}
-			//memset(hpac->atmo, 0, sizeof(GPP_SAPA_HPAC_ATMO_BLOCK));
 			free(hpac->atmo);
 			hpac->atmo = NULL;
 		}
@@ -1084,13 +1174,10 @@ GPPLONG gpp_sapa_area_add_area_def(pGPP_SAPA_AREA p_area, GPPUINT1 area, const p
 		p_area->area_def_block[ia] = (pGPP_SAPA_AREA_DEF_BLOCK)calloc(1, sizeof(GPP_SAPA_AREA_DEF_BLOCK));
 		if (!(p_area->area_def_block[ia])) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 	}
-
-	//check if area definition meets SAPA limitations
-	/*if (pset->area_ref_lat< GPP_SAPA_AREA_REF_LAT_MIN || pset->area_ref_lat>GPP_SAPA_AREA_REF_LAT_MAX) return 0;
-	if (pset->area_ref_long< GPP_SAPA_AREA_REF_LONG_MIN || pset->area_ref_long > GPP_SAPA_AREA_REF_LONG_MAX) return 0;
-	if (pset->area_lat_grid_node_spacing< GPP_SAPA_AREA_GRID_LAT_SPACING_MIN || pset->area_lat_grid_node_spacing > GPP_SAPA_AREA_GRID_LAT_SPACING_MAX) return 0;
-	if (pset->area_long_grid_node_spacing < GPP_SAPA_AREA_GRID_LONG_SPACING_MIN || pset->area_long_grid_node_spacing > GPP_SAPA_AREA_GRID_LONG_SPACING_MAX) return 0;*/
-
+	float2long(pset->area_ref_lat, &pset->larea_ref_lat, SAPA_RES_AREA_REF_LATITUDE, SAPA_AREA_LAT_MIN, LSAPA_AREA_LAT_MAX, LSAPA_AREA_LAT_MIN, NULL);
+	float2long(pset->area_ref_long, &pset->larea_ref_long, SAPA_RES_AREA_REF_LONGITUDE, SAPA_AREA_LONG_MIN, LSAPA_AREA_LONG_MAX, LSAPA_AREA_LONG_MIN, NULL);
+	float2long(pset->area_lat_grid_node_spacing, &pset->larea_lat_grid_node_spacing, SAPA_RES_AREA_GRID_LATITUDE_SPACING, SAPA_AREA_GRD_LAT_MIN, LSAPA_AREA_GRD_LAT_MAX, LSAPA_AREA_GRD_LAT_MIN, NULL);
+	float2long(pset->area_long_grid_node_spacing, &pset->larea_long_grid_node_spacing, SAPA_RES_AREA_GRID_LONGITUDE_SPACING, SAPA_AREA_GRD_LONG_MIN, LSAPA_AREA_GRD_LONG_MAX, LSAPA_AREA_GRD_LONG_MIN, NULL);
 
 	memcpy(p_area->area_def_block[ia], pset, sizeof(GPP_SAPA_AREA_DEF_BLOCK));
 	GNSS_SET_IDX_IN_BITS_64(p_area->area_bits[ia/64], ia%64);
@@ -1124,36 +1211,7 @@ GPPLONG gpp_sapa_handle_free_ocbHdl(SAPA_HANDLE *sapaHdl)
 	return 0;
 }
 
-GPPLONG gpp_sapa_handle_malloc_hpacHdl(pSAPA_HANDLE sapaHdl)
-{
-	if (!sapaHdl) return -1;
 
-	if (!sapaHdl->hpacHdl)
-	{
-		GPPUINT1 area, icnfg;
-
-		sapaHdl->hpacHdl = (pSAPA_HPAC_HANDLE *)calloc(GPP_SAPA_MAX_HPAC_CONFIGS, sizeof(SAPA_HPAC_HANDLE*));
-		if (!sapaHdl->hpacHdl) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-
-		for (icnfg = 0; icnfg < GPP_SAPA_MAX_HPAC_CONFIGS; icnfg++)
-		{
-			sapaHdl->hpacHdl[icnfg] = (SAPA_HPAC_HANDLE*)calloc(1, sizeof(SAPA_HPAC_HANDLE));
-			if (!sapaHdl->hpacHdl[icnfg]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-
-			sapaHdl->hpacHdl[icnfg]->hpacIonoHdl = (pSAPA_HPAC_HANDLE_IONO  *)calloc(GPP_SAPA_MAX_AREA_COUNT, sizeof(SAPA_HPAC_HANDLE_IONO*));
-			sapaHdl->hpacHdl[icnfg]->hpacTropoHdl = (pSAPA_HPAC_HANDLE_TROPO*)calloc(GPP_SAPA_MAX_AREA_COUNT, sizeof(SAPA_HPAC_HANDLE_TROPO*));
-
-			for (area = 0; area < GPP_SAPA_MAX_AREA_COUNT; area++)
-			{
-				sapaHdl->hpacHdl[icnfg]->hpacIonoHdl[area] = (SAPA_HPAC_HANDLE_IONO*)calloc(1, sizeof(SAPA_HPAC_HANDLE_IONO));
-				if (!sapaHdl->hpacHdl[icnfg]->hpacIonoHdl[area]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-				sapaHdl->hpacHdl[icnfg]->hpacTropoHdl[area] = (SAPA_HPAC_HANDLE_TROPO*)calloc(1, sizeof(SAPA_HPAC_HANDLE_TROPO));
-				if (!sapaHdl->hpacHdl[icnfg]->hpacTropoHdl[area]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-			}
-		}
-	}
-	return 0; //ok
-}
 
 GPPLONG gpp_sapa_handle_malloc_ocbHdl(SAPA_HANDLE *sapaHdl)
 {
@@ -1172,65 +1230,97 @@ GPPLONG gpp_sapa_handle_malloc_ocbHdl(SAPA_HANDLE *sapaHdl)
 	return 0;
 }
 
-GPPLONG gpp_sapa_handle_free_hpacHdl(SAPA_HANDLE *sapaHdl)
+
+//------------------------------------------------------------------Handle------------------------------------
+GPPLONG gpp_sapa_hpac_add_config_hpacHdl(pSAPA_HANDLE sapaHdl, const pSAPA_HPAC_HANDLE pset, FILE *fp)
 {
-	GPPUINT1 icnfg, area;
+	if (!sapaHdl) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 
-	if (!sapaHdl) return -1;
-	if (!sapaHdl->hpacHdl) return 0;
-
-	for(icnfg=0; icnfg<GPP_SAPA_MAX_HPAC_CONFIGS; icnfg++){
-		if(sapaHdl->hpacHdl[icnfg]){
-			if(sapaHdl->hpacHdl[icnfg]->hpacTropoHdl){
-				for(area=0; area<GPP_SAPA_MAX_AREA_COUNT; area++){
-					if (sapaHdl->hpacHdl[icnfg]->hpacTropoHdl[area]){
-						free(sapaHdl->hpacHdl[icnfg]->hpacTropoHdl[area]);
-					}
-				}
-				free(sapaHdl->hpacHdl[icnfg]->hpacTropoHdl);
-			}
-			if (sapaHdl->hpacHdl[icnfg]->hpacIonoHdl){
-				for (area=0; area<GPP_SAPA_MAX_AREA_COUNT; area++){
-					if (sapaHdl->hpacHdl[icnfg]->hpacIonoHdl[area]){
-						free(sapaHdl->hpacHdl[icnfg]->hpacIonoHdl[area]);
-					}
-				}
-				free(sapaHdl->hpacHdl[icnfg]->hpacIonoHdl);
-			}
-			free(sapaHdl->hpacHdl[icnfg]);
-		}
+	if (!sapaHdl->hpacHdl)
+	{
+		sapaHdl->hpacHdl = (pSAPA_HPAC_HANDLE)calloc(1, sizeof(SAPA_HPAC_HANDLE));
+		if (!sapaHdl->hpacHdl) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 	}
-	free(sapaHdl->hpacHdl);
-	sapaHdl->hpacHdl = NULL;
-	return 0; //ok
-}//gpp_sapa_handle_free_hpacHdl()
 
-#if 0
+	memcpy(sapaHdl->hpacHdl, pset, sizeof(SAPA_HPAC_HANDLE));
+	return 0;
+}
+//-----------------------------------------------------------------------------------------------------------------------------------------
+GPPLONG gpp_sapa_hpac_add_ionoHdl(pSAPA_HANDLE sapaHdl, GPPUINT1 sys, const pSAPA_HPAC_HANDLE_IONO pset, FILE *fp)
+{
+	GPPUINT1 configlist[66];
+	GPPUINT1 iconf = 0;
 
-//GPPLONG gpp_sapa_handle_malloc_ocbHdl(pSAPA_HANDLE sapaHdl)
-//{
-//	if (!sapaHdl) return -1;
-//
-//	if (!sapaHdl->ocbHdl)
-//	{
-//		GPPUINT1 sys;
-//		sapaHdl->ocbHdl = (pSAPA_OCB_HANDLE **)calloc(GPP_SAPA_MAX_OCB_CONFIGS, sizeof(pSAPA_OCB_HANDLE *));
-//
-//		if (!sapaHdl->ocbHdl) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-//
-//		for (sys = 0; sys < SAPA_MAX_SYS; sys++)
-//		{
-//			sapaHdl->ocbHdl[sys] = (pSAPA_OCB_HANDLE *)calloc(GPP_SAPA_MAX_OCB_CONFIGS, sizeof(pSAPA_OCB_HANDLE));
-//
-//			if (!(sapaHdl->ocbHdl[sys])) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-//		}
-//	}
-//
-//	return 0; //ok
-//
-//}//gpp_sapa_sapaHdl_malloc_ocbHdl()
+	if (!sapaHdl) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
 
-#endif
+	if (!sapaHdl->hpacIonoHdl)
+	{
+		sapaHdl->hpacIonoHdl = (pSAPA_HPAC_HANDLE_IONO**)calloc(GPP_SAPA_MAX_SYS, sizeof(SAPA_HPAC_HANDLE_IONO**));
+		if (!sapaHdl->hpacIonoHdl) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+	}
+
+	if (!sapaHdl->hpacIonoHdl[sys])
+	{
+		sapaHdl->hpacIonoHdl[sys] = (pSAPA_HPAC_HANDLE_IONO*)calloc(GPP_SAPA_MAX_HPAC_CONFIGS, sizeof(SAPA_HPAC_HANDLE_IONO*));
+		if (!sapaHdl->hpacIonoHdl[sys]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+	}
+
+	gpp_sapa_get_configlist(sapaHdl->hpacIonoHdl_bits[sys], configlist);
+
+	printf("config=%d", configlist[0]);
+	if (configlist[0] == 64) {
+		fprintf(fp, "SSRM2SAPA ERROR: TOO many OCB configs!\n");
+		return GPP_SAPA_ERR_INVALID_OCB_HANDLE;
+	}
+
+	iconf = configlist[configlist[0]];
+
+	if (!sapaHdl->hpacIonoHdl[sys][iconf])
+	{
+		sapaHdl->hpacIonoHdl[sys][iconf] = (pSAPA_HPAC_HANDLE_IONO)calloc(1, sizeof(SAPA_HPAC_HANDLE_IONO));
+		if (!sapaHdl->hpacIonoHdl[sys][iconf]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+	}
+
+	memcpy(sapaHdl->hpacIonoHdl[sys][iconf], pset, sizeof(pSAPA_HPAC_HANDLE_IONO));
+	GNSS_SET_IDX_IN_BITS_64(sapaHdl->hpacIonoHdl_bits[sys], iconf);
+	return 0;
+}
+//-----------------------------------------------------------------------------------------------------------------------------------------
+GPPLONG gpp_sapa_hpac_add_config_tropoHdl(pSAPA_HANDLE sapaHdl, const SAPA_HPAC_HANDLE_TROPO *pset, FILE *fp)
+{
+	GPPUINT1 configlist[66];
+	GPPUINT1 iconf = 0;
+
+	if (!sapaHdl) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+
+	if (!sapaHdl->hpacTropoHdl)
+	{
+		sapaHdl->hpacTropoHdl = (pSAPA_HPAC_HANDLE_TROPO*)calloc(GPP_SAPA_MAX_HPAC_CONFIGS, sizeof(SAPA_HPAC_HANDLE_TROPO*));
+		if (!sapaHdl->hpacTropoHdl) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+	}
+
+	gpp_sapa_get_configlist(sapaHdl->hpacTropoHdl_bits, configlist);
+
+	printf("config=%d", configlist[0]);
+	if (configlist[0] == 64) {
+		fprintf(fp, "SSRM2SAPA ERROR: TOO many OCB configs!\n");
+		return GPP_SAPA_ERR_INVALID_OCB_HANDLE;
+	}
+
+	iconf = configlist[configlist[0]];
+
+	if (!sapaHdl->hpacTropoHdl[iconf])
+	{
+		sapaHdl->hpacTropoHdl[iconf] = (pSAPA_HPAC_HANDLE_TROPO)calloc(1, sizeof(SAPA_HPAC_HANDLE_TROPO));
+		if (!sapaHdl->hpacTropoHdl) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+	}
+
+	memcpy(sapaHdl->hpacTropoHdl[iconf], pset, sizeof(SAPA_HPAC_HANDLE_TROPO));
+	GNSS_SET_IDX_IN_BITS_64(sapaHdl->hpacTropoHdl_bits, iconf);
+
+	return 0;
+}
+//-----------------------------------------------------------------------------------------------------------------------------------------
 
 
 GPPLONG gpp_sapa_handle_free_gadHdl(SAPA_HANDLE *sapaHdl)
@@ -1252,7 +1342,7 @@ GPPLONG gpp_sapa_handle_malloc_gadHdl(pSAPA_HANDLE sapaHdl)
 
 
 
-GPPLONG gpp_sapa_config_add_ocb_config(SAPA_HANDLE *sapaHdl, GPPUINT1 sys, GPPUINT1 sat, GPPUINT1 config, const SAPA_OCB_HANDLE *pset, FILE *fp)
+GPPLONG gpp_sapa_config_add_ocb_config(SAPA_HANDLE *sapaHdl, GPPUINT1 sys, const SAPA_OCB_HANDLE *pset, FILE *fp)
 {
 	GPPUINT1 configlist[66];
 	GPPUINT1 iconf=0;
@@ -1270,12 +1360,14 @@ GPPLONG gpp_sapa_config_add_ocb_config(SAPA_HANDLE *sapaHdl, GPPUINT1 sys, GPPUI
 
 	gpp_sapa_get_configlist(sapaHdl->ocbHdl_bits[sys], configlist);
 
+	printf("config=%d", configlist[0]);
 	if(configlist[0]==64){
 		fprintf(fp, "SSRM2SAPA ERROR: TOO many OCB configs!\n");
 		return GPP_SAPA_ERR_INVALID_OCB_HANDLE;
 	}
 
 	iconf=configlist[configlist[0]];
+	
 
 	if (!sapaHdl->ocbHdl[sys][iconf]){
 		sapaHdl->ocbHdl[sys][iconf] = (pSAPA_OCB_HANDLE)calloc(1, sizeof(SAPA_OCB_HANDLE));
@@ -1292,11 +1384,35 @@ GPPLONG gpp_sapa_config_add_ocb_config(SAPA_HANDLE *sapaHdl, GPPUINT1 sys, GPPUI
 
 GPPLONG gpp_sapa_config_add_gad_config(SAPA_HANDLE *sapaHdl, const SAPA_GAD_HANDLE *pset, FILE *fp)
 {
+	GPPUINT1 configlist[66];
+	GPPUINT1 iconf = 0;
+
 	if (!sapaHdl) return -1;
 	if (!pset) return GPP_SAPA_ERR_INVALID_GAD_HANDLE;
 
-	sapaHdl->gadHdl = (SAPA_GAD_HANDLE*)calloc(1, sizeof(SAPA_GAD_HANDLE));
+	if (!sapaHdl->gadHdl)
+	{
+		sapaHdl->gadHdl = (SAPA_GAD_HANDLE**)calloc(1, sizeof(SAPA_GAD_HANDLE*));
+	}
+	gpp_sapa_get_configlist(sapaHdl->gadHdl_bits, configlist);
+
+	if (configlist[0] == 64) {
+		fprintf(fp, "SSRM2SAPA ERROR: TOO many Area Def configs!\n");
+		return GPP_SAPA_ERR_INVALID_GAD_HANDLE;
+	}
+
+	iconf = configlist[configlist[0]];
+
+	printf("====== %d ======\n", iconf);
+
+	if (!sapaHdl->gadHdl[iconf]) {
+		sapaHdl->gadHdl[iconf] = (SAPA_GAD_HANDLE*)calloc(1, sizeof(SAPA_GAD_HANDLE));
+		if (!(sapaHdl->gadHdl[iconf])) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
+	}
+
 	memcpy(sapaHdl->gadHdl, pset, sizeof(SAPA_GAD_HANDLE));
+	GNSS_SET_IDX_IN_BITS_64(sapaHdl->gadHdl_bits, iconf);
+
 	return 0; //ok
 }
 
@@ -1342,7 +1458,21 @@ extern void gpp_sapa_float2buffer(GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *
 
 } /* gpp_sapa_float2buffer() */
 
+GPPUINT1 float2long(GPPDOUBLE val, GPPLONG *lval, GPPDOUBLE Res, GPPDOUBLE Rmin, GPPLONG Lmax, GPPLONG Lmin, const GPPUINT2 *invalid)
+{
+	*lval = (val - Rmin) / Res;              //Conversion of float value to long
+	//printf("  %ld ", *lval);
 
+	if (*lval > Lmax || *lval < Lmin)     //Checking long value with max and min long values
+	{
+		if (invalid)
+		{
+			*lval = invalid;
+		}
+		return 0;
+	}
+	return 1;
+}
 
 GPPUINT1 gpp_sapa_buffer2float(const GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos, GPPDOUBLE min, GPPUINT1 bits, GPPDOUBLE res, const GPPUINT2 *invalid, GPPDOUBLE *value)
 {
@@ -1363,15 +1493,16 @@ GPPUINT1 gpp_sapa_buffer2float(const GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLON
 
 
 
+
 GPPLONG gpp_sapa_get_bit_diff(GPPLONG byte_pos, GPPLONG bit_pos, GPPLONG byte_pos0, GPPLONG bit_pos0)
 {
 	return (byte_pos - byte_pos0) * 8 + (bit_pos - bit_pos0);
 }
 
-void gpp_sapa_set_area_bits(GPPUINT8*area_bits, int value)
+void gpp_sapa_set_area_bits(GPPUINT8*area_bits, GPPUINT1 value)
 {
-	GPPINT8 temp = 1 << (value % 64);
-	area_bits[(value / 64)] = temp | area_bits[value / 64];
+	GPPUINT8 one = 1;
+	area_bits[value / 64] |= (one << (value % 64));
 }
 
 //void gpp_sapa_get_arealist(GPPUINT8*area_bits, GPPUINT8 *arr)
@@ -1421,147 +1552,6 @@ GPPUINT1 gpp_sapa_set_cons_bit(GPPUINT1 cons_bits, GPPUINT1 pos)
 
 //============================================================================================================================================
 
-
-
-GPPLONG gpp_sapa_config_add_hpac_config(SAPA_HANDLE *sapaHdl, const SAPA_HPAC_HANDLE *pset, FILE *fp)
-{
-	GPPUINT1 config;
-
-	if (!sapaHdl) return -1;
-	if (!pset) return GPP_SAPA_ERR_INVALID_HPAC_HANDLE;
-
-	if (!sapaHdl->hpacHdl) {
-		/*GPPLONG rc;
-		if (rc = gpp_sapa_handle_malloc_hpacHdl(sapaHdl))
-			return rc;*/
-		sapaHdl->hpacHdl = (pSAPA_HPAC_HANDLE*)calloc(GPP_SAPA_MAX_HPAC_CONFIGS, sizeof(SAPA_HPAC_HANDLE*));
-		if(!sapaHdl->hpacHdl) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-	}
-	for (config = 0; config < GPP_SAPA_MAX_HPAC_CONFIGS; config++)
-	{
-		if (!sapaHdl->hpacHdl[config])
-		{
-
-			sapaHdl->hpacHdl[config] = (pSAPA_HPAC_HANDLE)calloc(1, sizeof(SAPA_HPAC_HANDLE));
-			if (!sapaHdl->hpacHdl[config]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-
-			memcpy(sapaHdl->hpacHdl[config], pset, sizeof(SAPA_HPAC_HANDLE));
-			break;
-		}
-	}
-	return 0;
-}//gpp_sapa_config_add_hpac_config()
-
-GPPLONG gpp_sapa_config_add_hpac_iono_config(SAPA_HANDLE *sapaHdl, GPPUINT1 area, const SAPA_HPAC_HANDLE_IONO *pset, FILE *fp)
-{
-	GPPUINT1 icnfg;
-	if (!sapaHdl) return -1;
-	if (!pset) return GPP_SAPA_ERR_INVALID_HPAC_HANDLE;
-
-	if (area >= GPP_SAPA_MAX_AREA_COUNT) return GPP_SAPA_ERR_INVALID_AREA;
-
-	if (!sapaHdl->hpacHdl)
-	{
-		sapaHdl->hpacHdl = (pSAPA_HPAC_HANDLE*)calloc(GPP_SAPA_MAX_HPAC_CONFIGS, sizeof(SAPA_HPAC_HANDLE*));
-		if (!sapaHdl->hpacHdl) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-	}
-	for (icnfg = 0; icnfg < GPP_SAPA_MAX_HPAC_CONFIGS; icnfg++)
-	{
-		if (!sapaHdl->hpacHdl[icnfg])
-		{
-			sapaHdl->hpacHdl[icnfg] = (pSAPA_HPAC_HANDLE)calloc(1, sizeof(SAPA_HPAC_HANDLE));
-			if (!sapaHdl->hpacHdl[icnfg]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-		}
-
-		if (!sapaHdl->hpacHdl[icnfg]->hpacIonoHdl) {
-			sapaHdl->hpacHdl[icnfg]->hpacIonoHdl = (pSAPA_HPAC_HANDLE_IONO *)calloc(GPP_SAPA_MAX_AREA_COUNT, sizeof(SAPA_HPAC_HANDLE_IONO*));
-			if (!sapaHdl->hpacHdl[icnfg]->hpacIonoHdl) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-		}
-
-		if (!sapaHdl->hpacHdl[icnfg]->hpacIonoHdl[area]) {
-			sapaHdl->hpacHdl[icnfg]->hpacIonoHdl[area] = (pSAPA_HPAC_HANDLE_IONO)calloc(1, sizeof(SAPA_HPAC_HANDLE_IONO));
-			if (!sapaHdl->hpacHdl[icnfg]->hpacIonoHdl[area]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-		}
-
-		memcpy(sapaHdl->hpacHdl[icnfg]->hpacIonoHdl[area], pset, sizeof(SAPA_HPAC_HANDLE_IONO));
-		break;
-	}
-	return 0;
-}//gpp_sapa_config_add_hpac_iono_config()
-
-GPPLONG gpp_sapa_config_add_hpac_tropo_config(SAPA_HANDLE *sapaHdl, GPPUINT1 area, const SAPA_HPAC_HANDLE_TROPO *pset, FILE *fp)
-{
-	GPPUINT1 icnfg;
-	if (!sapaHdl) return -1;
-	if (!pset) return GPP_SAPA_ERR_INVALID_HPAC_HANDLE;
-
-	if (area >= GPP_SAPA_MAX_AREA_COUNT) return GPP_SAPA_ERR_INVALID_AREA;
-
-	if (!sapaHdl->hpacHdl)
-	{
-		sapaHdl->hpacHdl = (pSAPA_HPAC_HANDLE*)calloc(GPP_SAPA_MAX_HPAC_CONFIGS, sizeof(SAPA_HPAC_HANDLE*));
-		if (!sapaHdl->hpacHdl)  return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-	}
-	for (icnfg = 0; icnfg < GPP_SAPA_MAX_HPAC_CONFIGS; icnfg++)
-	{
-		if (!sapaHdl->hpacHdl[icnfg])
-		{
-			sapaHdl->hpacHdl[icnfg] = (pSAPA_HPAC_HANDLE)calloc(1, sizeof(SAPA_HPAC_HANDLE));
-			if (!sapaHdl->hpacHdl[icnfg])  return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-		}
-			if (!sapaHdl->hpacHdl[icnfg]->hpacTropoHdl) {
-				sapaHdl->hpacHdl[icnfg]->hpacTropoHdl = (pSAPA_HPAC_HANDLE_TROPO*)calloc(GPP_SAPA_MAX_AREA_COUNT, sizeof(SAPA_HPAC_HANDLE_TROPO*));
-				if (!sapaHdl->hpacHdl[icnfg]->hpacTropoHdl) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-			}
-
-			if (!sapaHdl->hpacHdl[icnfg]->hpacTropoHdl[area])
-			{
-				sapaHdl->hpacHdl[icnfg]->hpacTropoHdl[area] = (pSAPA_HPAC_HANDLE_TROPO)calloc(1, sizeof(SAPA_HPAC_HANDLE_TROPO));
-				if (!sapaHdl->hpacHdl[icnfg]->hpacTropoHdl[area]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-			}
-			memcpy(sapaHdl->hpacHdl[icnfg]->hpacTropoHdl[area], pset, sizeof(SAPA_HPAC_HANDLE_TROPO));
-			break;
-
-
-	}
-
-	return 0;
-}//gpp_sapa_config_add_hpac_tropo_config()
-///************************************************************************************************************
-// *	\brief Free SAPA_OCB_HANDLDE in SAPA_HANDLE
-// ************************************************************************************************************/
-//GPPLONG gpp_sapa_handle_malloc_ocbHdl(SAPA_HANDLE *sapaHdl)
-//{
-//	if(!sapaHdl) return -1;
-//
-//	if(!sapaHdl->ocbHdl){
-//		sapaHdl->ocbHdl=(pSAPA_OCB_HANDLE**)calloc(SAPA_MAX_SYS, sizeof(SAPA_OCB_HANDLE**));
-//		if(!sapaHdl->ocbHdl) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-//
-//		GPPUINT1 sys;
-//		for(sys=0; sys<SAPA_MAX_SYS; sys++) {
-//			sapaHdl->ocbHdl[sys] = (SAPA_OCB_HANDLE**)calloc(GPP_SAPA_MAX_OCB_CONFIGS, sizeof(SAPA_OCB_HANDLE*));
-//			if(!sapaHdl->ocbHdl[sys]) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-//		}
-//	}
-//	return 0;
-//}//gpp_sapa_handle_free_ocbHdl()
-
-/*
-if (!ocb->sv) {
-		GPPUINT1 sys;
-		ocb->sv = (pGPP_SAPA_OCB_SV**)calloc(GPP_SAPA_MAX_SYS, sizeof(GPP_SAPA_OCB**));
-
-		if(!ocb->sv) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-
-		for(sys=0; sys<GPP_SAPA_MAX_SYS; sys++) {
-			ocb->sv[sys] = (GPP_SAPA_OCB_SV**)calloc(GPP_SAPA_MAX_SAT, sizeof(GPP_SAPA_OCB_SV));
-
-			if (!(ocb->sv[sys])) return GPP_SAPA_ERR_NOT_ENOUGH_MEMORY;
-		}
-	}
-
-*/
 
 /************************************************************************************************************
  *	\brief Free SAPA_HANDLE
@@ -1807,73 +1797,3 @@ GPPLONG length_bytes_from_bits(GPPLONG b)
 {
 	return (((b) / 8) + ((b) % 8 ? 1 : 0));
 }
-#if 0
-
-
-//Write Buffer Data Into File
-void buffer_data_write_into_file(GPPUCHAR *buffer)
-{
-	FILE *fPtr=NULL;
-	char *binary_filename = "sap/encp_001.ocb";
-	/*
-	 * Open file in w (write) mode.
-	 * "data/file1.txt" is complete path to create file
-	 */
-	fPtr = fopen(binary_filename, "ab");
-
-	/* fopen() return NULL if last operation was unsuccessful */
-	if (fPtr == NULL)
-	{
-		/* File not created hence exit */
-		printf("Unable to create file.\n");
-		//exit(EXIT_FAILURE);
-	}
-
-	/* Write data to file */
-	fputs(buffer, fPtr);
-
-	/* Close file to save file data */
-	fclose(fPtr);
-}
-//Compare Two files
-void compare_files(FILE *pre_binary_filename, FILE *binary_filename)
-{
-	char ch1 = getc(pre_binary_filename);
-	char ch2 = getc(binary_filename);
-	int error = 0, pos = 0, line = 1;
-	while (ch1 != EOF && ch2 != EOF)
-	{
-		pos++;
-
-		// if both variable encounters new
-		// line then line variable is incremented
-		// and pos variable is set to 0
-		if (ch1 == '\n' && ch2 == '\n')
-		{
-			line++;
-			pos = 0;
-		}
-
-		// if fetched data is not equal then
-		// error is incremented
-		if (ch1 != ch2)
-		{
-			error++;
-			printf("Line Number : %d \tError"
-				" Position : %d \n", line, pos);
-		}
-
-		// fetching character until end of file
-		ch1 = getc(pre_binary_filename);
-		ch2 = getc(binary_filename);
-	}
-
-	printf("Total Errors : %d\t", error);
-}
-int TestBit(GPPUINT8 A, int k)																							//only for bit mask testing
-{
-	GPPUINT8 value = 1;
-	return ((A & (value << k)) ? 1:0);
-}
-
-#endif

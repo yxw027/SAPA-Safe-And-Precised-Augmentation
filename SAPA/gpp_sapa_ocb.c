@@ -6,8 +6,6 @@
 
 #include "gpp_sapa.h"
 #include "bit2buff.h"
-#define GPP_SAPA_OCB_SAT_YAW_INVALID 0x3F
-#define GPP_SAPA_SAT_YAW_RES 6
 
 static const GPPUINT1 SAPA_BIAS_BITMASK_LEN_GPS[2] = { 6, 11 };
 static const GPPUINT1 SAPA_BIAS_BITMASK_LEN_GLO[2] = { 5, 9 };
@@ -366,7 +364,7 @@ static GPPLONG gpp_sapa_ocb_orb2buffer(const pGPP_SAPA_OCB p_ocb, GPPUINT1 sys, 
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos,14, orb->ld_orbit[2]);
 	if (p_ocb->header_block[sys]->yaw_flag == GPP_SAPA_YAW_FLAG_PRESENT)
 	{
-		if (orb->yaw_bits) gpp_sapa_float2buffer(buffer, byte_pos, bit_pos, SAPA_YAW_MIN, SAPA_YAW_MAX, 6, GPP_SAPA_SAT_YAW_RES, NULL, orb->sat_yaw);//SF021
+		if (orb->yaw_bits) gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 6, orb->lsat_yaw);
 		else gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 6, GPP_SAPA_OCB_SAT_YAW_INVALID);
 	}
 	
@@ -389,6 +387,7 @@ static GPPLONG gpp_sapa_ocb_buffer2orb(pGPP_SAPA_OCB p_ocb, GPPUINT1 sys, GPPUIN
 	res = SAPA_RES_SV_CORRECTION;
 	bits = 14;
 
+	orb.iode = gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, SAPA_SV_IODE_LEN[sys]);
 	gpp_sapa_buffer2float(buffer, byte_pos, bit_pos, min, bits, res, NULL, &orb.d_orbit[0]);
 	gpp_sapa_buffer2float(buffer, byte_pos, bit_pos, min, bits, res, NULL, &orb.d_orbit[1]);
 	gpp_sapa_buffer2float(buffer, byte_pos, bit_pos, min, bits, res, NULL, &orb.d_orbit[2]);

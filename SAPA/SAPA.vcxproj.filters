@@ -33,10 +33,10 @@
     <ClCompile Include="gpp_sapa_debug.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="sapa_converter.c">
+    <ClCompile Include="gpp_sapa.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="gpp_sapa.c">
+    <ClCompile Include="sapa_converter.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
