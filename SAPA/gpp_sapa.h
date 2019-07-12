@@ -327,9 +327,6 @@ extern "C" {
 #define SAPA_TROPO_GRD_RES 0.004
 #define SAPA_IONO_GRD_RES 0.04
 
-#define SAPA_RES_TROPO_POLY_COEFF_T00 0.004
-#define SAPA_RES_TROPO_POLY_COEFF_T01 0.001
-#define SAPA_RES_TROPO_POLY_COEFF_T11 0.0002
 
 #define SAPA_T00_RES 0.004
 #define SAPA_T01_RES 0.001
@@ -787,6 +784,9 @@ GPPLONG gpp_sapa_handle_free_gadHdl(SAPA_HANDLE *sapaHdl);
 GPPLONG gpp_sapa_hpac_add_config_hpacHdl(pSAPA_HANDLE sapaHdl, const pSAPA_HPAC_HANDLE pset, FILE *fp);
 GPPLONG gpp_sapa_hpac_add_ionoHdl(pSAPA_HANDLE sapaHdl, GPPUINT1 sys, const pSAPA_HPAC_HANDLE_IONO pset, FILE *fp);
 GPPLONG gpp_sapa_hpac_add_config_tropoHdl(pSAPA_HANDLE sapaHdl, const SAPA_HPAC_HANDLE_TROPO *pset, FILE *fp);
+GPPLONG gpp_sapa_hpac_free_config_hpacHdl(pSAPA_HANDLE sapaHdl);
+GPPLONG gpp_sapa_hpac_free_config_ionoHdl(pSAPA_HANDLE sapaHdl);
+GPPLONG gpp_sapa_hpac_free_config_tropoHdl(pSAPA_HANDLE sapaHdl);
 
 /******************************************************************************
  *  \brief Write SAPA OCB content to buffer

@@ -175,15 +175,16 @@ void gpp_sapa_debug_fprintf_area(pGPP_SAPA_AREA p_area, FILE *fp)
 		}
 	}//p_area->header_block
 
+
 	if (p_area->area_def_block)
 	{
-		GPPUINT1 area_count, iarea,count=0;
-		area_count = p_area->header_block->area_count;
-		for (iarea = 0; iarea < SAPA_MAX_AREA; iarea++) {
+		GPPUINT2 iarea =0;
+		for (iarea = 0; iarea < SAPA_MAX_AREA; iarea++)
+		{
 			GPPUINT1 ai = iarea;
+			
 			if (area_def = p_area->area_def_block[ai])
 			{
-				
 					fprintf(fp, "%-25s\n", "ATM_AREA_DEF:");
 					fprintf(fp, " %2lu", area_def->area_id);											//Area ID
 					fprintf(fp, " %7.5f", area_def->area_ref_lat);										//Area Reference Latitude
@@ -200,131 +201,131 @@ void gpp_sapa_debug_fprintf_area(pGPP_SAPA_AREA p_area, FILE *fp)
 		
 }//sapa_fprintf_area()
 
-//void gpp_sapa_debug_fprintf_hpac(pGPP_SAPA_HPAC p_hpac, SAPA_HPAC_HANDLE *hpacHdl, FILE *fp)
-//{
-//	GPP_SAPA_HPAC_HEADER *header = NULL;
-//	GPP_SAPA_HPAC_ATMO_BLOCK *atmo_block = NULL;
-//	GPP_SAPA_HPAC_AREA *area_def = NULL;
-//	GPP_SAPA_HPAC_TROPO_POLY_COEFFICIENT_BLOCK *tropo_poly_coeff = NULL;
-//	GPP_SAPA_HPAC_TROPO_GRID_BLOCK *tropo_grid = NULL;
-//	GPP_SAPA_HPAC_IONO *iono_block = NULL;
-//	GPP_SAPA_HPAC_IONO_SAT_POLY *iono_poly = NULL;
-//	GPP_SAPA_HPAC_IONO_SAT_COEFFICIENT	*iono_coeff = NULL;
-//	GPP_SAPA_HPAC_IONO_GRID_BLOCK *iono_grid = NULL;
-//	GPPUINT1 svlist[66]={0,};
-//
-//	if (!(fp)) fp = stdout;
-//
-//	if (p_hpac->header_block)
-//	{
-//		fprintf(fp, "\n");
-//		fprintf(fp, "\nHPAC \n");
-//		if (header = p_hpac->header_block)
-//		{
-//			GPPUINT4 sec = header->time_tag;
-//			GPPT_WNT wn_t = { 0, };
-//
-//			wn_t.wn = SAPA_GPS_WEEK_20100101 + (sec / 604800);
-//			wn_t.t = SAPA_GPS_SEC_20100101 + (sec % 604800);
-//			INTRN_CORRECT_ROLLOVER(wn_t.wn, wn_t.t, 604800.0e0);
-//
-//			fprintf(fp, "\n");
-//			fprintf(fp, "Time %04d %8.1f \n", wn_t.wn, wn_t.t);
-//			fprintf(fp, "\n");
-//
-//			fprintf(fp, "%-25s %3lu\n", "Solution ID", header->sol_id);
-//			fprintf(fp, "%-25s %2lu\n", "Solution Processor ID", header->sol_processor_id);
-//			fprintf(fp, "%-25s %3lu\n", "Sol Issue Of Update", header->sol_issue_of_update);
-//			fprintf(fp, "%-25s %2d\n", "Sol Area Of Count", header->area_count);
-//		}
-//	
-//	}
-//	if(p_hpac->atmo)
-//	{
-//		GPPUINT1 iarea, area_count;
-//		area_count = p_hpac->header_block->area_count;
-//		for (iarea = 0; iarea < area_count; iarea++) {
-//			GPPUINT1 ai = iarea;
-//			if (atmo_block = p_hpac->atmo[ai])
-//			{
-//				if (area_def = atmo_block->area_def) {
-//					fprintf(fp, "\n");
-//					fprintf(fp, "%-25s\n", "ATM_HPAC_COMMON_DATA:");
-//					fprintf(fp, " %3d", area_def->area_id);								//Area ID
-//					fprintf(fp, " %2d", area_def->number_of_grid_point);					//Number of Grid Point
-//					fprintf(fp, " %1d", area_def->tropo_block_indicator);					//Tropo Block Indicator
-//					fprintf(fp, " %1d", area_def->iono_block_indicator);					//Iono Block Indicator
-//				}
-//				if(atmo_block->tropo)
-//				if (tropo_poly_coeff = atmo_block->tropo->tropo_poly_coeff_block){
-//						fprintf(fp, "\n");
-//					fprintf(fp, "%-25s\n", "ATM_TROPO_DATA:");
-//					fprintf(fp, " %1d", tropo_poly_coeff->tropo_equation_type);			//Tropo Equation Type
-//					fprintf(fp, " %7.3f", tropo_poly_coeff->tropo_quality);				//Tropo Quantity
-//					fprintf(fp, " %7.3f", tropo_poly_coeff->tropo_avhd);				//Area Average Ver Hydro
-//
-//					fprintf(fp, " %7.3f", tropo_poly_coeff->tropo_poly_coeff[TROPO_POLY_COEFF_INDX_T00]);//Tropo Poly Coeff
-//					fprintf(fp, " %7.3f", tropo_poly_coeff->tropo_poly_coeff[TROPO_POLY_COEFF_INDX_T01]);//Tropo Poly Coeff
-//					fprintf(fp, " %7.3f", tropo_poly_coeff->tropo_poly_coeff[TROPO_POLY_COEFF_INDX_T10]);//Tropo Poly Coeff
-//					fprintf(fp, " %7.3f", tropo_poly_coeff->tropo_poly_coeff[TROPO_POLY_COEFF_INDX_T11]);//Tropo Poly Coeff
-//				}
-//				if (atmo_block->tropo) {
-//					if (atmo_block->tropo->tropo_grid) {
-//						if (tropo_grid = atmo_block->tropo->tropo_grid) {
-//							GPPUINT1 ig, no_of_grid;
-//							no_of_grid = p_hpac->atmo[iarea]->tropo->tropo_grid->num_grid;
-//							for (ig = 0; ig < no_of_grid; ig++)
-//							{
-//								fprintf(fp, " %7.3f", tropo_grid->grid[ig]->val);			//Tropo Grid Residual
-//							}
-//						}
-//					}
-//				}
-//				fprintf(fp, "\n");
-//				if(iono_block =atmo_block->iono)
-//				fprintf(fp, " %1d", iono_block->iono_equation_type);							//Iono Equaction Type
-//
-//				GPPUINT1 isys, syslist[18] = { 0, };
-//
-//				gpp_sapa_get_syslist(hpacHdl->hpacIonoHdl[ai]->sys_bits, syslist);				//Convert from bits to SYS ID
-//				for (isys = 1; isys <= syslist[0]; isys++) {
-//					GPPUINT1 sys;
-//					sys = syslist[isys];
-//
-//					gpp_sapa_get_svlist(iono_block->sat_prn_bits[sys], svlist);
-//					GPPUINT1 isat;
-//					for (isat = 1; isat <= svlist[0]; isat++) {
-//						GPPUINT1 sat;
-//						sat = svlist[isat];
-//						fprintf(fp, "\n");
-//						fprintf(fp, "%-25s\n", "ATM_IONOSAT_DATA:");
-//						fprintf(fp, " %1c%03d", gpp_sapa_system_id(sys), sat);		//Satellite ID
-//						if (iono_poly = iono_block->iono_sat_block[sys][sat]->iono_sat_poly)
-//						{
-//							fprintf(fp, " %7.3f", iono_poly->iono_quality);	//Iono Quality
-//						}
-//						if (iono_coeff = iono_block->iono_sat_block[sys][sat]->iono_sat_coeff) {
-//							fprintf(fp, " %7.3f", iono_coeff->iono_poly_coeff[IONO_POLY_COEFF_INDX_C00]);	//Iono ply coeff
-//							fprintf(fp, " %7.3f", iono_coeff->iono_poly_coeff[IONO_POLY_COEFF_INDX_C01]);
-//							fprintf(fp, " %7.3f", iono_coeff->iono_poly_coeff[IONO_POLY_COEFF_INDX_C10]);
-//							fprintf(fp, " %7.3f", iono_coeff->iono_poly_coeff[IONO_POLY_COEFF_INDX_C11]);
-//						}
-//						if(iono_grid=iono_block->iono_sat_block[sys][sat]->iono_grid)
-//						{
-//							GPPUINT1 ig, no_of_grid;
-//							no_of_grid = p_hpac->atmo[ai]->iono->iono_sat_block[sys][sat]->iono_grid->num_grid;
-//							for (ig = 0; ig < no_of_grid; ig++)
-//							{
-//								fprintf(fp, " %7.2f", iono_grid->grid[ig]->lval);
-//							}
-//						}
-//					}
-//				}
-//			}
-//			fprintf(fp, "\n");
-//		}
-//	}
-//			
-//
-//	
-//}//sapa_fprintf_hpac()
+void gpp_sapa_debug_fprintf_hpac(pGPP_SAPA_HPAC p_hpac, SAPA_HPAC_HANDLE *hpacHdl, FILE *fp)
+{
+	GPP_SAPA_HPAC_HEADER *header = NULL;
+	GPP_SAPA_HPAC_ATMO_BLOCK *atmo_block = NULL;
+	GPP_SAPA_HPAC_AREA *area_def = NULL;
+	GPP_SAPA_HPAC_TROPO_POLY_COEFFICIENT_BLOCK *tropo_poly_coeff = NULL;
+	GPP_SAPA_HPAC_TROPO_GRID_BLOCK *tropo_grid = NULL;
+	GPP_SAPA_HPAC_IONO *iono_block = NULL;
+	GPP_SAPA_HPAC_IONO_SAT_POLY *iono_poly = NULL;
+	GPP_SAPA_HPAC_IONO_SAT_COEFFICIENT	*iono_coeff = NULL;
+	GPP_SAPA_HPAC_IONO_GRID_BLOCK *iono_grid = NULL;
+	GPPUINT1 svlist[66]={0,};
+
+	if (!(fp)) fp = stdout;
+
+	if (p_hpac->header_block)
+	{
+		fprintf(fp, "\n");
+		fprintf(fp, "\nHPAC \n");
+		if (header = p_hpac->header_block)
+		{
+			GPPUINT4 sec = header->time_tag;
+			GPPT_WNT wn_t = { 0, };
+
+			wn_t.wn = SAPA_GPS_WEEK_20100101 + (sec / 604800);
+			wn_t.t = SAPA_GPS_SEC_20100101 + (sec % 604800);
+			INTRN_CORRECT_ROLLOVER(wn_t.wn, wn_t.t, 604800.0e0);
+
+			fprintf(fp, "\n");
+			fprintf(fp, "Time %04d %8.1f \n", wn_t.wn, wn_t.t);
+			fprintf(fp, "\n");
+
+			fprintf(fp, "%-25s %3lu\n", "Solution ID", header->sol_id);
+			fprintf(fp, "%-25s %2lu\n", "Solution Processor ID", header->sol_processor_id);
+			fprintf(fp, "%-25s %3lu\n", "Sol Issue Of Update", header->sol_issue_of_update);
+			fprintf(fp, "%-25s %2d\n", "Sol Area Of Count", header->area_count);
+		}
+	
+	}
+	if(p_hpac->atmo)
+	{
+		GPPUINT2 iarea, area_count;
+		area_count = p_hpac->header_block->area_count;
+		for (iarea = 0; iarea < SAPA_MAX_AREA; iarea++) {
+			if (atmo_block = p_hpac->atmo[iarea])
+			{
+				GPPUINT2 ai = iarea;
+				if (area_def = atmo_block->area_def) {
+					fprintf(fp, "\n");
+					fprintf(fp, "%-25s\n", "ATM_HPAC_COMMON_DATA:");
+					fprintf(fp, " %3d", area_def->area_id);								//Area ID
+					fprintf(fp, " %2d", area_def->number_of_grid_point);					//Number of Grid Point
+					fprintf(fp, " %1d", area_def->tropo_block_indicator);					//Tropo Block Indicator
+					fprintf(fp, " %1d", area_def->iono_block_indicator);					//Iono Block Indicator
+				}
+				if(atmo_block->tropo)
+				if (tropo_poly_coeff = atmo_block->tropo->tropo_poly_coeff_block){
+						fprintf(fp, "\n");
+					fprintf(fp, "%-25s\n", "ATM_TROPO_DATA:");
+					fprintf(fp, " %1d", tropo_poly_coeff->tropo_equation_type);			//Tropo Equation Type
+					fprintf(fp, " %7.3f", tropo_poly_coeff->tropo_quality);				//Tropo Quantity
+					fprintf(fp, " %7.3f", tropo_poly_coeff->tropo_avhd);				//Area Average Ver Hydro
+
+					fprintf(fp, " %7.3f", tropo_poly_coeff->tropo_poly_coeff[SAPA_T00_IDX]);//Tropo Poly Coeff
+					fprintf(fp, " %7.3f", tropo_poly_coeff->tropo_poly_coeff[SAPA_T01_IDX]);//Tropo Poly Coeff
+					fprintf(fp, " %7.3f", tropo_poly_coeff->tropo_poly_coeff[SAPA_T10_IDX]);//Tropo Poly Coeff
+					fprintf(fp, " %7.3f", tropo_poly_coeff->tropo_poly_coeff[SAPA_T11_IDX]);//Tropo Poly Coeff
+				}
+				if (atmo_block->tropo) {
+					if (atmo_block->tropo->tropo_grid) {
+						if (tropo_grid = atmo_block->tropo->tropo_grid) {
+							GPPUINT1 ig, no_of_grid;
+							no_of_grid = p_hpac->atmo[iarea]->tropo->tropo_grid->num_grid;
+							for (ig = 0; ig < no_of_grid; ig++)
+							{
+								fprintf(fp, " %7.3f", tropo_grid->grid[ig]->val);			//Tropo Grid Residual
+							}
+						}
+					}
+				}
+				fprintf(fp, "\n");
+				if(iono_block =atmo_block->iono)
+				fprintf(fp, " %1d", iono_block->iono_equation_type);							//Iono Equaction Type
+
+				GPPUINT1 isys;
+
+				//gpp_sapa_get_syslist(hpacHdl->hpacIonoHdl[ai]->sys_bits, syslist);				//Convert from bits to SYS ID
+				for (isys = 0; isys < hpacHdl->sys; isys++) {
+					GPPUINT1 sys;
+					sys = isys;
+
+					gpp_sapa_get_svlist(iono_block->sat_prn_bits[sys], svlist);
+					GPPUINT1 isat;
+					for (isat = 1; isat <= svlist[0]; isat++) {
+						GPPUINT1 sat;
+						sat = svlist[isat];
+						fprintf(fp, "\n");
+						fprintf(fp, "%-25s\n", "ATM_IONOSAT_DATA:");
+						fprintf(fp, " %1c%03d", gpp_sapa_system_id(sys), sat);		//Satellite ID
+						if (iono_poly = iono_block->iono_sat_block[sys][sat]->iono_sat_poly)
+						{
+							fprintf(fp, " %7.3f", iono_poly->iono_quality);	//Iono Quality
+						}
+						if (iono_coeff = iono_block->iono_sat_block[sys][sat]->iono_sat_coeff) {
+							fprintf(fp, " %7.3f", iono_coeff->iono_poly_coeff[SAPA_C00_IDX]);	//Iono ply coeff
+							fprintf(fp, " %7.3f", iono_coeff->iono_poly_coeff[SAPA_C01_IDX]);
+							fprintf(fp, " %7.3f", iono_coeff->iono_poly_coeff[SAPA_C10_IDX]);
+							fprintf(fp, " %7.3f", iono_coeff->iono_poly_coeff[SAPA_C11_IDX]);
+						}
+						if(iono_grid=iono_block->iono_sat_block[sys][sat]->iono_grid)
+						{
+							GPPUINT1 ig, no_of_grid;
+							no_of_grid = p_hpac->atmo[ai]->iono->iono_sat_block[sys][sat]->iono_grid->num_grid;
+							for (ig = 0; ig < no_of_grid; ig++)
+							{
+								fprintf(fp, " %7.2f", iono_grid->grid[ig]->val);
+							}
+						}
+					}
+				}
+				fprintf(fp, "\n");
+			}
+		}
+	}
+			
+
+	
+}//sapa_fprintf_hpac()

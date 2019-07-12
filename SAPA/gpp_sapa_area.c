@@ -46,7 +46,7 @@ GPPLONG gpp_sapa_area2buffer(const pGPP_SAPA_AREA p_area, const SAPA_GAD_HANDLE 
 	if (!p_area) return GPP_SAPA_ERR_INVALID_AREA;
 	if (!gadHdl) return GPP_SAPA_ERR_INVALID_GAD_HANDLE;
 
-	if (rc = gpp_sapa_area_header2buffer(p_area, gadHdl, &arealist, buffer, byte_pos, bit_pos)) return rc;
+	if (rc = gpp_sapa_area_header2buffer(p_area, gadHdl, arealist, buffer, byte_pos, bit_pos)) return rc;
 	for (ia = 1; ia <= arealist[0]; ia++) {
 		GPPUINT1 area;
 		area = arealist[ia];
@@ -168,13 +168,13 @@ static GPPLONG gpp_sapa_area_area2buffer(const pGPP_SAPA_AREA p_area, GPPUINT1 a
 {
 	GPP_SAPA_AREA_DEF_BLOCK *area_def;
 	if (!(area_def = p_area->area_def_block[area])) return GPP_SAPA_ERR_INVALID_AREA;
-	printf("\narea_id=%d", area_def->area_id);
-	printf("\nlarea_ref_lat=%d", area_def->larea_ref_lat);
-	printf("\nlarea_ref_long=%d", area_def->larea_ref_long);
-	printf("\narea_lat_grid_node_count=%d", area_def->area_lat_grid_node_count);
-	printf("\narea_long_grid_node_count=%d", area_def->area_long_grid_node_count);
-	printf("\nlarea_lat_grid_node_spacing=%d", area_def->larea_lat_grid_node_spacing);
-	printf("\nlarea_long_grid_node_spacing=%d", area_def->larea_long_grid_node_spacing);
+	//printf("\narea_id=%d", area_def->area_id);
+	//printf("\nlarea_ref_lat=%d", area_def->larea_ref_lat);
+	//printf("\nlarea_ref_long=%d", area_def->larea_ref_long);
+	//printf("\narea_lat_grid_node_count=%d", area_def->area_lat_grid_node_count);
+	//printf("\narea_long_grid_node_count=%d", area_def->area_long_grid_node_count);
+	//printf("\nlarea_lat_grid_node_spacing=%d", area_def->larea_lat_grid_node_spacing);
+	//printf("\nlarea_long_grid_node_spacing=%d", area_def->larea_long_grid_node_spacing);
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 8, area_def->area_id);                //SF031
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 11, area_def->larea_ref_lat);                //SF032
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 12, area_def->larea_ref_long);                //SF033
@@ -183,7 +183,6 @@ static GPPLONG gpp_sapa_area_area2buffer(const pGPP_SAPA_AREA p_area, GPPUINT1 a
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 5, area_def->larea_lat_grid_node_spacing);                //SF036
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 5, area_def->larea_long_grid_node_spacing);                //SF037
 
-	
 	return 0;
 }
 /******************************************************************************
@@ -194,7 +193,6 @@ static GPPLONG gpp_sapa_area_buffer2area(const pGPP_SAPA_AREA p_area, const GPPU
 	GPPLONG rc;
 	GPP_SAPA_AREA_DEF_BLOCK area_def = { 0, };
 	GPPUINT1 area;
-
 	area_def.area_id = gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 8);                   //SF031
 	area = area_def.area_id;
 	gpp_sapa_buffer2float(buffer, byte_pos, bit_pos, SAPA_AREA_LAT_MIN, 11, SAPA_RES_AREA_REF_LATITUDE, NULL, &area_def.area_ref_lat);           //SF032
@@ -203,13 +201,7 @@ static GPPLONG gpp_sapa_area_buffer2area(const pGPP_SAPA_AREA p_area, const GPPU
 	area_def.area_long_grid_node_count = gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 3);
 	gpp_sapa_buffer2float(buffer, byte_pos, bit_pos, SAPA_AREA_GRD_LAT_MIN, 5, SAPA_RES_AREA_GRID_LATITUDE_SPACING, NULL, &area_def.area_lat_grid_node_spacing);     //SF036
 	gpp_sapa_buffer2float(buffer, byte_pos, bit_pos, SAPA_AREA_GRD_LONG_MIN, 5, SAPA_RES_AREA_GRID_LONGITUDE_SPACING, NULL, &area_def.area_long_grid_node_spacing);        //SF037
-	printf("\n-----------area_id=%d", area_def.area_id);
-	printf("\n---------area_ref_lat=%f", area_def.area_ref_lat);
-	printf("\n---------area_ref_long=%f", area_def.area_ref_long);
-	printf("\n----------area_lat_grid_node_count=%d", area_def.area_lat_grid_node_count);
-	printf("\n-----------area_long_grid_node_count=%d", area_def.area_long_grid_node_count);
-	printf("\n-------------area_lat_grid_node_spacing=%f", area_def.area_lat_grid_node_spacing);
-	printf("\n------------area_long_grid_node_spacing=%f", area_def.area_long_grid_node_spacing);
+
 	if (rc = gpp_sapa_area_add_area_def(p_area, area, &area_def)) return rc;
 
 	return 0;

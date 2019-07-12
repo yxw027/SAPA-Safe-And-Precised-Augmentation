@@ -91,7 +91,7 @@ static const GPPUINT1 SAPA_IONO_GRD_INVALID[4] = { SAPA_IONO_GRD_INVALID_SML, SA
 /********************************************************************************************************************************************************************
  *	Declaration of functions to store data in Buffer for HPAC
  *******************************************************************************************************************************************************************/
-static GPPLONG gpp_sapa_hpac_header2buffer(const pGPP_SAPA_HPAC p_hpac, const SAPA_HANDLE *sapaHdl,GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
+static GPPLONG gpp_sapa_hpac_header2buffer(const pGPP_SAPA_HPAC p_hpac, const SAPA_HANDLE *sapaHdl, GPPUINT1 *arealist,GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
 static GPPLONG gpp_sapa_hpac_atmo2buffer(const pGPP_SAPA_HPAC p_hpac, const SAPA_HANDLE *sapaHdl, GPPUINT1 area, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
 static GPPLONG gpp_sapa_hpac_area2buffer(const pGPP_SAPA_HPAC p_hpac, const SAPA_HANDLE *sapaHdl, GPPUINT1 area, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
 static GPPLONG gpp_sapa_hpac_tropo2buffer(const pGPP_SAPA_HPAC p_hpac, const SAPA_HANDLE *sapaHdl, GPPUINT1 area, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
@@ -101,16 +101,16 @@ static GPPLONG gpp_sapa_hpac_tropo_grid_block2buffer(const pGPP_SAPA_HPAC p_hpac
 static GPPLONG gpp_sapa_hpac_iono2buffer(const pGPP_SAPA_HPAC p_hpac, const SAPA_HANDLE *sapaHdl,GPPUINT1 area, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
 static GPPLONG gpp_sapa_hpac_iono_sv_bitmask2buffer(GPPUINT8 sv_prn_bits, GPPUINT1 sys, GPPUINT1 *svlist, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
 static GPPLONG gpp_sapa_hpac_iono_sat2buffer(const pGPP_SAPA_HPAC p_hpac, const SAPA_HANDLE *sapaHdl, GPPUINT1 sys, GPPUINT1 sat, GPPUINT1 area, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
-static GPPLONG gpp_sapa_hpac_iono_sat_poly2buffer(const pGPP_SAPA_HPAC p_hpac, GPPUINT1 sys, GPPUINT1 sat, GPPUINT1 area, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
+static GPPLONG gpp_sapa_hpac_iono_sat_poly2buffer(const pGPP_SAPA_HPAC p_hpac, const SAPA_HANDLE *sapaHdl, GPPUINT1 sys, GPPUINT1 sat, GPPUINT1 area, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
 static GPPLONG gpp_sapa_hpac_iono_sat_coeff2buffer(const pGPP_SAPA_HPAC p_hpac, const SAPA_HANDLE *sapaHdl,GPPUINT1 sys, GPPUINT1 sat, GPPUINT1 area, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
 static GPPLONG gpp_sapa_hpac_iono_sat_grid2buffer(const pGPP_SAPA_HPAC p_hpac, const SAPA_HANDLE *sapaHdl,GPPUINT1 sys, GPPUINT1 sat, GPPUINT1 area, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
 
 /********************************************************************************************************************************************************************
  *	Delecation of function to read data from buffer for HPAC
  *******************************************************************************************************************************************************************/
-static GPPLONG gpp_sapa_hpac_buffer2header(pGPP_SAPA_HPAC p_hpac, const GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
+static GPPLONG gpp_sapa_hpac_buffer2header(pGPP_SAPA_HPAC p_hpac, GPPUINT1 *arealist, const GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
 static GPPLONG gpp_sapa_hpac_buffer2atmo(pGPP_SAPA_HPAC p_hpac, GPPUINT1 area, const GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
-static GPPLONG gpp_sapa_hpac_buffer2area(pGPP_SAPA_HPAC p_hpac, GPPUINT1 area, const GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
+static GPPLONG gpp_sapa_hpac_buffer2area(pGPP_SAPA_HPAC p_hpac,GPPUINT1 *area, const GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
 static GPPLONG gpp_sapa_hpac_buffer2tropo(pGPP_SAPA_HPAC p_hpac, GPPUINT1 area, const GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
 static GPPLONG gpp_sapa_hpac_buffer2tropo_poly_coefficient_block(pGPP_SAPA_HPAC p_hpac, GPPUINT1 area, const GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
 static GPPLONG gpp_sapa_hpac_buffer2tropo_grid_block(pGPP_SAPA_HPAC p_hpac, GPPUINT1 area, const GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
@@ -137,8 +137,7 @@ static GPPLONG gpp_sapa_hpac_buffer2iono_sat_grid(pGPP_SAPA_HPAC p_hpac, GPPUINT
 GPPLONG gpp_sapa_hpac2buffer(const pGPP_SAPA_HPAC hpac, const SAPA_HANDLE *sapaHdl,GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos)
 {
 	GPPLONG rc;
-	GPPUINT1 ia;
-	GPPUINT1 arealist[258] = { 0, };
+	GPPUINT1 ia, arealist[258] = { 0, }; //256+2
 	GPPLONG byte_pos0, bit_pos0;
 	GPPLONG mybyte = 0, mybit = 0;
 
@@ -151,12 +150,16 @@ GPPLONG gpp_sapa_hpac2buffer(const pGPP_SAPA_HPAC hpac, const SAPA_HANDLE *sapaH
 	bit_pos0 = *bit_pos;
 	if (!hpac) return GPP_SAPA_ERR_INVALID_HPAC_HEADER;
 	if(!sapaHdl) return GPP_SAPA_ERR_INVALID_HANDLE;
+	if (rc = gpp_sapa_hpac_header2buffer(hpac, sapaHdl, arealist,buffer, byte_pos, bit_pos)) return rc;
 
-	if (rc = gpp_sapa_hpac_header2buffer(hpac, sapaHdl,buffer, byte_pos, bit_pos)) return rc;
-	gpp_sapa_get_arealist(sapaHdl->hpacHdl->area_bits, arealist);
-	for (ia = 0; ia < arealist[0]; ia++) {
-		if (rc = gpp_sapa_hpac_atmo2buffer(hpac, sapaHdl,ia, buffer, byte_pos, bit_pos)) return rc;
+	for(ia = 1; ia <=arealist[0]; ia++)
+	{
+		GPPUINT1 area=0;
+		area = arealist[ia];
+
+		if (rc = gpp_sapa_hpac_atmo2buffer(hpac, sapaHdl,area, buffer, byte_pos, bit_pos)) return rc;
 	}
+
 	return  gpp_sapa_get_bit_diff(*byte_pos, *bit_pos, byte_pos0, bit_pos0);
 }//gpp_sapa_hpac2buffer()
 
@@ -178,8 +181,7 @@ GPPLONG gpp_sapa_buffer2hpac(pGPP_SAPA_HPAC hpac, const GPPUCHAR *buffer, GPPLON
 	GPPLONG byte_pos0, bit_pos0;
 	GPPLONG mybyte = 0, mybit = 0;
 
-	GPPUINT1 ia, no_of_areas;
-
+	GPPUINT1 ia, area_count;
 	// handling if byte_pos or bit_pos are null pointers
 	if (!byte_pos) 	byte_pos = &mybyte;
 	if (!bit_pos) 	bit_pos = &mybit;
@@ -188,10 +190,9 @@ GPPLONG gpp_sapa_buffer2hpac(pGPP_SAPA_HPAC hpac, const GPPUCHAR *buffer, GPPLON
 	byte_pos0 = *byte_pos;
 	bit_pos0 = *bit_pos;
 
-	if (rc = gpp_sapa_hpac_buffer2header(hpac,buffer, byte_pos, bit_pos)) return rc;
-	no_of_areas = hpac->header_block->area_count;
-	for (ia = 0; ia < no_of_areas; ia++) {
-		if (rc = gpp_sapa_hpac_buffer2atmo(hpac, ia, buffer, byte_pos, bit_pos)) return rc;
+	if (rc = gpp_sapa_hpac_buffer2header(hpac, &area_count,buffer, byte_pos, bit_pos)) return rc;
+	for (ia = 0; ia < area_count; ia++) {
+		if (rc = gpp_sapa_hpac_buffer2atmo(hpac,ia, buffer, byte_pos, bit_pos)) return rc;
 	}
 	return  gpp_sapa_get_bit_diff(*byte_pos, *bit_pos, byte_pos0, bit_pos0);
 }//gpp_sapa_buffer2hpac()
@@ -207,7 +208,7 @@ GPPLONG gpp_sapa_buffer2hpac(pGPP_SAPA_HPAC hpac, const GPPUCHAR *buffer, GPPLON
  *	\retval 0 Ok
  *	\retval Error Code
  ******************************************************************************/
-static GPPLONG gpp_sapa_hpac_header2buffer(const pGPP_SAPA_HPAC p_hpac, const SAPA_HANDLE *sapaHdl,GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos)
+static GPPLONG gpp_sapa_hpac_header2buffer(const pGPP_SAPA_HPAC p_hpac, const SAPA_HANDLE *sapaHdl, GPPUINT1 *arealist,GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos)
 {
 	GPP_SAPA_HPAC_HEADER *header = NULL;
 	GPPUINT1 time_tag_nbits;
@@ -232,7 +233,9 @@ static GPPLONG gpp_sapa_hpac_header2buffer(const pGPP_SAPA_HPAC p_hpac, const SA
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 9, header->sol_issue_of_update);									   //SF005
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 1, header->reserved);
 	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 4, header->area_issue_of_update);
-	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 5, header->area_count);												//SF030
+	gpp_sapa_get_arealist(hpacHdl->area_bits, arealist);
+
+	gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 5, arealist[0]);     //SF030
 	return 0;
 }//gpp_sapa_hpac_header2buffer()
 
@@ -248,7 +251,7 @@ static GPPLONG gpp_sapa_hpac_header2buffer(const pGPP_SAPA_HPAC p_hpac, const SA
  *	\retval 0 Ok
  *	\retval Error Code
  ******************************************************************************/
-static GPPLONG gpp_sapa_hpac_buffer2header(pGPP_SAPA_HPAC p_hpac,const GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos)
+static GPPLONG gpp_sapa_hpac_buffer2header(pGPP_SAPA_HPAC p_hpac, GPPUINT1 *area_count,const GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos)
 {
 	GPPLONG rc;
 	GPP_SAPA_HPAC_HEADER header = { 0, };
@@ -268,6 +271,8 @@ static GPPLONG gpp_sapa_hpac_buffer2header(pGPP_SAPA_HPAC p_hpac,const GPPUCHAR 
 	header.reserved = gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 1);									//SF069
 	header.area_issue_of_update = gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 4);									//SF068
 	header.area_count=gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 5);											//SF030
+	printf("\narea count=%d", header.area_count);
+	*area_count = header.area_count;
 	if(rc=gpp_sapa_hpac_add_header(p_hpac, &header)) return rc;
 	return 0;
 }//gpp_sapa_hpac_buffer2header()
@@ -290,7 +295,7 @@ static GPPLONG gpp_sapa_hpac_atmo2buffer(const pGPP_SAPA_HPAC p_hpac, const SAPA
 static GPPLONG gpp_sapa_hpac_buffer2atmo(pGPP_SAPA_HPAC p_hpac, GPPUINT1 area,const GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos)
 {
 	GPPLONG rc;
-	if (rc = gpp_sapa_hpac_buffer2area(p_hpac,area, buffer, byte_pos, bit_pos)) return rc;
+	if (rc = gpp_sapa_hpac_buffer2area(p_hpac,&area, buffer, byte_pos, bit_pos)) return rc;
 	if (rc=gpp_sapa_hpac_buffer2tropo(p_hpac, area, buffer, byte_pos, bit_pos)) return rc;
 	if (rc=gpp_sapa_hpac_buffer2iono(p_hpac, area, buffer, byte_pos, bit_pos)) return rc;
 	return 0;
@@ -303,8 +308,8 @@ static GPPLONG gpp_sapa_hpac_area2buffer(const pGPP_SAPA_HPAC p_hpac, const SAPA
 {
 	GPPUINT1 tropo_block_indicator=0, iono_block_indicator=0;
 	GPP_SAPA_HPAC_AREA *area_block = NULL;
-	/*if (!(area_block = p_hpac->atmo[area]->area_def)) return GPP_SAPA_ERR_INVALID_HPAC_AREA;
-	if (hpacHdl->hpacTropoHdl_bits[area] & (1 << GPP_SAPA_HPAC_NOT_PRESENT)) tropo_block_indicator = GPP_SAPA_HPAC_NOT_PRESENT;
+	if (!(area_block = p_hpac->atmo[area]->area_def)) return GPP_SAPA_ERR_INVALID_HPAC_AREA;
+	/*if (hpacHdl->hpacTropoHdl_bits[area] & (1 << GPP_SAPA_HPAC_NOT_PRESENT)) tropo_block_indicator = GPP_SAPA_HPAC_NOT_PRESENT;
 	else if (hpacHdl->hpacTropoHdl_bits[area] & (1 << GPP_SAPA_HPAC_POLY_PRESENT)) tropo_block_indicator = GPP_SAPA_HPAC_POLY_PRESENT;
 	else if (hpacHdl->hpacTropoHdl_bits[area] & (1 << GPP_SAPA_HPAC_POLY_AND_GRID_PRESENT)) tropo_block_indicator = GPP_SAPA_HPAC_POLY_AND_GRID_PRESENT;
 	if (hpacHdl->hpacIonoHdl_bits[area] & (1 << GPP_SAPA_HPAC_NOT_PRESENT)) iono_block_indicator = GPP_SAPA_HPAC_NOT_PRESENT;
@@ -319,11 +324,13 @@ static GPPLONG gpp_sapa_hpac_area2buffer(const pGPP_SAPA_HPAC p_hpac, const SAPA
 /******************************************************************************************************************************************************************
  *	\brief Read Area block data from buffer
  ******************************************************************************************************************************************************************/
-static GPPLONG gpp_sapa_hpac_buffer2area(pGPP_SAPA_HPAC p_hpac, GPPUINT1 area,const GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos)
+static GPPLONG gpp_sapa_hpac_buffer2area(pGPP_SAPA_HPAC p_hpac,GPPUINT1 *area, const GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos)
 {
 	GPPLONG rc;
 	GPP_SAPA_HPAC_AREA area_def = { 0, };
-	area_def.area_id = gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 8);																		//SF031																															//SF015
+	area_def.area_id = gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 8);																		//SF031		
+	printf("areaid=%d", area_def.area_id);
+	*area = area_def.area_id;																																				//SF015
 	area_def.number_of_grid_point=gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 7);															//SF039
 	area_def.tropo_block_indicator=gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 2);														//SF040
 	area_def.iono_block_indicator=gn_get_ulong_from_buffer(buffer, byte_pos, bit_pos, 2);															//SF040
@@ -357,11 +364,12 @@ static GPPLONG gpp_sapa_hpac_tropo2buffer(const pGPP_SAPA_HPAC p_hpac, const SAP
 static GPPLONG gpp_sapa_hpac_buffer2tropo(pGPP_SAPA_HPAC p_hpac,GPPUINT1 area,const GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos)
 {
 	GPPLONG  rc=0;
-	if (p_hpac->atmo[area]->area_def->tropo_block_indicator == GPP_SAPA_HPAC_POLY_PRESENT || p_hpac->atmo[area]->area_def->tropo_block_indicator == GPP_SAPA_HPAC_POLY_AND_GRID_PRESENT)					//1 or 2
+	GPP_SAPA_HPAC_AREA area_def = { 0, };
+	if (area_def.tropo_block_indicator == GPP_SAPA_HPAC_POLY_PRESENT || area_def.tropo_block_indicator == GPP_SAPA_HPAC_POLY_AND_GRID_PRESENT)					//1 or 2
 	{
 		if (rc = gpp_sapa_hpac_buffer2tropo_poly_coefficient_block(p_hpac, area, buffer, byte_pos, bit_pos)) return 0;
 	}
-	if (p_hpac->atmo[area]->area_def->tropo_block_indicator == GPP_SAPA_HPAC_POLY_AND_GRID_PRESENT)
+	if (area_def.tropo_block_indicator == GPP_SAPA_HPAC_POLY_AND_GRID_PRESENT)
 		if (rc = gpp_sapa_hpac_buffer2grd_tropo(p_hpac, area, buffer, byte_pos, bit_pos)) return 0;
 	return rc;
 }//gpp_sapa_hpac_buffer2tropo()
@@ -531,14 +539,14 @@ static GPPLONG gpp_sapa_hpac_iono2buffer(const pGPP_SAPA_HPAC p_hpac, const SAPA
 		GPPUINT1 isat, isys,sys;
 		gn_add_ulong_to_buffer(buffer, byte_pos, bit_pos, 3, iono_block->iono_equation_type);     //SF054
 		sys = sapaHdl->hpacHdl->sys;
-		for (isys = 1; isys <= sys; isys++) {
+		for (isys = 0; isys < sys; isys++) {
 
 			GPPLONG rc;
 			if (rc = gpp_sapa_hpac_iono_sv_bitmask2buffer(iono_block->sat_prn_bits[isys], isys, svlist, buffer, byte_pos, bit_pos)) return rc;
 			for (isat = 1; isat <= svlist[0]; isat++) {
 				GPPUINT1 sat;
 				sat = svlist[isat];
-				if (rc = gpp_sapa_hpac_iono_sat2buffer(p_hpac, sapaHdl, sys, sat, area, buffer, byte_pos, bit_pos)) return rc;
+				if (rc = gpp_sapa_hpac_iono_sat2buffer(p_hpac, sapaHdl, isys, sat, area, buffer, byte_pos, bit_pos)) return rc;
 			}
 		}
 	}
@@ -549,10 +557,11 @@ static GPPLONG gpp_sapa_hpac_iono2buffer(const pGPP_SAPA_HPAC p_hpac, const SAPA
  ******************************************************************************************************************************************************************/
 static GPPLONG gpp_sapa_hpac_buffer2iono(pGPP_SAPA_HPAC p_hpac, GPPUINT1 area,const GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos)
 {
+	GPP_SAPA_HPAC_AREA area_def = { 0, };
 	GPP_SAPA_HPAC_IONO iono = { 0, };
 	GPPUINT1 svlist[66] = { 0, };
 
-	if (p_hpac->atmo[area]->area_def->iono_block_indicator != 0)
+	if (area_def.iono_block_indicator != 0)
 	{
 		GPPLONG rc;
 		GPPUINT1 isat,sys;
@@ -617,7 +626,7 @@ static GPPLONG gpp_sapa_hpac_iono_sat2buffer(const pGPP_SAPA_HPAC p_hpac, const 
 	else if(hpacHdl->hpacIonoHdl_bits[area] & (1 << GPP_SAPA_HPAC_POLY_AND_GRID_PRESENT)) iono_block_indicator = GPP_SAPA_HPAC_POLY_AND_GRID_PRESENT;*/
 	if (iono_block_indicator == GPP_SAPA_HPAC_POLY_PRESENT || iono_block_indicator == GPP_SAPA_HPAC_POLY_AND_GRID_PRESENT)					//1 or 2
 	{
-		if (rc = gpp_sapa_hpac_iono_sat_poly2buffer(p_hpac, sys, sat, area, buffer, byte_pos, bit_pos)) return 0;
+		if (rc = gpp_sapa_hpac_iono_sat_poly2buffer(p_hpac, sapaHdl, sys, sat, area, buffer, byte_pos, bit_pos)) return 0;
 		if (rc = gpp_sapa_hpac_iono_sat_coeff2buffer(p_hpac, sapaHdl, sys, sat, area, buffer, byte_pos, bit_pos)) return 0;
 	}
 	if (iono_block_indicator == GPP_SAPA_HPAC_POLY_AND_GRID_PRESENT)					// 2
@@ -650,7 +659,7 @@ static GPPLONG gpp_sapa_hpac_buffer2iono_sat(pGPP_SAPA_HPAC p_hpac, GPPUINT1 sys
  *	\brief Store Ionospher Satellite Polynomial block data into buffer
  ******************************************************************************************************************************************************************/
 
-static GPPLONG gpp_sapa_hpac_iono_sat_poly2buffer(const pGPP_SAPA_HPAC p_hpac, GPPUINT1 sys,GPPUINT1 sat, GPPUINT1 area, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos)
+static GPPLONG gpp_sapa_hpac_iono_sat_poly2buffer(const pGPP_SAPA_HPAC p_hpac, const SAPA_HANDLE *sapaHdl,GPPUINT1 sys,GPPUINT1 sat, GPPUINT1 area, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos)
 {
 	GPPUINT1 bit_id = 1;
 	GPP_SAPA_HPAC_IONO_SAT_POLY *iono_poly = NULL;
@@ -685,7 +694,7 @@ static GPPLONG gpp_sapa_hpac_iono_sat_coeff2buffer(const pGPP_SAPA_HPAC p_hpac, 
 	GPP_SAPA_HPAC_IONO_SAT_COEFFICIENT *tpcb = NULL;
 	tpcb = p_hpac->atmo[area]->iono->iono_sat_block[sys][sat]->iono_sat_coeff;
 	equ_type = p_hpac->atmo[area]->iono->iono_equation_type;
-	gpp_sapa_get_configlist(sapaHdl->ocbHdl_bits[sys], configlist);
+	gpp_sapa_get_configlist(sapaHdl->hpacIonoHdl_bits[sys], configlist);
 	iconf = configlist[configlist[0]];
 	coeff_size = sapaHdl->hpacIonoHdl[sys][iconf]->iono_coeff_size;
 	sz = coeff_size;
